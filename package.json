@@ -1,0 +1,19 @@
+{
+    "name": "CityRoute",
+    "version": "0.0.1-25",
+    "dependencies": {
+        "express": "",
+        "mongodb": "",
+        "mongojs": "",
+        "request": "",
+        "polyline": "",
+        "querystring": ""
+    },
+    "subdomain": "SoLoMIDEM_CityRoute",
+    "scripts": {
+        "start": "node server.js"
+    },
+    "engines": {
+        "node": "0.10.x"
+    }
+}
