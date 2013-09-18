@@ -8,12 +8,5 @@
         "request": "",
         "polyline": "",
         "querystring": ""
-    },
-    "subdomain": "SoLoMIDEM_CityRoute",
-    "scripts": {
-        "start": "node server.js"
-    },
-    "engines": {
-        "node": "0.10.x"
     }
 }

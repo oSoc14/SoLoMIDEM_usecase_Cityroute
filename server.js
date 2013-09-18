@@ -59,7 +59,7 @@ else {
 
 
 //var mongourl = generate_mongo_url(mongo);
-var mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
+var mongourl = "mongodb://cityroute:solomidem@paulo.mongohq.com:10015/app18191768";
 exports.mongourl = mongourl;
 
 function mongoConnectAndAuthenticate(callback) {
