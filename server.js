@@ -27,20 +27,13 @@ process.on('uncaughtException', function (exception) {
  * Our hosting service provides database information in the VCAP_SERVICES environment variable.
  * If it does not exist, we'll connect to a localhost MongoDB.
  */
-/*if (process.env.VCAP_SERVICES) {
-    var env = JSON.parse(process.env.VCAP_SERVICES);
-    var mongo = env['mongodb-1.8'][0]['credentials'];
+ var mongourl;
+if (process.env.MONGOHQ_URL) {
+     var mongourl = process.env.MONGOHQ_URL;
 }
 else {
-    var mongo = {
-        "hostname": "localhost",
-        "port": 27017,
-        "username": "",
-        "password": "",
-        "name": "",
-        "db": config.dbname
-    }
-}*/
+    mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
+}
 
 /**
  * Building the URL to the MongoDB.
@@ -59,7 +52,7 @@ else {
 
 
 //var mongourl = generate_mongo_url(mongo);
-var mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
+//var mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
 exports.mongourl = mongourl;
 
 function mongoConnectAndAuthenticate(callback) {
