@@ -135,5 +135,5 @@ app.post("/groups/profileformembership", groups.getProfileForMembership);
 app.use(express.static(__dirname + '/clientpage'));
 
 // start server on port 1337
-console.log("Listening on port 8888...");
+console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
 app.listen(process.env.PORT || 8888);
