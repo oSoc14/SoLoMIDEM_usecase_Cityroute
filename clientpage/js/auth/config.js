@@ -4,5 +4,5 @@
 * a config file
 */
 
-var config_serverAddress = "solomidem_cityroute.nodejitsu.com:80";
+var config_serverAddress = "cityroute.herokuapp.com";
 var config_WhatsNextAddress = "xxxxxxxxxxxxxxxxxxxxxxx";
