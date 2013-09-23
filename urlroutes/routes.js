@@ -17,17 +17,17 @@ exports.findRoutesStartingAtSpot = function (request, response) {
     var server = require('../server');
 
     // check for url parameters, spot_id should be defined
-    if (typeof request.query.spot_id !== undefined) {
+    if (typeof request.body.spot_id !== undefined) {
 
         // parse spot_id to an integer to avoid malicious attempts
-        var spot_id_safe = parseInt(request.query.spot_id);
+        var spot_id_safe = parseInt(request.body.spot_id);
+        var date = request.body.date;
 
         // find all routes which have item x as starting point
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
-            console.log("ROUTES: connected to DB, finding routes...");
              //var db = mongojs(config.dbname);
             var collection = db.collection(config.collection);
-            collection.find({ 'points.0': { item: request.query.spot_id } })
+            collection.find({ 'points.0': { item: request.body.spot_id }, startDate: { $lte: date }, endDate: { $gte: date } })
                 .toArray(function (err, docs) {
                     // the list of routes starting at Spot is stored in the docs array
                     if (err) {
@@ -38,7 +38,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
                     }
                     else {
                         // find all routes which have item x as ending point
-                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe })
+                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, startDate: { $lte: date }, endDate: { $gte: date }})
                             .toArray(function (err, docs2) {
                                 if (err) {
                                     response.send({
@@ -471,7 +471,9 @@ exports.addRoute = function (request, response) {
             "description": request.body.description,
             "points": request.body.points,
             "minimumGroupSize": minimumGroupSize,
-            "maximumGroupSize": maximumGroupSize
+            "maximumGroupSize": maximumGroupSize,
+            "startDate": request.body.startDate,
+            "endDate": request.body.endDate
         }, function (err, docs) {
             if (err) {
                 response.send({

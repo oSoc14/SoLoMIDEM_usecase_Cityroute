@@ -105,7 +105,7 @@ app.get("/spots/:id", spots.findById);
 // TODO: app.get("/spots/usersnearby/:userid", spots.getNearbyUsers);
 
 // define the routes API url routes.
-app.get("/routes", routes.findRoutesStartingAtSpot);
+app.post("/routes/routesatspot", routes.findRoutesStartingAtSpot);
 app.post("/routes", routes.addRoute);
 app.get("/routes/generate/:channelname", routes.generateRoute);
 app.get("/routes/generate", routes.generateRouteFromChannelArray);

@@ -191,7 +191,7 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
  * @param name name of the channel which was used to create the route
  * @param response allows us to return a response from within this function
  */
-saveGeneratedRoute = function (minGroupSize, maxGroupSize, jsonResult, names, response) {
+saveGeneratedRoute = function (minGroupSize, maxGroupSize, startDate, endDate, jsonResult, names, response) {
     // declare external files
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -218,7 +218,9 @@ saveGeneratedRoute = function (minGroupSize, maxGroupSize, jsonResult, names, re
             'description': 'This is a generated route using the following channels: ' + namesString,
             'points': jsonResult,
             'minimumGroupSize': minGroupSize,
-            'maximumGroupSize': maxGroupSize
+            'maximumGroupSize': maxGroupSize,
+            'startDate': startDate,
+            'endDate': endDate
         }, function (err, docs) {
             if (err) {
                 response.send({

@@ -19,10 +19,18 @@ function showRoute ( spotID ){
    
    $("#routes").show();
    $("#aside").hide();
-    var url =  "http://" + config_serverAddress + "/routes/?spot_id=" + spotID;
+
+   var current_date = $( "#current_datepicker" ).datepicker( "getDate" );
+
+    var url =  "http://" + config_serverAddress + "/routes/routesatspot";
+    var postdata = {
+        spotid: spotID,
+        date: current_date
+    };
     $.ajax({
-        type: 'GET',
-        crossDomain:true,
+        type: 'POST',
+        dataType: "json",
+        crossDomain: true,
         cache: false,
         url: url,
         success: onGetRoutes,
