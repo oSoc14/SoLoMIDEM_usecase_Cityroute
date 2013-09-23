@@ -603,4 +603,3 @@ exports.getProfileForMembership = function(request, response) {
         }
     });
 }
-}
