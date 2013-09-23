@@ -41,6 +41,8 @@ function onGetRoutes(data, textStatus, jqXHR) {
     $("#routes").append("<div style='float:left;' ><input style='margin-right:50px;' type='button' value='Add new route' onclick='showRouteBuilder()'/> "  + 
         " Optimize Waypoints: <select id='optimizeSwitch'><option value='1'>On</option><option value='0'>Off</option></select></div>");
         $('#optimizeSwitch').switchify();
+    $("#routes").append("<p>View for date: <input type='text' id='current_datepicker' /></p>");
+    $( "#current_datepicker" ).datepicker();
     if (data.meta.code == 200) {
         $.each(data.response.routes, addRouteInformation);
     } else {
