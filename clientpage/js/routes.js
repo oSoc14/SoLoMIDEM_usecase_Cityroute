@@ -4,6 +4,9 @@
 * This file provides route functionality
 */
 
+var current_spot = null;
+var current_date = new Date();
+
 /**
 * show a list of possible routes for a given spot ID
 * @param spotID: the ID of the spot
@@ -14,15 +17,14 @@ function showRoute ( spotID ){
    * parameters: latitude and longitude
    * returns: list of spots
    */
+
+   current_spot = spotID;
+
    $("#spotList").hide();
    $("#spotListTable").html("");
    
    $("#routes").show();
    $("#aside").hide();
-
-   $("#routes").append("<div><p>View for date: <input type='text' id='current_datepicker' /></p></div?");
-   var current_date = $( "#current_datepicker" ).datepicker( "getDate" );
-  $( "#current_datepicker" ).on("change", function() { showRoute(spotID) });
 
     var url =  "http://" + config_serverAddress + "/routes/routesatspot";
     var postdata = {
@@ -42,6 +44,7 @@ function showRoute ( spotID ){
     });
 };
 
+
 /**
 * callback function after requesting the routes for a spot
 */
@@ -51,8 +54,16 @@ function onGetRoutes(data, textStatus, jqXHR) {
     //$("#routes").append("<p>View for date: <input type='text' id='current_datepicker' /></p>");
     //$( "#current_datepicker" ).datepicker();
     $("#routes").append("<div style='float:left;' ><input style='margin-right:50px;' type='button' value='Add new route' onclick='showRouteBuilder()'/> "  + 
-        " Optimize Waypoints: <select id='optimizeSwitch'><option value='1'>On</option><option value='0'>Off</option></select></div>");
+        " Optimize Waypoints: <select id='optimizeSwitch'><option value='1'>On</option><option value='0'>Off</option></select>" + 
+        "<p>View for date: <input type='text' id='current_datepicker' /></p></div>");
         $('#optimizeSwitch').switchify();
+
+    $( "#current_datepicker" ).datepicker();
+
+    $( "#current_datepicker" ).on("change", function() { 
+        current_date = $( "#current_datepicker" ).datepicker( "getDate" );
+        showRoute(current_spot); 
+    });
 
     if (data.meta.code == 200) {
         $.each(data.response.routes, addRouteInformation);
