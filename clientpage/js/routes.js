@@ -59,6 +59,7 @@ function onGetRoutes(data, textStatus, jqXHR) {
         $('#optimizeSwitch').switchify();
 
     $( "#current_datepicker" ).datepicker();
+    $( "#current_datepicker" ).datepicker( "setDate", current_date);
 
     $( "#current_datepicker" ).on("change", function() { 
         current_date = $( "#current_datepicker" ).datepicker( "getDate" );
