@@ -79,7 +79,7 @@ function mongoConnectAndAuthenticate(callback) {
                 console.log(err);
             }
             callback(err, null, db);
-             db.close();
+             //db.close();
          });
     });
 }
