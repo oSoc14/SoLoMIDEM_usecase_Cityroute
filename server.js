@@ -74,7 +74,7 @@ function mongoConnectAndAuthenticate(callback) {
     var MongoClient = require('mongodb').MongoClient;
 
     MongoClient.connect(mongourl, function(err, db) {
-        (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) { 
+        (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) {
             if (err) {
                 console.log(err);
             }

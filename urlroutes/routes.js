@@ -22,6 +22,9 @@ exports.findRoutesStartingAtSpot = function (request, response) {
         // parse spot_id to an integer to avoid malicious attempts
         var spot_id_safe = parseInt(request.body.spot_id);
         var date = request.body.date;
+        if (date == null) {
+            date = new Date();
+        }
 
         // find all routes which have item x as starting point
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
