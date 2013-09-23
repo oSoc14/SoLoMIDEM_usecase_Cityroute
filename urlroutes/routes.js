@@ -244,6 +244,95 @@ searchById = function(id, response, returnResponse)
     });
 };
 
+
+/**
+ * Callback for spotid call of citylife for route details
+ * @param error standard callback variable of request library
+ * @param responselib standard callback variable of request library
+ * @param body standard callback variable of request library
+ * @param resultArray array that will be filled with all spot data
+ * @param spotArray array containing all spot data
+ * @param spotsIdArray array containing all spot id's of the route in the right order
+ * @param count variable which hold the amount of completed requests
+ * @param docs result of the route query in mongoDB
+ * @param response used to create a response to the client
+ */
+parseRouteSpots = function (error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse) {
+    // delcare external files
+    var requestlib = require('request');
+    var gm = require('../lib/googlemaps');
+    var utils = require('../utils');
+
+    // on result of a query, parse the result to a JSON
+    var jsonResult = JSON.parse(body);
+
+    // insert the results in the correct order as they are defined by a route.
+    for (var i = 0; i < spotsIdArray.length; ++i) {
+        if (spotsIdArray[i] == parseInt(jsonResult.response.id)) {
+            resultArray[i] = jsonResult;
+        }
+    }
+
+    // if all external API calls are returned, respond with the ordered JSON array.
+    // also included are the name and the id of the route.
+    if (count == spotArray.length - 1) {
+        // create necessary data for Google Maps Directions and Static Maps
+        var markers = [];
+        var points = [];
+
+        // fill markers array with long and lat, and include a label based on route order.
+        for (var j = 0; j < spotArray.length; ++j) {
+            markers[j] = { 'label': j+1, 'location': resultArray[j].response.latitude + " " + resultArray[j].response.longitude };
+        }
+                
+        // define the number of spots and the waypoints string
+        var numSpots = resultArray.length - 1;
+        var waypoints = "";
+
+        // define location of start and endpoint
+        var originLat = resultArray[0].response.latitude;
+        var originLong = resultArray[0].response.longitude;
+        var destLat = resultArray[numSpots].response.latitude;
+        var destLong = resultArray[numSpots].response.longitude;
+
+        var latLong = originLat + ", " + originLong;
+        var destLatLong = destLat + ", " + destLong;
+
+        // fill waypoint string with spots between start and endpoint
+        for (var i = 1; i < numSpots; ++i) {
+            waypoints += resultArray[i].response.latitude + ", " + resultArray[i].response.longitude + "|";
+        }
+
+        // Do a query to the Google Maps Directions API
+        requestlib({
+            uri: gm.directions(
+                latLong,
+                destLatLong,
+                null,
+                false,
+                'walking',
+                waypoints,
+                null,
+                null,
+                'metric',
+                null),
+            method: "GET"
+        }, function (error, responselib, body) {
+            if (responselib.statusCode != 200 || error) {
+                response.send({
+                    "meta": utils.createErrorMeta(400, "X_001", "The Google Directions API is currently unavailable." + error),
+                    "response": {}
+                });
+            } else {
+                // parse the results of the Google Maps Directions API
+                parseDirectionResults(error, responselib, body, resultArray, markers, docs, response, returnResponse);
+            }
+        });
+    }
+}
+
+
+
 /**
  * Callback for query of Google Maps Direction API
  * @param error standard callback variable of request library
