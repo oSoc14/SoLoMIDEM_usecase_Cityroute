@@ -37,6 +37,24 @@ function onLoggedIn(data, textStatus, jqXHR) {
         $.cookie("token", data.response.token);
         $.cookie("email", data.response.email);
         $.cookie("user_id", data.response.user_id);
+
+        /*var url =  "http://" + config_serverAddress + "/cultuurnet/linkuitid";
+
+        var postdata = {
+            citylifeId: data.response.user_id
+        };
+
+        $.ajax({
+            url: url,
+            data: postdata,
+            dataType: "json",
+            type: "POST",
+            success: onUitIdLinked,
+            error: function(jqXHR, errorstatus, errorthrown) {
+                alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+            }
+        });*/
+
         location.reload();
     }
     else if (data.meta.code == 401)
@@ -44,6 +62,13 @@ function onLoggedIn(data, textStatus, jqXHR) {
     else
         alert("The Citylife API returned an error");
 };
+
+
+function onUitIdLinked(data, textStatus, jqXHR) {
+    if (data.meta.code != 200) {
+        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+    }
+}
 
 /**
 * log out

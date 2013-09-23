@@ -50,17 +50,18 @@ queryById = function(id, response)
                     resultAmount++;
 
                     response.send({
-            			"meta": utils.createOKMeta(),
-           				"response": docs
-            		});             
+                        "meta": utils.createOKMeta(),
+                        "response": docs
+                    });             
                 }
             });
     });
 };
 
 
+
 exports.findByName = function(request, response) {
-	var mongojs = require('mongojs');
+    var mongojs = require('mongojs');
     var name = request.body.name;
     // declare external files
     var utils = require("../utils");
@@ -98,9 +99,9 @@ exports.findByName = function(request, response) {
                     resultAmount++;
 
                     response.send({
-            			"meta": utils.createOKMeta(),
-           				"response": docs
-            		});             
+                        "meta": utils.createOKMeta(),
+                        "response": docs
+                    });             
                 }
             });
     });
@@ -108,7 +109,7 @@ exports.findByName = function(request, response) {
 
 
 exports.findByMember = function(request, response) {
-	var mongojs = require('mongojs');
+    var mongojs = require('mongojs');
     var member_id = request.body.member;
     // declare external files
     var utils = require("../utils");
@@ -133,8 +134,8 @@ exports.findByMember = function(request, response) {
                             "response": {}
                         });
                     } else {
-                    	response.send({
-                        	"meta": utils.createOKMeta(),
+                        response.send({
+                            "meta": utils.createOKMeta(),
                             "response": { "groups": docs }
                         });
                     }
@@ -150,7 +151,7 @@ exports.findByMember = function(request, response) {
  @return the group id
  */
 exports.addGroup = function(request, response) {
-	// declare external files
+    // declare external files
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
     var server = require('../server');
@@ -177,37 +178,37 @@ exports.addGroup = function(request, response) {
                     });
                 } else if (!docs) {
                     console.log("4");
-                	//server.mongoConnectAndAuthenticate(function (err, conn, db) {
+                    //server.mongoConnectAndAuthenticate(function (err, conn, db) {
                      //   var db = mongojs(config.dbname);
                        // var collection = db.collection(config.groupscollection);
-        				// insert the route in the database
-        				collection.insert({
-            				"name": request.body.name,
-            				"creator": creator_id,
-            				"users": [ creator_id ],
-            				"requestingUsers": []
-        				}, function (err, docs) {
+                        // insert the route in the database
+                        collection.insert({
+                            "name": request.body.name,
+                            "creator": creator_id,
+                            "users": [ creator_id ],
+                            "requestingUsers": []
+                        }, function (err, docs) {
                             console.log("5");
-            				if (err) {
+                            if (err) {
                                 console.log("6 " + err);
-                				response.send({
-                    				"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    				"response": {}
-                				});
-            				} else {
-                				// this function returns a result to the user
-                				/*require('mongodb').connect(server.mongourl, function (err, conn) {
-        							collection.find()
-            							.forEach(function (err, docs) {
-            								console.log(docs);
-            							});
-            					});*/
+                                response.send({
+                                    "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                    "response": {}
+                                });
+                            } else {
+                                // this function returns a result to the user
+                                /*require('mongodb').connect(server.mongourl, function (err, conn) {
+                                    collection.find()
+                                        .forEach(function (err, docs) {
+                                            console.log(docs);
+                                        });
+                                });*/
                                 console.log("7");
-     							queryById(docs[0]._id, response);
+                                queryById(docs[0]._id, response);
                                 console.log("8");
-            				}
-        				});
-    				//});   
+                            }
+                        });
+                    //});   
                 } else {
                     console.log("9");
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
@@ -221,7 +222,7 @@ exports.addGroup = function(request, response) {
             });
     });
 
-	/*require('mongodb').connect(server.mongourl, function (err, conn) {
+    /*require('mongodb').connect(server.mongourl, function (err, conn) {
             collection.drop(function (err, docs) {
                 if (err) {
                     response.send({
@@ -237,7 +238,7 @@ exports.addGroup = function(request, response) {
 
 
 exports.deleteGroup = function(request, response) {
-	// declare external files
+    // declare external files
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
     var server = require('../server');
@@ -262,9 +263,9 @@ exports.deleteGroup = function(request, response) {
                         });
                 } else {
                     response.send({
-            			"meta": utils.createOKMeta(),
-            			"amount_removed": amount_removed
-            		});             
+                        "meta": utils.createOKMeta(),
+                        "amount_removed": amount_removed
+                    });             
                 }
             });
     });
@@ -272,7 +273,7 @@ exports.deleteGroup = function(request, response) {
 
 
 exports.acceptMembershipRequest = function(request, response) {
-	// declare external files
+    // declare external files
     var utils = require("../utils");
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -311,33 +312,33 @@ exports.acceptMembershipRequest = function(request, response) {
                     resultAmount++;
              
                     var requestingUsersArray = docs.requestingUsers;
-					var index = requestingUsersArray.indexOf(userid);
-					requestingUsersArray.splice(index, 1);
+                    var index = requestingUsersArray.indexOf(userid);
+                    requestingUsersArray.splice(index, 1);
 
-					var usersArray = docs.users;
+                    var usersArray = docs.users;
                     if (usersArray.indexOf(userid) == -1) {
-                    	usersArray.push(userid);
+                        usersArray.push(userid);
                     };
-                  	
-                  	collection.save(
-                  		{ '_id': new ObjectID(groupid),
-            			"name": docs.name,
-           				"users": usersArray,
-           				"creator": docs.creator,
-           				"requestingUsers": requestingUsersArray
-        			}, function (err, docs) {
-            			if (err) {
-                			response.send({
-                    			"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    			"response": {}
-                			});
-            			} else {
-                			response.send({
-                        		"meta": utils.createOKMeta(),
-                            	"response": { "groupid": groupid }
-                        	});
-            			}
-        			});
+                    
+                    collection.save(
+                        { '_id': new ObjectID(groupid),
+                        "name": docs.name,
+                        "users": usersArray,
+                        "creator": docs.creator,
+                        "requestingUsers": requestingUsersArray
+                    }, function (err, docs) {
+                        if (err) {
+                            response.send({
+                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                "response": {}
+                            });
+                        } else {
+                            response.send({
+                                "meta": utils.createOKMeta(),
+                                "response": { "groupid": groupid }
+                            });
+                        }
+                    });
                 }
             });
     });
@@ -345,7 +346,7 @@ exports.acceptMembershipRequest = function(request, response) {
 
 
 exports.addRequestingUser = function(request, response) {
-	// declare external files
+    // declare external files
     var utils = require("../utils");
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -385,34 +386,34 @@ exports.addRequestingUser = function(request, response) {
              
                     var usersArray = docs.requestingUsers;
                     if (usersArray.indexOf(userid) == -1) {
-                    	usersArray.push(userid);
-                  	
-                  		collection.save(
-                  			{ '_id': new ObjectID(groupid),
-            				"name": docs.name,
-           					"users": docs.users,
-           					"creator": docs.creator,
-           					"requestingUsers": usersArray
-        				}, function (err, docs) {
-            				if (err) {
-                				response.send({
-                    				"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    				"response": {}
-                				});
-            				} else {
-                				// this function returns a result to the user
-                				response.send({
-                        			"meta": utils.createOKMeta(),
-                            		"response": { "groupid": groupid }
-                        		});
-            				}
-        				});
-                	} else {
-                		response.send({
-                        	"meta": utils.createOKMeta(),
+                        usersArray.push(userid);
+                    
+                        collection.save(
+                            { '_id': new ObjectID(groupid),
+                            "name": docs.name,
+                            "users": docs.users,
+                            "creator": docs.creator,
+                            "requestingUsers": usersArray
+                        }, function (err, docs) {
+                            if (err) {
+                                response.send({
+                                    "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                    "response": {}
+                                });
+                            } else {
+                                // this function returns a result to the user
+                                response.send({
+                                    "meta": utils.createOKMeta(),
+                                    "response": { "groupid": groupid }
+                                });
+                            }
+                        });
+                    } else {
+                        response.send({
+                            "meta": utils.createOKMeta(),
                             "response": { "groupid": groupid }
                         });
-                	}
+                    }
                 }
             });
     });
@@ -420,7 +421,7 @@ exports.addRequestingUser = function(request, response) {
 
 
 exports.declineRequestingUser = function(request, response) {
-	// declare external files
+    // declare external files
     var utils = require("../utils");
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -459,40 +460,40 @@ exports.declineRequestingUser = function(request, response) {
                     resultAmount++;
              
                     var usersArray = docs.requestingUsers;
-					var index = usersArray.indexOf(userid);
-					usersArray.splice(index, 1);
-                  	
-                  	collection.save(
-                  		{ '_id': new ObjectID(groupid),
-            			"name": docs.name,
-           				"users": docs.users,
-           				"creator": docs.creator,
-           				"requestingUsers": usersArray
-        			}, function (err, docs) {
-            			if (err) {
-                			response.send({
-                    			"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    			"response": {}
-                			});
-            			} else {
-                			response.send({
-                        		"meta": utils.createOKMeta(),
-                            	"response": { "groupid": groupid }
-                        	});
-            			}
-        			});
+                    var index = usersArray.indexOf(userid);
+                    usersArray.splice(index, 1);
+                    
+                    collection.save(
+                        { '_id': new ObjectID(groupid),
+                        "name": docs.name,
+                        "users": docs.users,
+                        "creator": docs.creator,
+                        "requestingUsers": usersArray
+                    }, function (err, docs) {
+                        if (err) {
+                            response.send({
+                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                "response": {}
+                            });
+                        } else {
+                            response.send({
+                                "meta": utils.createOKMeta(),
+                                "response": { "groupid": groupid }
+                            });
+                        }
+                    });
                 }
             });
     });
 }
 
 exports.cancelMembershipRequest = function(request, response) {
-	exports.declineRequestingUser(request, response);
+    exports.declineRequestingUser(request, response);
 }
 
 
 exports.removeUser = function(request, response) {
-	// declare external files
+    // declare external files
     var utils = require("../utils");
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -531,35 +532,35 @@ exports.removeUser = function(request, response) {
                     resultAmount++;
              
                     var usersArray = docs.users;
-					var index = usersArray.indexOf(userid);
-					usersArray.splice(index, 1);
-                  	
-                  	collection.save(
-                  		{ '_id': new ObjectID(groupid),
-            			"name": docs.name,
-           				"users": usersArray,
-           				"creator": docs.creator,
-           				"requestingUsers": docs.requestingUsers
-        			}, function (err, docs) {
-            			if (err) {
-                			response.send({
-                    			"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    			"response": {}
-                			});
-            			} else {
-                			response.send({
-                        		"meta": utils.createOKMeta(),
-                            	"response": { "groupid": groupid }
-                        	});
-            			}
-        			});
+                    var index = usersArray.indexOf(userid);
+                    usersArray.splice(index, 1);
+                    
+                    collection.save(
+                        { '_id': new ObjectID(groupid),
+                        "name": docs.name,
+                        "users": usersArray,
+                        "creator": docs.creator,
+                        "requestingUsers": docs.requestingUsers
+                    }, function (err, docs) {
+                        if (err) {
+                            response.send({
+                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                "response": {}
+                            });
+                        } else {
+                            response.send({
+                                "meta": utils.createOKMeta(),
+                                "response": { "groupid": groupid }
+                            });
+                        }
+                    });
                 }
             });
     });
 }
 
 exports.getProfileForMembership = function(request, response) {
-	var utils = require("../utils");
+    var utils = require("../utils");
     var https = require('https');
     var querystring = require('querystring');
     var requestlib = require('request');
@@ -590,15 +591,16 @@ exports.getProfileForMembership = function(request, response) {
                     "response": {}
                 });
             } else {
-            	var profile = (JSON.parse(body)).response;
+                var profile = (JSON.parse(body)).response;
                 response.send({
-                	"meta": utils.createOKMeta(),
+                    "meta": utils.createOKMeta(),
                     "response": { 
-                    	"groupid": groupid,
-                    	"profile": profile
+                        "groupid": groupid,
+                        "profile": profile
                     }
                 });
             }
         }
     });
+}
 }

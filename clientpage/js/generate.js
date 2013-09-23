@@ -19,13 +19,16 @@ function autoGenerateRoute() {
     var id = spot.link.params.id;
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
     var maxGroupSize = parseInt($('#maxGroupSizeGenerate').val());
+    var startdate = $( "#datepicker_from_generate" ).datepicker( "getDate" );
+    var enddate = $( "#datepicker_to_generate" ).datepicker( "getDate" );
 
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
         alert("Minimum group cannot be larger than maximum group size!");
     } else {
         var url = "http://" + config_serverAddress + "/routes/generate/" + channelname + "?token=" + token + 
             "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
-            "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize;
+            "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
+            "&startdate=" + startdate + "&enddate=" + enddate;
     
         // send a request to the nodeJS API to get an automatically generated route
         // parameters: latitude and longitude, channel name, bearer token, spot ID and a radius
@@ -123,6 +126,10 @@ function addGeneratedChannel(){
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
     var maxGroupSize = parseInt($('#maxGroupSizeGenerate').val());
 
+    var startdate = $( "#datepicker_from_generate" ).datepicker( "getDate" );
+    var enddate = $( "#datepicker_to_generate" ).datepicker( "getDate" );
+
+
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
         alert("Minimum group cannot be larger than maximum group size!");
     } else {
@@ -141,7 +148,8 @@ function addGeneratedChannel(){
         // structure for channel parameter: <channel1>|<channel2>|<channel3>|.....|<channel9>
         var url = "http://" + config_serverAddress + "/routes/generate/?channels=" + channelString + "&token=" + token + 
             "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
-            "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize;
+            "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
+            "&startdate=" + startdate + "&enddate=" + enddate;
 
         generatedRoute = true;
         

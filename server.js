@@ -86,21 +86,14 @@ function mongoConnectAndAuthenticate(callback) {
 
 exports.mongoConnectAndAuthenticate = mongoConnectAndAuthenticate;
 
-/**
- * Fix cross-domain requests errors, this should probably be cleaned up before a real release.
- */
-app.all('/*', function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "*");
-    res.header("Access-Control-Allow-Methods", "GET,POST");
-    next();
-});
-
 
 // define the users API url routes.
 app.get("/users/login/:base64", users.login);
 app.get("/users/logout/:token", users.logout);
 app.post("/users/profile", users.getProfile);
+
+app.post("/cultuurnet/linkuitid", users.linkUitId);
+app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 //app.get("/users/:key", users.dropAll);
 
 // define the spots API url routes.
@@ -135,5 +128,5 @@ app.post("/groups/profileformembership", groups.getProfileForMembership);
 app.use(express.static(__dirname + '/clientpage'));
 
 // start server on port 1337
-console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
-app.listen(process.env.PORT || 8888);
+console.log("Listening on port 1337...");
+app.listen(1337);

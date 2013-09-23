@@ -83,6 +83,8 @@
                         <div>
                         <tr><td>Minimum group size:</td><td><input type="number" id="minGroupSizeGenerate" min="1"/> </td></tr>
                         <tr><td>Maximum group size:</td><td><input type="number" id="maxGroupSizeGenerate" min="1"/> </td></tr>
+                        <p>Start date: <input type='text' id='datepicker_from_generate' /></p> 
+                        <p>End date: <input type='text' id='datepicker_to_generate' /></p>
                         Generate a route containing ONE channel: 
                         <!-- The possible channels are hard-coded -->
                          <select data-role = "none" id = "channelList">
@@ -127,6 +129,7 @@
                         <table>
                         <tr><td>Username</td><td><input class="inp" id="username" type = "email"/> </td></tr>
                         <tr><td>Password</td><td><input class="inp" id="password" type = "password"/> </td></tr>
+                        <tr><td>Link UitID (optional)</td><td><input class="inp" id="uitid" type = "email"/> </td></tr>
                         <tr><td><input type="button" value="Log In" onclick="loginuser()"/></td></tr>
                         </table>
                         </form>
@@ -265,6 +268,8 @@
             $(function() {
                 $("#tabs").tabs();
             });
+            $( "#datepicker_from_generate" ).datepicker();
+            $( "#datepicker_to_generate" ).datepicker();
         </script>
 
         <script src="js/main.js"></script>

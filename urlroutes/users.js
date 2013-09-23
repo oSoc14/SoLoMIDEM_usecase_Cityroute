@@ -3,6 +3,10 @@
  * @copyright: OKFN Belgium
  */
 
+exports.uitId = null;
+exports.uit_oauth_token = null;
+exports.uit_oauth_token_secret = null;
+
 /**
  * Returns a StartupInfo object that contains information about the user's identity
  * @param Base64 encoded string of username:password
@@ -53,6 +57,144 @@ exports.login = function (request, response) {
                 })*/
             }
         }
+    });
+}
+
+
+exports.linkUitId = function (request, response) {
+    /*var requestlib = require('request');
+    var cultuurnet = require('../auth/cultuurnet');
+    var server = require('../server');
+
+    var timestamp = Math.round(new Date() / 1000);
+    var nonce = "uitidLogin" + timestamp;
+    var consumerKey = "76163fc774cb42246d9de37cadeece8a";
+
+    var citylifeId = request.body.citylifeId;
+
+    console.log("1");
+
+    requestlib({
+        uri: cultuurnet.getRequestTokenCall,
+        method: "POST",
+        json: {},
+        headers: {
+            'oauth_callback': server.myurl + "/cultuurnet/onrequesttokenreceived",
+            'oauth_signature': "signature",
+            'oauth_version': "1.0",
+            'oauth_nonce': nonce,
+            'oauth_consumer_key': consumerKey,
+            'oauth_signature_method': "HMAC-SHA1",
+            'timestamp': timestamp,
+            'citylifeId': citylifeId
+        }
+    }, function (error, responselib, body) {
+        console.log("2");
+        if (( responselib.statusCode != 200) || error) {
+            console.log("3");
+            response.send({
+                "meta": utils.createErrorMeta(400, "X_002", "Login with UitID failed. " + error),
+                "response": {}
+            });
+            console.log("4");
+        } else {
+            console.log("5");
+            var body = JSON.parse(body);
+            console.log("6");
+            var oauth_token = body.oauth_token;
+            console.log("7");
+            respone.redirect('http://test.uitid.be/culturefeed/rest/auth/authorize', {
+                'oauth_token': oauth_token,
+                'type': "regular"
+            });
+            console.log("8");
+        }
+    });*/
+}
+
+
+exports.onRequestTokenReceived = function (request, respone) {
+    var server = require('../server');
+    var requestlib = require('request');
+    var cultuurnet = require('../auth/cultuurnet');
+
+    var timestamp = Math.round(new Date() / 1000);
+    var nonce = "onRequestTokenReceived" + timestamp;
+
+    var consumerKey = "76163fc774cb42246d9de37cadeece8a";
+    var oauth_token = request.params.oauth_token;
+    var citylifeId = request.params.citylifeId;
+    var oauth_verifier = request.params.oauth_verifier;
+    
+    requestlib({
+        uri: cultuurnet.getAccessTokenCall,
+        method: "POST",
+        json: {},
+        headers: {
+            'oauth_callback': server.myurl + "/cultuurnet/onrequesttokenreceived",
+            'oauth_signature': "signature",
+            'oauth_version': "1.0",
+            'oauth_nonce': nonce,
+            'oauth_consumer_key': consumerKey,
+            'oauth_signature_method': "HMAC-SHA1",
+            'timestamp': timestamp,
+            'oauth_token': oauth_token, 
+            'oauth_verifier': oauth_verifier
+        }
+    }, function (error, responselib, body) {
+        var body = JSON.parse(body);
+        exports.uitId = body.userId;
+        exports.uit_oauth_token = body.oauth_token;
+        exports.uit_oauth_token_secret = body.oauth_token_secret;
+
+        var mongojs = require('mongojs');
+        var config = require('../auth/dbconfig');
+        var db = mongojs(config.dbname);
+        var collection = db.collection(config.uitidsCollection);
+
+        var resultAmount = 0;
+
+    require('mongodb').connect(server.mongourl, function (err, conn) {
+        collection.find({ 'citylife_id': citylifeId })
+            .forEach(function (err, docs) {
+                if (err) {
+                    response.send({
+                        "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                        "response": {}
+                    });
+                } else if (!docs) {
+                    require('mongodb').connect(server.mongourl, function (err, conn) {
+                        // insert the route in the database
+                        var doc = {
+                            "citylife_id": userid,
+                            "uitid": body.userId,
+                            "uit_oauth_token": body.oauth_token,
+                            "uit_oauth_token_secret": body.oauth_token_secret
+                        };
+                        collection.insert(doc, function (err, docs) {
+                            if (err) {
+                                response.send({
+                                    "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                                    "response": {}
+                                });
+                            } else {
+                               response.send({
+                                    "meta": utils.createOKMeta(),
+                                    "response": doc
+                                });
+                            }
+                        });
+                    });   
+                } else {
+                    // increase resultAmount so on next iteration the algorithm knows the id was found.
+                    resultAmount++;
+                    response.send({
+                           "meta": utils.createErrorMeta(400, "X_001", "This UiTID was already linked. " + err),
+                           "response": {}
+                    });         
+                }
+            });
+        });
     });
 }
 

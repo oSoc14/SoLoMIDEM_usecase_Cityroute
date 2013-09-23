@@ -4,5 +4,5 @@
 * a config file
 */
 
-var config_serverAddress = "cityroute.herokuapp.com";
+var config_serverAddress = "localhost:1337";
 var config_WhatsNextAddress = "xxxxxxxxxxxxxxxxxxxxxxx";

@@ -84,6 +84,8 @@ exports.generateRoute = function (request, response) {
     var spotsFile = require("./spots");
     var minimumGroupSize = request.query.minGroupSize;
     var maximumGroupSize = request.query.maxGroupSize;
+    var startDate = request.query.startdate;
+    var endDate = request.query.enddate;
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
     }; 
@@ -95,7 +97,7 @@ exports.generateRoute = function (request, response) {
             "item": "" + parseInt(request.query.spot_id)
         }];
         // this function contains the algorithm to generate the route
-        spotsFile.findSpotByChannel(request.query.latitude, request.query.longitude, request.params.channelname, request.query.radius, minimumGroupSize, maximumGroupSize, jsonResult, response);
+        spotsFile.findSpotByChannel(request.query.latitude, request.query.longitude, request.params.channelname, request.query.radius, minimumGroupSize, maximumGroupSize, startDate, endDate, jsonResult, response);
     } else {
         // bad request
         response.send({
@@ -122,6 +124,8 @@ exports.generateRouteFromChannelArray = function (request, response) {
 
     var minimumGroupSize = request.query.minGroupSize;
     var maximumGroupSize = request.query.maxGroupSize;
+    var startDate = request.query.startdate;
+    var endDate = request.query.enddate;
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
     }; 
@@ -133,7 +137,7 @@ exports.generateRouteFromChannelArray = function (request, response) {
             "item": "" + parseInt(request.query.spot_id)
         }];
         // this function contains the algorithm to generate the route
-        spotsFile.findSpotByChannel(request.query.latitude, request.query.longitude, request.query.channels, request.query.radius, minimumGroupSize, maximumGroupSize, jsonResult, response);
+        spotsFile.findSpotByChannel(request.query.latitude, request.query.longitude, request.query.channels, request.query.radius, minimumGroupSize, maximumGroupSize, startDate, endDate, jsonResult, response);
     } else {
         // bad request
         response.send({
@@ -238,92 +242,6 @@ searchById = function(id, response, returnResponse)
 };
 
 /**
- * Callback for spotid call of citylife for route details
- * @param error standard callback variable of request library
- * @param responselib standard callback variable of request library
- * @param body standard callback variable of request library
- * @param resultArray array that will be filled with all spot data
- * @param spotArray array containing all spot data
- * @param spotsIdArray array containing all spot id's of the route in the right order
- * @param count variable which hold the amount of completed requests
- * @param docs result of the route query in mongoDB
- * @param response used to create a response to the client
- */
-parseRouteSpots = function (error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse) {
-    // delcare external files
-    var requestlib = require('request');
-    var gm = require('../lib/googlemaps');
-    var utils = require('../utils');
-
-    // on result of a query, parse the result to a JSON
-    var jsonResult = JSON.parse(body);
-
-    // insert the results in the correct order as they are defined by a route.
-    for (var i = 0; i < spotsIdArray.length; ++i) {
-        if (spotsIdArray[i] == parseInt(jsonResult.response.id)) {
-            resultArray[i] = jsonResult;
-        }
-    }
-
-    // if all external API calls are returned, respond with the ordered JSON array.
-    // also included are the name and the id of the route.
-    if (count == spotArray.length - 1) {
-        // create necessary data for Google Maps Directions and Static Maps
-        var markers = [];
-        var points = [];
-
-        // fill markers array with long and lat, and include a label based on route order.
-        for (var j = 0; j < spotArray.length; ++j) {
-            markers[j] = { 'label': j+1, 'location': resultArray[j].response.latitude + " " + resultArray[j].response.longitude };
-        }
-                
-        // define the number of spots and the waypoints string
-        var numSpots = resultArray.length - 1;
-        var waypoints = "";
-
-        // define location of start and endpoint
-        var originLat = resultArray[0].response.latitude;
-        var originLong = resultArray[0].response.longitude;
-        var destLat = resultArray[numSpots].response.latitude;
-        var destLong = resultArray[numSpots].response.longitude;
-
-        var latLong = originLat + ", " + originLong;
-        var destLatLong = destLat + ", " + destLong;
-
-        // fill waypoint string with spots between start and endpoint
-        for (var i = 1; i < numSpots; ++i) {
-            waypoints += resultArray[i].response.latitude + ", " + resultArray[i].response.longitude + "|";
-        }
-
-        // Do a query to the Google Maps Directions API
-        requestlib({
-            uri: gm.directions(
-                latLong,
-                destLatLong,
-                null,
-                false,
-                'walking',
-                waypoints,
-                null,
-                null,
-                'metric',
-                null),
-            method: "GET"
-        }, function (error, responselib, body) {
-            if (responselib.statusCode != 200 || error) {
-                response.send({
-                    "meta": utils.createErrorMeta(400, "X_001", "The Google Directions API is currently unavailable." + error),
-                    "response": {}
-                });
-            } else {
-                // parse the results of the Google Maps Directions API
-                parseDirectionResults(error, responselib, body, resultArray, markers, docs, response, returnResponse);
-            }
-        });
-    }
-}
-
-/**
  * Callback for query of Google Maps Direction API
  * @param error standard callback variable of request library
  * @param responselib standard callback variable of request library
@@ -371,6 +289,107 @@ parseDirectionResults = function (error, responselib, body, resultArray, markers
             //var db = mongojs(config.dbname);
             var collection = db.collection(config.collection);
             var ObjectId = mongojs.ObjectId;
+            collection.update(
+                { '_id': docs._id },
+                {
+                    $set: {
+                        'png': gm.staticMap(
+                            '',
+                            '',
+                            '250x250',
+                            false,
+                            false,
+                            'roadmap',
+                            markers,
+                            null,
+                            paths)
+                    }
+                },
+                { multi: true },
+                function (err, docs2) {
+                    if (err) {
+                        response.send({
+                            "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                            "response": {}
+                        });
+                    } else {
+                        // return the route including its png
+                        response.send({
+                            "meta": utils.createOKMeta(),
+                            "response": {
+                                "name": docs.name,
+                                "id": docs._id,
+                                "description": docs.description,
+                                "spots": resultArray,
+                                "png": gm.staticMap(
+                                    '',
+                                    '',
+                                    '250x250',
+                                    false,
+                                    false,
+                                    'roadmap',
+                                    markers,
+                                    null,
+                                    paths)
+                            }
+                        });
+                    }
+                });
+        });
+    }
+}
+
+/**
+ * Callback for query of Google Maps Direction API
+ * @param error standard callback variable of request library
+ * @param responselib standard callback variable of request library
+ * @param body standard callback variable of request library
+ * @param resultArray array that will be filled with all spot data
+ * @param markers contains all markers for the creation of a static map
+ * @param docs result of the route query in mongoDB
+ * @param response used to create a response to the client
+ */
+parseDirectionResults = function (error, responselib, body, resultArray, markers, docs, response, returnResponse) {
+    // declare external files
+    var polyline = require('polyline');
+    var gm = require('../lib/googlemaps');
+    var config = require('../auth/dbconfig');
+    var mongojs = require('mongojs');
+    var server = require('../server');
+    var utils = require('../utils');
+
+    var db = mongojs(config.dbname);
+    var collection = db.collection(config.collection);
+
+    // parse the result of the Google Directions API to a JSON object
+    var jsonResult = JSON.parse(body);
+
+    // decode the polyline representation of the route to a readable array of lat and longs.
+    var points = polyline.decodeLine(jsonResult.routes[0].overview_polyline.points);
+    var paths = [];
+    paths[0] = { 'points': points };
+
+    // if normal request, send the response to the user
+    if (returnResponse) {
+        response.send({
+            "meta": utils.createOKMeta(),
+            "response": {
+                "name": docs.name,
+                "id": docs._id,
+                "description": docs.description,
+                "spots": resultArray,
+                "png": docs.png
+            }
+        });
+    }
+    else {
+        // The static map png still has to be generated first
+        var db = mongojs(config.dbname);
+        var collection = db.collection(config.collection);
+        var ObjectId = mongojs.ObjectId;
+
+        // find the route by its id, generate a static map png and add it to the database
+        require('mongodb').connect(server.mongourl, function (err, conn) {
             collection.update(
                 { '_id': docs._id },
                 {

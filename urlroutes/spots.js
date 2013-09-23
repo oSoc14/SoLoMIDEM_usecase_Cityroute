@@ -87,7 +87,7 @@ exports.findRelevantSpots = function (request, response) {
  * @param response allows us to return a response from within this function
  * @param token the bearer_token of the user
  */
-function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize, jsonResult, response, token) {
+function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize, startDate, endDate, jsonResult, response, token) {
     var utils = require("../utils");
     var https = require('https');
     var querystring = require('querystring');
@@ -102,7 +102,7 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
     var namesArray = names.split("|");
 
     if (namesArray.length > 1 && jsonResult.length - 1 >= namesArray) {
-        saveGeneratedRoute(minGroupSize, maxGroupSize, jsonResult, namesArray[0], response);
+        saveGeneratedRoute(minGroupSize, maxGroupSize, startDate, endDate, jsonResult, namesArray[0], response);
         return;
     }
 
@@ -160,10 +160,10 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
                         jsonResult.push(result);
                         // if the route is at its max length, save it
                         if (jsonResult.length >= 10) {
-                            saveGeneratedRoute(minGroupSize, maxGroupSize, jsonResult, namesArray, response);
+                            saveGeneratedRoute(minGroupSize, maxGroupSize, startDate, endDate, jsonResult, namesArray, response);
                         } else {
                             // if route can be longer, execute this function again but with parameters from the last spot added
-                            findSpotByChannel(body.response.data.items[i].meta_info.latitude, body.response.data.items[i].meta_info.longitude, names, radius, minGroupSize, maxGroupSize, jsonResult, response);
+                            findSpotByChannel(body.response.data.items[i].meta_info.latitude, body.response.data.items[i].meta_info.longitude, names, radius, minGroupSize, maxGroupSize, startDate, endDate, jsonResult, response);
                         }
                         return;
                     }
@@ -173,7 +173,7 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
             // the route must exist of at least 2 spots
             if (jsonResult.length > 1) {
                 //console.log("test");
-                saveGeneratedRoute(minGroupSize, maxGroupSize, jsonResult, namesArray, response);
+                saveGeneratedRoute(minGroupSize, maxGroupSize, startDate, endDate, jsonResult, namesArray, response);
             } else {
                 response.send({
                     "meta": utils.createErrorMeta(400, "X_001", "There are no possible routes found for this starting point and channel."),
