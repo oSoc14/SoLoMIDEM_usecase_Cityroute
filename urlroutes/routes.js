@@ -21,6 +21,8 @@
         endDate:            The date at which the route stops to be valid (optional).
  *  }
  *
+ * BUG: Route filtering on start/enddate doesn't work 100%
+ *
  * TODO: extend with iRail public transport spots and CultuurNet events.
  */
 
@@ -47,7 +49,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
             date = new Date();
         }
 
-        // find all routes which have item x as starting point
+        // find all routes which have item x as starting point filtered on start and enddate
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
             var collection = db.collection(config.collection);
             collection.find({ 'points.0': { item: request.body.spot_id }, 'startDate': { $lte: date }, 'endDate': { $gte: date } })

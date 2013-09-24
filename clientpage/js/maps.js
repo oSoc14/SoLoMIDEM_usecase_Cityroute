@@ -50,7 +50,7 @@ function generateRoute( ) {
     var optimize = $("#optimizeSwitch").val() == 1;
     if (generatedRoute)
         optimize = false;
-    alert(optimize);
+    //alert(optimize);
     // generate the request
     var dirRequest = {
        origin: latLong, 
