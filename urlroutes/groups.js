@@ -1,3 +1,25 @@
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Implementation of groups API
+ */
+
+
+/*
+ * A group object looks as follows:
+ *
+ *  {
+ *      name:               name of the group,
+        creator:            CityLife id of the user that created the group (and thus owns the group),
+        users:              array of CityLife user ids that are in the group,  
+        requestingUsers:    array of CityLife user ids that requested membership and were not accepted/declined yet 
+ *  }
+ */
+
+
+// Finds a group by Id in response to POST call
+// Returns the group object
 exports.findById = function(request, response) {
 	var mongojs = require('mongojs');
     var ObjectId = mongojs.ObjectId;
@@ -21,12 +43,9 @@ queryById = function(id, response)
     var https = require('https');
     var requestlib = require('request');
     var server = require('../server');
-
-    //var ObjectID = require('mongodb').ObjectID;
     
     var resultAmount = 0;
 
-    // find the route by its id.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ '_id': id })
@@ -48,7 +67,6 @@ queryById = function(id, response)
                 } else {
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
                     resultAmount++;
-
                     response.send({
                         "meta": utils.createOKMeta(),
                         "response": docs
@@ -59,7 +77,9 @@ queryById = function(id, response)
 };
 
 
-
+// Finds a group by name in response to POST call
+// Returns the group object if found.
+// Maybe this should become a fuzzy search in the future?
 exports.findByName = function(request, response) {
     var mongojs = require('mongojs');
     var name = request.body.name;
@@ -75,7 +95,6 @@ exports.findByName = function(request, response) {
     
     var resultAmount = 0;
 
-    // find the route by its name.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ 'name': name })
@@ -97,7 +116,6 @@ exports.findByName = function(request, response) {
                 } else {
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
                     resultAmount++;
-
                     response.send({
                         "meta": utils.createOKMeta(),
                         "response": docs
@@ -107,11 +125,11 @@ exports.findByName = function(request, response) {
     });
 }
 
-
+// Find groups by member.
+// Returns all groups for which the user is a member (a real member, not just if he/she requested membership).
 exports.findByMember = function(request, response) {
     var mongojs = require('mongojs');
     var member_id = request.body.member;
-    // declare external files
     var utils = require("../utils");
     var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -120,8 +138,6 @@ exports.findByMember = function(request, response) {
     var https = require('https');
     var requestlib = require('request');
     var server = require('../server');
-    
-    var resultAmount = 0;
 
     // find the route by its name.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
@@ -162,58 +178,34 @@ exports.addGroup = function(request, response) {
 
     var resultAmount = 0;
 
-    // find the route by its name.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
-        console.log("Adding group");
         var collection = db.collection(config.groupscollection);
-        console.log("1");
         collection.find({ 'name': name })
             .each(function (err, docs) {
-                console.log("2");
                 if (err) { 
-                    console.log("3 " + err);
                     response.send({
                         "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
                         "response": {}
                     });
                 } else if (!docs) {
-                    console.log("4");
-                    //server.mongoConnectAndAuthenticate(function (err, conn, db) {
-                     //   var db = mongojs(config.dbname);
-                       // var collection = db.collection(config.groupscollection);
-                        // insert the route in the database
                         collection.insert({
                             "name": request.body.name,
                             "creator": creator_id,
                             "users": [ creator_id ],
                             "requestingUsers": []
                         }, function (err, docs) {
-                            console.log("5");
                             if (err) {
-                                console.log("6 " + err);
                                 response.send({
                                     "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
                                     "response": {}
                                 });
                             } else {
-                                // this function returns a result to the user
-                                /*require('mongodb').connect(server.mongourl, function (err, conn) {
-                                    collection.find()
-                                        .forEach(function (err, docs) {
-                                            console.log(docs);
-                                        });
-                                });*/
-                                console.log("7");
                                 queryById(docs[0]._id, response);
-                                console.log("8");
                             }
-                        });
-                    //});   
+                        });  
                 } else {
-                    console.log("9");
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
                     resultAmount++;
-
                     response.send({
                            "meta": utils.createErrorMeta(400, "X_001", "This group already exists. " + err),
                            "response": {}
@@ -221,22 +213,9 @@ exports.addGroup = function(request, response) {
                 }
             });
     });
-
-    /*require('mongodb').connect(server.mongourl, function (err, conn) {
-            collection.drop(function (err, docs) {
-                if (err) {
-                    response.send({
-                        "meta": utils.createErrorMeta(400, "X_001", "Something went wrong with the MongoDB :( : " + err),
-                        "response": {}
-                    });
-                } else {
-                    response.send(JSON.stringify(docs));
-                }
-            });
-        });*/
 }
 
-
+// Delete the group with id group_id
 exports.deleteGroup = function(request, response) {
     // declare external files
     var mongojs = require('mongojs');
@@ -245,7 +224,6 @@ exports.deleteGroup = function(request, response) {
     var utils = require('../utils');
 
     var groupid = request.body.group_id;
-
     var ObjectID = require('mongodb').ObjectID;
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
@@ -272,6 +250,7 @@ exports.deleteGroup = function(request, response) {
 }
 
 
+// Accept the membership of user userid requesting the membership for group groupid.
 exports.acceptMembershipRequest = function(request, response) {
     // declare external files
     var utils = require("../utils");
@@ -288,7 +267,6 @@ exports.acceptMembershipRequest = function(request, response) {
     var userid = request.body.userid;
     var ObjectID = require('mongodb').ObjectID;
 
-    // find the route by its id.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ '_id': new ObjectID(groupid) })
@@ -345,6 +323,7 @@ exports.acceptMembershipRequest = function(request, response) {
 }
 
 
+// Add user userid to the list of users requesting membership for group groupid
 exports.addRequestingUser = function(request, response) {
     // declare external files
     var utils = require("../utils");
@@ -361,7 +340,6 @@ exports.addRequestingUser = function(request, response) {
     var userid = request.body.userid;
     var ObjectID = require('mongodb').ObjectID;
 
-    // find the route by its id.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ '_id': new ObjectID(groupid) })
@@ -420,6 +398,7 @@ exports.addRequestingUser = function(request, response) {
 }
 
 
+// Decline the membership request of user userid for group groupid.
 exports.declineRequestingUser = function(request, response) {
     // declare external files
     var utils = require("../utils");
@@ -436,7 +415,6 @@ exports.declineRequestingUser = function(request, response) {
     var userid = request.body.userid;
     var ObjectID = require('mongodb').ObjectID;
 
-    // find the route by its id.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ '_id': new ObjectID(groupid) })
@@ -487,11 +465,13 @@ exports.declineRequestingUser = function(request, response) {
     });
 }
 
+// Cancel a membershiprequest
 exports.cancelMembershipRequest = function(request, response) {
     exports.declineRequestingUser(request, response);
 }
 
 
+// Remove user userid from group groupid
 exports.removeUser = function(request, response) {
     // declare external files
     var utils = require("../utils");
@@ -559,6 +539,7 @@ exports.removeUser = function(request, response) {
     });
 }
 
+// Get the CityLife user profile of user userid to display as a member of group groupid
 exports.getProfileForMembership = function(request, response) {
     var utils = require("../utils");
     var https = require('https');

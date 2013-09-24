@@ -1,7 +1,16 @@
-﻿/**
- * @author: Thomas Stockx
- * @copyright: OKFN Belgium
+﻿/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Implementation of spots API
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
+ * TODO: add iRail public transport spots and CultuurNet events
+ *
  */
+
 
 /**
  * Find relevant spots for a user based on his location
@@ -83,6 +92,10 @@ exports.findRelevantSpots = function (request, response) {
  * @param long longitude of the previous spot
  * @param name channel name of the channel in which to search for relevant spots
  * @param radius radius (in km) in which to search for relevant spots
+ * @param minGroupSize minimum group size for the route
+ * @param maxGroupSize maximum group size for the route
+ * @param startDate start date when the group is valid
+ * @param endDate end date when the group stops being valid
  * @param jsonResult contains the list of previous spots already added to the route
  * @param response allows us to return a response from within this function
  * @param token the bearer_token of the user
@@ -187,8 +200,12 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
 
 /**
  * Stores the generated route in the database
+ * @param minGroupSize minimum group size for the route
+ * @param maxGroupSize maximum group size for the route
+ * @param startDate start date when the group is valid
+ * @param endDate end date when the group stops being valid
  * @param jsonResult array containing the list of spots in the route
- * @param name name of the channel which was used to create the route
+ * @param names names of the channels which are used to create the route
  * @param response allows us to return a response from within this function
  */
 saveGeneratedRoute = function (minGroupSize, maxGroupSize, startDate, endDate, jsonResult, names, response) {
@@ -465,5 +482,5 @@ exports.findById = function (request, response) {
     });
 };
 
-// allow this function to be called from other files
+// allow this function to be called from other modules
 exports.findSpotByChannel = findSpotByChannel;

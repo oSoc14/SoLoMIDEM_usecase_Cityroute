@@ -1,8 +1,14 @@
-/**
-* @author Mathias Raets
-* @copyright: OKFN Belgium
-* this file contains the logic to automatically generate routes
-**/
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
+ * this file contains the logic to automatically generate routes
+ *
+ */
+
 
 var RADIUS = 5; // the maximum distance for a next spot in a generated route(in km)
 var generatedRoute = false;;

@@ -1,6 +1,27 @@
-﻿/**
- * @author: Thomas Stockx
- * @copyright: OKFN Belgium
+﻿/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ *  Implementation of routes API
+ *
+ *  Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ *  See: https://github.com/oSoc13/Cityroute
+ */
+
+/*
+ * A route object looks as follows:
+ *
+ *  {
+ *      name:               The name of the route,
+        description:        The description of the route,
+        points:             The array of CityLife spots on the route,
+        minimumGroupSize:   The minimum size of a group to participate in the route (minumum 1),
+        maximumGroupSize:   The maximum size if a group  to participate in the route (optional, null is unlimited),
+        startDate:          The date at which the route starts to be valid (optional),
+        endDate:            The date at which the route stops to be valid (optional).
+ *  }
+ *
+ * TODO: extend with iRail public transport spots and CultuurNet events.
  */
 
 /**
@@ -26,12 +47,8 @@ exports.findRoutesStartingAtSpot = function (request, response) {
             date = new Date();
         }
 
-        console.log("spot_id: " + request.body.spot_id);
-        console.log("date: " + date);
-
         // find all routes which have item x as starting point
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
-             //var db = mongojs(config.dbname);
             var collection = db.collection(config.collection);
             collection.find({ 'points.0': { item: request.body.spot_id }, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                 .toArray(function (err, docs) {
@@ -83,6 +100,10 @@ exports.findRoutesStartingAtSpot = function (request, response) {
  * @param longitude longitude of the location
  * @param spot_id id of the starting spot
  * @param radius radius to search for each next spot (in km)
+ * @param minGroupSize minimum group size for the route
+ * @param maxGroupSize maximum group size for the route
+ * @param startdate start date when the group is valid
+ * @param enddate end date when the group stops being valid
  * @return json representation of the generated route.
  */
 exports.generateRoute = function (request, response) {
@@ -122,6 +143,10 @@ exports.generateRoute = function (request, response) {
  * @param longitude longitude of the location
  * @param spot_id id of the starting spot
  * @param radius radius to search for each next spot (in km)
+ * @param minGroupSize minimum group size for the route
+ * @param maxGroupSize maximum group size for the route
+ * @param startdate start date when the group is valid
+ * @param enddate end date when the group stops being valid
  * @return json representation of the generated route.
  */
 exports.generateRouteFromChannelArray = function (request, response) {
@@ -436,13 +461,15 @@ parseDirectionResults = function (error, responselib, body, resultArray, markers
 
 
 
-
-
 /**
  * Add a route to the mongoDB database
  * @param a list of ids of spots
  * @param a name for the route
  * @param a description for the route
+ * @param minimumGroupSize minimum group size for the route
+ * @param maximumGroupSize maximum group size for the route
+ * @param startDate start date when the group is valid
+ * @param endDate end date when the group stops being valid
  @return the route id
  */
 exports.addRoute = function (request, response) {
@@ -484,5 +511,5 @@ exports.addRoute = function (request, response) {
     });
 };
 
-// searchById should be usable from other files
+// searchById should be usable from other modules
 exports.searchById = searchById;

@@ -1,8 +1,11 @@
-/**
-* @author: Mathias Raets
-* @copyright: OKFN belgium
-* This file provides the main functionality 
-*/
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
+ */
 
 
 /**

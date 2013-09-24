@@ -1,8 +1,16 @@
-﻿/**
- * @author: Thomas Stockx
- * @copyright: OKFN Belgium
+﻿/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Implementation of users API
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
  */
 
+
+// Keep the uitId credentials here (if linked) so we can use them.
 exports.uitId = null;
 exports.uit_oauth_token = null;
 exports.uit_oauth_token_secret = null;
@@ -44,23 +52,15 @@ exports.login = function (request, response) {
                 });
             }
             else {
-                /*console.log("body: " + JSON.stringify(body, null, 4));
-                var db = mongojs(config.dbname);
-                var collection = db.collection(config.cachedUsersCollection);
-                require('mongodb').connect(server.mongourl, function (err, conn) {
-                    collection.count(function (err, count) {
-                        searchUserIdAndStoreInCache(request, response, body.token, body.email, count, function (userid) {
-                            body.user_id = userid;*/
-                            response.send(body);
-                        /*});
-                    })
-                })*/
+                response.send(body);
             }
         }
     });
 }
 
-
+// IN PROGRESS: Link an UitID to the CityLife ID of the user.
+// This should allow the CultuurNet API to be called to retrieve recommended CultuurNet events for the user.
+// This is phase 1 of the UitID authentication protocol.
 exports.linkUitId = function (request, response) {
     /*var requestlib = require('request');
     var cultuurnet = require('../auth/cultuurnet');
@@ -112,7 +112,7 @@ exports.linkUitId = function (request, response) {
     });*/
 }
 
-
+// Phase 2 of UitID authentication protocol
 exports.onRequestTokenReceived = function (request, respone) {
     var server = require('../server');
     var requestlib = require('request');
@@ -199,115 +199,6 @@ exports.onRequestTokenReceived = function (request, respone) {
 }
 
 
-/*function searchUserIdAndStoreInCache(request, response, token, email, index, onIdFound) {
-    var utils = require("../utils");
-    var mongojs = require('mongojs');
-    var config = require('../auth/dbconfig');
-    var server = require('../server');
-    var db = mongojs(config.dbname);
-    var collection = db.collection(config.cachedUsersCollection);
-
-    require('mongodb').connect(server.mongourl, function (err, conn) {
-        collection.findOne({ 'email': email }, function (err, doc) {
-                if (err) {
-                            response.send({
-                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                                "response": {}
-                            });
-                        } else {
-                if (doc == null) {
-                    findUncachedUser(request, response, token, email, index, onIdFound);
-                } else {
-                    onIdFound(doc.citylife_id);
-                }
-            }             
-        });
-    });
-}
-
-
-function findUncachedUser(request, response, token, email, index, onIdFound) {
-    var utils = require("../utils");
-    var requestlib = require('request');
-    var usersPerSearch = 100;
-    var importUsersCall = "https://vikingspots.com/en/api/4/users/import/?bearer_token=" + token + "&index=" + index + "&max=" + usersPerSearch;
-    console.log(importUsersCall);
-    requestlib({
-        uri: importUsersCall,
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        }
-    }, function (error, responselib, body) {
-        if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
-            console.log("error " + responselib.statusCode);
-            response.send({
-                "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
-                "response": {}
-            });
-            return false;
-        } else {
-            if (responselib.statusCode == 401) {
-                response.send({
-                    "meta": utils.createErrorMeta(401, "X_001", "Credentials are not valid."),
-                    "response": {}
-                });
-                return false;
-            }
-            else {
-                var userList = body.items;
-                var foundUser = false;
-                for (var i = 0; i < userList.length; i++) {
-                    cacheUser(response, userList[i]);
-                    if (userList[i].email == email) {
-                        foundUser = userList[i];
-                    }
-                }
-                if (!foundUser) {
-                    searchUserIdAndStoreInCache(request, response, token, email, index + usersPerSearch, usersPerSearch);
-                } else {
-                    onIdFound(foundUser.id);
-                }
-            }
-        }
-    });
-} 
-
-
-function cacheUser(response, user) {
-    var utils = require("../utils");
-    var mongojs = require('mongojs');
-    var config = require('../auth/dbconfig');
-    var server = require('../server');
-    var db = mongojs(config.dbname);
-    var collection = db.collection(config.cachedUsersCollection);
-    require('mongodb').connect(server.mongourl, function (err, conn) {
-        collection.findOne({ 'email': user.email }, function (err, docs) {
-                if (err) {
-                            response.send({
-                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                                "response": {}
-                            });
-                        } else {
-                if (doc == null) {
-                    collection.insert({
-                        "email": user.email,
-                        "citylife_id": user.id
-                    }, function (err, docs) {
-                        if (err) {
-                            response.send({
-                                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                                "response": {}
-                            });
-                        } 
-                    });
-                }
-            }             
-        });
-    });
-}*/
-
-
 /**
  * Logs the user out
  * @param token bearer_token of the user
@@ -350,6 +241,7 @@ exports.logout = function (request, response) {
 }
 
 
+// Gets the user profile for the CityLife ID of the user
 exports.getProfile = function (request, response) {
     var utils = require("../utils");
     var https = require('https');

@@ -1,8 +1,16 @@
 ﻿/*
- * @author: Thomas Stockx
- * @copyright: OKFN Belgium
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
  *
  * Node.js entry point
+ *
+ * This code assumes either a local deployment or a cloud hosting deployment: tested on Heroku.
+ * The database is a MongoDB hosted on MongoHQ. Swap the MongoHQ-specific code for code opening
+ * a connection to a local database for a pure local deployment.
+ *
  */
 
 // declare external files
@@ -24,62 +32,34 @@ process.on('uncaughtException', function (exception) {
 });
 
 /**
- * Our hosting service provides database information in the VCAP_SERVICES environment variable.
- * If it does not exist, we'll connect to a localhost MongoDB.
+ * Check if there is a process.env db config (such as on Heroku) that stores the URL to the MongoDB.
+ * If not, use the direct URL to the MongoDB hosted on MongoHQ
  */
- var mongourl;
+var mongourl;
 if (process.env.MONGOHQ_URL) {
      var mongourl = process.env.MONGOHQ_URL;
 }
 else {
-    mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
+    mongourl = config.mongourl;
 }
 
-/**
- * Building the URL to the MongoDB.
- */
-/*ar generate_mongo_url = function (obj) {
-    obj.hostname = (obj.hostname || 'localhost');
-    obj.port = (obj.port || 27017);
-    obj.db = (obj.db || 'test');
-    if (obj.username && obj.password) {
-        return "mongodb://" + obj.username + ":" + obj.password + "@" + obj.hostname + ":" + obj.port + "/" + obj.db;
-    }
-    else {
-        return "mongodb://" + obj.hostname + ":" + obj.port + "/" + obj.db;
-    }
-}*/
 
-
-//var mongourl = generate_mongo_url(mongo);
-//var mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
 exports.mongourl = mongourl;
 
-function mongoConnectAndAuthenticate(callback) {
-    /*var mongodb = require('mongodb');
-    var db = new mongodb.Db('nodejitsu_alombide_nodejitsudb3534441553',
-               new mongodb.Server('ds039257.mongolab.com', 39257, {}), {safe: true});
-    console.log("SERVER: got DB");
-    db.open(function (err, db_p) {
-        if (err) { console.log(err); throw err; }
-        console.log("SERVER: opened DB");
-        db.authenticate('nodejitsu_alombide', 'ovu90vs1udlvu90ebjqtg4gflg', function (err, replies) {
-            // You are now connected and authenticated.
-            console.log("SERVER: authenticated at DB");
-            (db_p.collection(config.groupscollection)).ensureIndex( { name: 1 });
-            console.log("SERVER: added index to name field of groupscollection");
-            callback(err, replies, db_p);
-        });
-    });*/
-    var MongoClient = require('mongodb').MongoClient;
 
+// This function can be used to open a connection to the MongoDB.
+// In case of a succesful connect or an error, the callback is called.
+// In the first case the opened db is passed as a parameter.
+function mongoConnectAndAuthenticate(callback) {
+    var MongoClient = require('mongodb').MongoClient;
     MongoClient.connect(mongourl, function(err, db) {
+        // Maybe we should do this somewhere else, checking every single db connect for this index
+        // is probably overkill.
         (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) {
             if (err) {
                 console.log(err);
             }
             callback(err, null, db);
-             //db.close();
          });
     });
 }
@@ -127,6 +107,6 @@ app.post("/groups/profileformembership", groups.getProfileForMembership);
 
 app.use(express.static(__dirname + '/clientpage'));
 
-// start server on port 1337
+// start server on port 888 OR on the port in the cloud deployment config.
 console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
 app.listen(process.env.PORT || 8888);

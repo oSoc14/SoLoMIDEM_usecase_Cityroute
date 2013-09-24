@@ -1,3 +1,11 @@
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Groups functionality for the client
+ *
+ */
+
 /**
 * function that shows/hides the correct divs when using groups
 */
@@ -26,25 +34,15 @@ function showGroups() {
     clearSearchResults();
 }
 
-
+// Show all the groups for which the user is member in the GUI
 function showGroupsForWhichUserIsMember() {
     var user = $.cookie("user_id");
     var url =  "http://" + config_serverAddress + "/groups/member";
-    
-    /*$.ajax({
-        type: 'GET',
-        crossDomain:true,
-        cache: false,
-        url: url,
-        success: onShowGroupsForWhichUserIsMember,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-        }
-    });*/
 
     var member = {
         member: user
     };
+
     $.ajax({
         url: url,
         data: member,
@@ -57,6 +55,8 @@ function showGroupsForWhichUserIsMember() {
     });
 }
 
+// If user is group owner: delete group button
+// If user is not group owner: leave group button 
 function renderLeaveOrDeleteButton(group) {
     if (group.creator == $.cookie("user_id")) {
         return '<tr><td><input type="button" value="Delete group" onclick="deleteGroup(\'' + group._id + '\')"/></td></tr>';
@@ -65,6 +65,7 @@ function renderLeaveOrDeleteButton(group) {
     }
 }
 
+// Callback for when a group for which the user is member is sent back by the server
 function onShowGroupsForWhichUserIsMember(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         var groups = data.response.groups;
@@ -81,7 +82,7 @@ function onShowGroupsForWhichUserIsMember(data, textStatus, jqXHR) {
     }
 }
 
-
+// Show the contents of a group in the GUI
 function showGroup(groupId) {
     var url =  "http://" + config_serverAddress + "/groups/id";
     var searchdata = {
@@ -99,6 +100,7 @@ function showGroup(groupId) {
     });
 }
 
+// Callback for when the server answered with the contents of a group.
 function onShowGroup(data, textStatus, jqXHR) {
     if ($("#expandedGroup").length > 0) {
         $("#expandedGroup").remove();
@@ -156,6 +158,8 @@ function onShowGroup(data, textStatus, jqXHR) {
     }
 }
 
+// Callback for when the user profile of a member of a group is retrieved.
+// Renders the profile in the GUI.
 function onUserProfileFound(data, textStatus, jqXHR) {
      if (data.meta.code == 200) {
        var profile = data.response;
@@ -170,6 +174,8 @@ function onUserProfileFound(data, textStatus, jqXHR) {
     }
 }
 
+// Callback for when the user profile of a user requesting membership of a group is retrieved.
+// Renders the profile in the GUI.
 function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
      if (data.meta.code == 200) {
        var profile = data.response.profile;
@@ -190,7 +196,7 @@ function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
     }
 }
 
-
+// Accepts the membership of user userId for group groupId.
 function acceptMembership(groupId, userId) {
     var url =  "http://" + config_serverAddress + "/groups/acceptmembershiprequest";
     var postdata = {
@@ -210,6 +216,7 @@ function acceptMembership(groupId, userId) {
     });
 }
 
+// Callback for when the server answered to acceptMembership
 function onAcceptMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
@@ -219,6 +226,7 @@ function onAcceptMembership(data, textStatus, jqXHR) {
     }
 }
 
+// Declines the membership of user userId for group groupId.
 function declineMembership(groupId, userId) {
     var url =  "http://" + config_serverAddress + "/groups/declinemembership";
     var postdata = {
@@ -238,6 +246,7 @@ function declineMembership(groupId, userId) {
     });
 }
 
+// Callback for when the server answered to declineMembership
 function onDeclineMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
@@ -248,6 +257,7 @@ function onDeclineMembership(data, textStatus, jqXHR) {
 }
 
 
+// Makes the user leave the group passed as a parameter
 function leaveGroup(group) {
     var postdata = { 
         groupid: group,
@@ -266,7 +276,7 @@ function leaveGroup(group) {
     });  
 }
 
-
+// Callback for when the server answered to leaveGroup
 function onLeaveGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
@@ -276,7 +286,7 @@ function onLeaveGroup(data, textStatus, jqXHR) {
     }
 }
 
-
+// Deletes the group
 function deleteGroup(groupId) {
     var url =  "http://" + config_serverAddress + "/groups/deletegroup";
     var postdata = {
@@ -294,6 +304,7 @@ function deleteGroup(groupId) {
     });
 }
 
+// Callback for when the server answered to deleteGroup
 function onDeleteGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
@@ -303,7 +314,7 @@ function onDeleteGroup(data, textStatus, jqXHR) {
     }
 }
 
-
+// Tries to find a group with the search term typed in by the user.
 function searchGroup() {
     if ($("#foundgroup").length > 0) {
         $("#foundgroup").remove();
@@ -325,7 +336,7 @@ function searchGroup() {
     });
 }
 
-
+// Callback for when the server answered to searchGroup
 function onSearchGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         var group = data.response;
@@ -364,7 +375,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
     }
 }
 
-
+// Requests the membership for the user for group groupId.
 function requestMembership(groupId) {
     var url =  "http://" + config_serverAddress + "/groups/requestmembership";
     var postdata = {
@@ -384,7 +395,7 @@ function requestMembership(groupId) {
     });
 }
 
-
+// Callback for when the server answered to requestMembership
 function onRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
@@ -394,6 +405,7 @@ function onRequestMembership(data, textStatus, jqXHR) {
     }
 }
 
+// Cancel the membership request of user userid for group groupId
 function cancelMembershipRequest(groupId) {
     var url =  "http://" + config_serverAddress + "/groups/cancelmembershiprequest";
     var postdata = {
@@ -413,6 +425,7 @@ function cancelMembershipRequest(groupId) {
     });
 }
 
+// Callback for when the server answered to cancelMembershipRequest
 function onCancelRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
@@ -422,7 +435,8 @@ function onCancelRequestMembership(data, textStatus, jqXHR) {
     }
 }
 
-
+// Callback for when a user profile of a group member is found when displaying a group
+// that was found using searchGroup
 function onProfileFoundForSearch(data, textStatus, jqXHR) {
      if (data.meta.code == 200) {
        var profile = data.response;
@@ -437,7 +451,7 @@ function onProfileFoundForSearch(data, textStatus, jqXHR) {
     }
 }
 
-
+// Adds a new group
 function addGroup() {
     var groupName = $("#newGroupName").val();
     var url =  "http://" + config_serverAddress + "/groups/addgroup";
@@ -458,7 +472,7 @@ function addGroup() {
     });
 }
 
-
+// Callback for when the server answered to addGroup
 function onAddGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
@@ -468,7 +482,7 @@ function onAddGroup(data, textStatus, jqXHR) {
     }
 }
 
-
+// Updates the list of groups for which the user is a member in the GUI.
 function refreshGroupsWhereUserIsMemberOf() {
     if ($("#yourGroups").length > 0) {
             $("#yourGroups").empty();
@@ -476,6 +490,7 @@ function refreshGroupsWhereUserIsMemberOf() {
         showGroupsForWhichUserIsMember();
 }
 
+// Clears the results of searching a group in the GUI.
 function clearSearchResults() {
     if ($("#searchGroupResults").length > 0) {
             $("#searchGroupResults").empty();

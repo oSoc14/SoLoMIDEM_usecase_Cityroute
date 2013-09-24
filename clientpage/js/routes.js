@@ -1,8 +1,13 @@
-/**
-* @author: Mathias Raets
-* @copyright: OFKN be
-* This file provides route functionality
-*/
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
+ * Client-side functionality for displaying routes. 
+ *
+ */
 
 var current_spot = null;
 var current_date = new Date();

@@ -1,7 +1,13 @@
-/**
-* @author: Mathias Raets
-* @copyright: OFKN Belgium
-*/
+/*
+ * @author: Andoni Lombide Carreton
+ * @copyright: SoLoMIDEM ICON consortium
+ *
+ * Code based on original implementation by Thomas Stockx, copyright OKFN Belgium
+ * See: https://github.com/oSoc13/Cityroute
+ *
+ * Client-side login  functionality
+ *
+ */
 
 /**
 * log a user in
@@ -37,6 +43,8 @@ function onLoggedIn(data, textStatus, jqXHR) {
         $.cookie("token", data.response.token);
         $.cookie("email", data.response.email);
         $.cookie("user_id", data.response.user_id);
+
+        // TODO: UitID linking
 
         /*var url =  "http://" + config_serverAddress + "/cultuurnet/linkuitid";
 
