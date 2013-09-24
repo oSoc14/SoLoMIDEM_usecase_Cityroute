@@ -37,7 +37,7 @@ process.on('uncaughtException', function (exception) {
  */
 var mongourl;
 if (process.env.MONGOHQ_URL) {
-     var mongourl = process.env.MONGOHQ_URL;
+     mongourl = process.env.MONGOHQ_URL;
 }
 else {
     mongourl = config.mongourl;
@@ -107,6 +107,6 @@ app.post("/groups/profileformembership", groups.getProfileForMembership);
 
 app.use(express.static(__dirname + '/clientpage'));
 
-// start server on port 888 OR on the port in the cloud deployment config.
+// start server on port 8888 OR on the port in the cloud deployment config.
 console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
 app.listen(process.env.PORT || 8888);
