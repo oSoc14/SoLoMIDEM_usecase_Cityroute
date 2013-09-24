@@ -26,7 +26,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
             date = new Date();
         }
 
-        console.log("spot_id: " + spot_id);
+        console.log("spot_id: " + request.body.spot_id);
         console.log("date: " + date);
 
         // find all routes which have item x as starting point
