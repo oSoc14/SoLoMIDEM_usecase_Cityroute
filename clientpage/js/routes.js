@@ -34,13 +34,14 @@ function showRoute ( spotID ){
     $.ajax({
         type: 'POST',
         dataType: "json",
-        crossDomain: true,
-        cache: false,
+        data: postdata,
+        //crossDomain: true,
+        //cache: false,
         url: url,
-        success: onGetRoutes,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
-        }
+        success: onGetRoutes
+        //error: function(jqXHR, errorstatus, errorthrown) {
+        //   alert("Error: " + errorstatus);
+        //}
     });
 };
 
