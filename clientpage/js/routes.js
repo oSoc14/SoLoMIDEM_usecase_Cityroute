@@ -28,7 +28,7 @@ function showRoute ( spotID ){
 
     var url =  "http://" + config_serverAddress + "/routes/routesatspot";
     var postdata = {
-        spotid: spotID,
+        spot_id: spotID,
         date: current_date
     };
     $.ajax({
