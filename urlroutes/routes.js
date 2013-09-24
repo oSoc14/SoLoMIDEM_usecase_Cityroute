@@ -26,11 +26,14 @@ exports.findRoutesStartingAtSpot = function (request, response) {
             date = new Date();
         }
 
+        console.log("spot_id: " + spot_id);
+        console.log("date: " + date);
+
         // find all routes which have item x as starting point
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
              //var db = mongojs(config.dbname);
             var collection = db.collection(config.collection);
-            collection.find({ 'points.0': { item: request.body.spot_id }/*, 'startDate': { $lte: date }, 'endDate': { $gte: date }*/ })
+            collection.find({ 'points.0': { item: request.body.spot_id }, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                 .toArray(function (err, docs) {
                     // the list of routes starting at Spot is stored in the docs array
                     if (err) {
@@ -41,7 +44,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
                     }
                     else {
                         // find all routes which have item x as ending point
-                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, startDate: { $lte: date }, endDate: { $gte: date }})
+                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, 'startDate': { $lte: date }, 'endDate': { $gte: date }})
                             .toArray(function (err, docs2) {
                                 if (err) {
                                     response.send({
