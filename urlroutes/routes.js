@@ -30,7 +30,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
         server.mongoConnectAndAuthenticate(function (err, conn, db) {
              //var db = mongojs(config.dbname);
             var collection = db.collection(config.collection);
-            collection.find({ 'points.0': { item: request.body.spot_id }, startDate: { $lte: date }, endDate: { $gte: date } })
+            collection.find({ 'points.0': { item: request.body.spot_id }, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                 .toArray(function (err, docs) {
                     // the list of routes starting at Spot is stored in the docs array
                     if (err) {
