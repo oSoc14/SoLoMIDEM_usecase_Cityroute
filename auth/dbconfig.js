@@ -17,9 +17,8 @@ var groupscollection = "groups";
 var cachedUsersCollection = "users";
 var uitidscollection = "uitids";
 
-// This authentication data now passed directly in the URL should be hidden somewhere, because now it is in the code.
-// Maybe as a parameter to the startup script?
-var mongourl = "mongodb://heroku:1e0ab9b723c4326cb2f9771bfc20d507@paulo.mongohq.com:10015/app18191768";
+// In case of local MongoDB, use the default port for a MongoDB. Change this if your config is different.
+var mongourl = "mongodb://localhost:27017";
 
 var secret = "xxxxxxxx";
 
