@@ -33,7 +33,7 @@ process.on('uncaughtException', function (exception) {
 
 /**
  * Check if there is a process.env db config (such as on Heroku) that stores the URL to the MongoDB.
- * If not, use the direct URL to the MongoDB hosted on MongoHQ
+ * If not, use the direct URL to a mongoDB stored in the db config.
  */
 var mongourl;
 if (process.env.MONGOHQ_URL) {
