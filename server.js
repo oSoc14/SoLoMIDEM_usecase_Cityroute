@@ -53,14 +53,16 @@ exports.mongourl = mongourl;
 function mongoConnectAndAuthenticate(callback) {
     var MongoClient = require('mongodb').MongoClient;
     MongoClient.connect(mongourl, function(err, db) {
-        // Maybe we should do this somewhere else, checking every single db connect for this index
+        // Maybe we should do this somewhere else, checking every single db connect for indexes
         // is probably overkill.
         (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) {
-            if (err) {
-                console.log(err);
-            }
-            callback(err, null, db);
-         });
+            (db.collection(config.collection)).ensureIndex( { startDate: 1, endDate: 1 }, function(err, idxName) {
+                if (err) {
+                    console.log(err);
+                }
+                callback(err, null, db);
+            });
+        });
     });
 }
 

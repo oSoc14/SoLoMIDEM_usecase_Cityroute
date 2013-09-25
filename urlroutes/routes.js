@@ -21,8 +21,6 @@
         endDate:            The date at which the route stops to be valid (optional).
  *  }
  *
- * BUG: Route filtering on start/enddate doesn't work 100%
- *
  * TODO: extend with iRail public transport spots and CultuurNet events.
  */
 
@@ -47,6 +45,8 @@ exports.findRoutesStartingAtSpot = function (request, response) {
         var date = request.body.date;
         if (date == null) {
             date = new Date();
+        } else {
+            date = new Date(request.body.date);
         }
 
         // find all routes which have item x as starting point filtered on start and enddate
@@ -63,7 +63,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
                     }
                     else {
                         // find all routes which have item x as ending point
-                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, 'startDate': { $lte: date }, 'endDate': { $gte: date }})
+                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                             .toArray(function (err, docs2) {
                                 if (err) {
                                     response.send({
@@ -497,8 +497,8 @@ exports.addRoute = function (request, response) {
             "points": request.body.points,
             "minimumGroupSize": minimumGroupSize,
             "maximumGroupSize": maximumGroupSize,
-            "startDate": request.body.startDate,
-            "endDate": request.body.endDate
+            "startDate": new Date(request.body.startDate),
+            "endDate": new Date(request.body.endDate)
         }, function (err, docs) {
             if (err) {
                 response.send({
