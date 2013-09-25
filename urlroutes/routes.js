@@ -118,6 +118,13 @@ exports.generateRoute = function (request, response) {
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
     }; 
+    if (startDate != null) {
+        startDate = new Date(request.query.startdate);
+    }
+    if (endDate != null) {
+        endDate = new Date(request.query.enddate);
+    }
+
     // check for invalid request
     if (typeof request.query.token !== undefined && typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.spot_id !== undefined && typeof request.query.radius !== undefined) {
 
@@ -161,7 +168,13 @@ exports.generateRouteFromChannelArray = function (request, response) {
     var endDate = request.query.enddate;
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
-    }; 
+    };
+    if (startDate != null) {
+        startDate = new Date(request.query.startdate);
+    }
+    if (endDate != null) {
+        endDate = new Date(request.query.enddate);
+    } 
 
     // check for invalid request
     if (typeof request.query.token !== undefined && typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.spot_id !== undefined && typeof request.query.radius !== undefined && typeof request.query.channels !== undefined) {
@@ -481,10 +494,19 @@ exports.addRoute = function (request, response) {
     var server = require('../server');
     var utils = require('../utils');
 
+    var startDate = request.body.startDate;
+    var endDate = request.body.endDate;
+    if (startDate != null) {
+        startDate = new Date(request.body.startDate);
+    }
+    if (endDate != null) {
+        endDate = new Date(request.body.endDate);
+    }
+
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         //var db = mongojs(config.dbname);
         var collection = db.collection(config.collection);
-        var minimumGroupSize = request.body.minimumGroupSize;
+        var minimumGroupSize = request.endDate.minimumGroupSize;
         var maximumGroupSize = request.body.maximumGroupSize;
         if (minimumGroupSize == null) {
             minimumGroupSize = 1;
@@ -497,8 +519,8 @@ exports.addRoute = function (request, response) {
             "points": request.body.points,
             "minimumGroupSize": minimumGroupSize,
             "maximumGroupSize": maximumGroupSize,
-            "startDate": new Date(request.body.startDate),
-            "endDate": new Date(request.body.endDate)
+            "startDate": startDate,
+            "endDate": endDate
         }, function (err, docs) {
             if (err) {
                 response.send({
