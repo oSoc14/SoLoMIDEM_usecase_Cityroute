@@ -201,7 +201,7 @@ function onUserProfileFound(data, textStatus, jqXHR) {
        $("#members").append("<div id='" + profile.id + "'>" + 
         "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
         "<li data= '" + profile.id + "'>" + first_name + " " + last_name + "</li>" +
-        '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + profile.id + '\')"/></td></tr>' +);
+        '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + profile.id + '\')"/></td></tr>');
     } else {
         alertAPIError(data.meta.message);
     }
