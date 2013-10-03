@@ -40,9 +40,11 @@ $(document).ready( function() {
     $("#tabs").hide();
     $("#generate").hide();
     $("#generateTab").hide();
-    $("#groupsTab").hide();    
+    $("#groupsTab").hide();
+    $("#messagesTab").hide();    
     $("#loader").hide();
-    $("#groups").hide();    
+    $("#groups").hide();
+    $("#messages").hide();   
 });
 
 
@@ -71,7 +73,9 @@ function restart() {
     $("#generateTab").hide();   
     $("#loader").hide();
     $("#groupsTab").hide(); 
-    $("#groups").hide();  
+    $("#messagesTab").hide(); 
+    $("#groups").hide();
+    $("#messages").hide();  
     
     // stop the location tracking
     window.clearInterval(taskID);

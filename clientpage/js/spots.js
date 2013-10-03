@@ -101,6 +101,7 @@ function onCheckedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         $("#generateTab").show();
         $("#groupsTab").show();
+        $("#messagesTab").show();
         showRoute(data.response.data.spot_id);
     } else {
         alert("The Citylife API returned an error. This could be caused by an expired session. Please log in again");

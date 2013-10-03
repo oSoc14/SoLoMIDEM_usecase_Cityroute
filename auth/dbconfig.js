@@ -16,6 +16,7 @@ var collection = "routes";
 var groupscollection = "groups";
 var cachedUsersCollection = "users";
 var uitidscollection = "uitids";
+var messagesCollection = "messages";
 
 // In case of local MongoDB, use the default port for a MongoDB. Change this if your config is different.
 var mongourl = "mongodb://localhost:27017";
@@ -27,5 +28,6 @@ exports.collection = collection;
 exports.groupscollection = groupscollection;
 exports.cachedUsersCollection = cachedUsersCollection;
 exports.uitidscollection = uitidscollection;
+exports.messagesCollection = messagesCollection;
 exports.mongourl = mongourl;
 exports.secret = secret;

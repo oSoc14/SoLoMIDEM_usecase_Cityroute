@@ -139,7 +139,6 @@ exports.findByMember = function(request, response) {
     var requestlib = require('request');
     var server = require('../server');
 
-    // find the route by its name.
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.groupscollection);
         collection.find({ 'users': { $all: [ member_id ] } })

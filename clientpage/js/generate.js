@@ -71,6 +71,7 @@ function onGetGeneratedRoute(data, textStatus, jqXHR) {
         $("#searchresults").html("");
         $("#tabs").hide();
         $("#groups").hide();
+        $("#messages").hide();
     } else {
         alertAPIError(data.meta.message);
     }
@@ -100,6 +101,7 @@ function showGenerate() {
     $("#generate").show();
     $("#channels").html("");
     $("#groups").hide();
+    $("#messages").hide();
 };
 
 /**

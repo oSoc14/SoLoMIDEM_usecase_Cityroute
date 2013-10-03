@@ -19,7 +19,8 @@ var utils = require("./utils");
 var users = require("./urlroutes/users");
 var spots = require("./urlroutes/spots");
 var routes = require("./urlroutes/routes");
-var groups = require("./urlroutes/groups")
+var groups = require("./urlroutes/groups");
+var messages = require("./urlroutes/messages");
 var config = require("./auth/dbconfig.js");
 
 // use express and its bodyParser for POST requests.
@@ -105,6 +106,10 @@ app.post("/groups/cancelmembershiprequest", groups.cancelMembershipRequest);
 app.post("/groups/declinemembership", groups.declineRequestingUser);
 app.post("/groups/removeuser", groups.removeUser);
 app.post("/groups/profileformembership", groups.getProfileForMembership);
+
+app.post("/messages/send", messages.sendMessage);
+app.get("/messages", messages.getMessages);
+app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 
 
 app.use(express.static(__dirname + '/clientpage'));
