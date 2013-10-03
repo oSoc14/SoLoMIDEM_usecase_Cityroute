@@ -28,7 +28,7 @@ exports.getMessages = function(request, response) {
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.messagesCollection);
-        collection.find({ 'receiver_id': user_id })
+        collection.find({ $or: [ { 'receiver_id': user_id }, { 'sender_id': user_id } ] })
              .toArray(function (err, docs) {
                     if (err) {
                         response.send({
@@ -56,8 +56,6 @@ exports.getMessages = function(request, response) {
     var receiver_id = request.body.receiver_id;
     var content = request.body.content;
     var date = new Date();
-
-    var resultAmount = 0;
 
     sendMessageToUser(
     	sender_id, 
@@ -103,7 +101,6 @@ function sendMessageToUser(sender_id, receiver_id, content, date, responseAction
 }
 
 
-
 exports.sendMessageToGroup = function(request, response) {
  	var mongojs = require('mongojs');
     var config = require('../auth/dbconfig');
@@ -111,7 +108,7 @@ exports.sendMessageToGroup = function(request, response) {
     var utils = require('../utils');
 
     var sender_id = request.body.sender_id;
-    var groupName = request.body.groupName;
+    var groupId = request.body.group_id;
     var content = request.body.content;
     var date = new Date();
 
@@ -119,7 +116,7 @@ exports.sendMessageToGroup = function(request, response) {
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var groupscollection = db.collection(config.groupscollection);
-        groupscollection.find({ 'name': groupName })
+        groupscollection.find({ 'id': groupId })
             .each(function (err, docs) {
                 if (err) {
                     response.send({

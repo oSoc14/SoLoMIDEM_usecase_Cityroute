@@ -31,4 +31,80 @@ function showMessages() {
     $("#channels").html("");
     $("#groups").hide();
     $("#messages").show();
+    showMessages();
 }
+
+
+// Show the messages
+function showMessages() {
+    $("#yourMessages").empty();
+
+    var userid = $.cookie("user_id");
+    var url =  "http://" + config_serverAddress + "/messages?user_id=" + userid;
+  
+    $.ajax({
+       type: 'GET',
+       crossDomain:true,
+        url: url,
+        cache: false,
+        success: onMessagesReceived,
+        error: function(jqXHR, errorstatus, errorthrown) {
+           alert("Error: " + errorstatus);
+        }
+    });
+}
+
+
+function onMessagesReceived(data, textStatus, jqXHR) {
+    if (data.meta.code == 200) {
+        var messages = data.response.messages;
+        for (var i = 0; i < messages.length; i++) {
+            var message = messages[i];
+
+            var searchdata = { 
+                id: message.sender_id,
+                token: $.cookie("token")
+            };
+
+            var url =  "http://" + config_serverAddress + "/users/profile";
+            $.ajax({
+                url: url,
+                data: searchdata,
+                dataType: "json",
+                type: "POST",
+                success: function(data, textStatus, jqXHR) {
+                    if (data.meta.code == 200) {
+                        displayMessage(data.response, message);
+                    } else {
+                        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    }
+                },
+                error: function(jqXHR, errorstatus, errorthrown) {
+                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                }
+            });  
+        }
+    } else {
+        alertAPIError(data.meta.message);
+    }
+}
+
+
+function displayMessage(sender, message) {
+    var first_name = sender.first_name;
+    var last_name = sender.last_name;
+    var thumbnail_url = sender.thumbnail_url;
+    var content = message.content;
+    var date = message.date;
+    if (message.sender_id == $.cookie("user_id")) {
+         $("#yourMessages").append("<div id='" + message.id + "'>" + 
+             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
+             "<li data= '" + message.id + "'>" + "<b>" + date + ". You said to " + first_name + " " + last_name + ": </b>" + content + "</li>");
+    } else {
+        $("#yourMessages").append("<div id='" + message.id + "'>" + 
+            "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
+            "<li data= '" + message.id + "'>" + "<b>" + date + ". " + first_name + " " + last_name + " said: </b>" + content + "</li>");
+    }
+}
+
+

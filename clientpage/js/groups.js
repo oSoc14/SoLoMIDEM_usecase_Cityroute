@@ -73,6 +73,7 @@ function onShowGroupsForWhichUserIsMember(data, textStatus, jqXHR) {
             $("#yourGroups").append(
                 "<div id='" + groups[i]._id + "'>" + "<li data= '" + groups[i].name + "'>" + "<h2>" + groups[i].name + "</h2>" + "</li>" +
                 '<tr><td><input type="button" value="Show group" onclick="showGroup(\'' + groups[i]._id + '\')"/></td></tr>' +
+                '<tr><td><input type="button" value="Message group" onclick="messageGroup(\'' + groups[i]._id + '\')"/></td></tr>' +
                 renderLeaveOrDeleteButton(groups[i]) +
                 "</div>");
         }
@@ -81,6 +82,37 @@ function onShowGroupsForWhichUserIsMember(data, textStatus, jqXHR) {
         alertAPIError(data.meta.message);
     }
 }
+
+function messageGroup(groupId) {
+    if ($("#messageText").length > 0) {
+        $("#messageText").remove();
+    };
+    $("#" + groupId).append(
+        '<tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<tr><td><input type="button" value="Send" onclick="sendMessageToGroup(\'' + groupId + '\')"/></td></tr>');
+}
+
+
+function sendMessageToGroup(groupId) {
+    var url =  "http://" + config_serverAddress + "/messages/sendtogroup";
+    var postdata = {
+        sender_id: $.cookie("user_id"),
+        group_id: groupId,
+        content: $("#messageText").val();
+    };
+
+    $.ajax({
+        url: url,
+        data: postdata,
+        dataType: "json",
+        type: "POST",
+        success: onMessageSent,
+        error: function(jqXHR, errorstatus, errorthrown) {
+           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+        }
+    });
+}
+
 
 // Show the contents of a group in the GUI
 function showGroup(groupId) {
@@ -168,11 +200,55 @@ function onUserProfileFound(data, textStatus, jqXHR) {
        var thumbnail_url = profile.thumbnail_url;
        $("#members").append("<div id='" + profile.id + "'>" + 
         "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
-        "<li data= '" + profile.id + "'>" + first_name + " " + last_name + "</li>");
+        "<li data= '" + profile.id + "'>" + first_name + " " + last_name + "</li>" +
+        '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + profile.id + '\')"/></td></tr>' +);
     } else {
         alertAPIError(data.meta.message);
     }
 }
+
+
+function messageUser(userId) {
+     if ($("#messageText").length > 0) {
+        $("#messageText").remove();
+    };
+    $("#" + userId).append(
+        '<tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<tr><td><input type="button" value="Send" onclick="sendMessageToUser(\'' + userId + '\')"/></td></tr>');
+}
+
+
+function sendMessageToUser(userId) {
+    var url =  "http://" + config_serverAddress + "/messages/send";
+    var postdata = {
+        sender_id: $.cookie("user_id"),
+        receiver_id: userId,
+        content: $("#messageText").val();
+    };
+
+    $.ajax({
+        url: url,
+        data: postdata,
+        dataType: "json",
+        type: "POST",
+        success: onMessageSent,
+        error: function(jqXHR, errorstatus, errorthrown) {
+           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+        }
+    });
+}
+
+function onMessageSent() {
+    if (data.meta.code == 200) {
+        if ($("#messageText").length > 0) {
+            $("#messageText").remove();
+        }
+        alert("Message sent!");
+    } else {
+        alertAPIError(data.meta.message);  
+    }
+}
+
 
 // Callback for when the user profile of a user requesting membership of a group is retrieved.
 // Renders the profile in the GUI.
