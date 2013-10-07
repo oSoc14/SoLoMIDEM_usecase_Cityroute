@@ -28,6 +28,7 @@ function showGroups() {
     window.clearInterval(taskID);
     nearbySpotOpened = false;
     $("#generate").hide();
+    $("#messages").hide();
     $("#channels").html("");
     $("#groups").show();
     refreshGroupsWhereUserIsMemberOf();
@@ -84,12 +85,12 @@ function onShowGroupsForWhichUserIsMember(data, textStatus, jqXHR) {
 }
 
 function messageGroup(groupId) {
-    if ($("#messageText").length > 0) {
-        $("#messageText").remove();
+    if ($("#messagediv").length > 0) {
+        $("#messagediv").remove();
     };
     $("#" + groupId).append(
-        '<tr><td><input id="messageText" type="text"/></td></tr>' +
-        '<tr><td><input type="button" value="Send" onclick="sendMessageToGroup(\'' + groupId + '\')"/></td></tr>');
+        '<div id="messagediv"><tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<tr><td><input type="button" value="Send" onclick="sendMessageToGroup(\'' + groupId + '\')"/></td></tr></div>');
 }
 
 
@@ -98,7 +99,7 @@ function sendMessageToGroup(groupId) {
     var postdata = {
         sender_id: $.cookie("user_id"),
         group_id: groupId,
-        content: $("#messageText").val();
+        content: $("#messageText").val()
     };
 
     $.ajax({
@@ -209,12 +210,12 @@ function onUserProfileFound(data, textStatus, jqXHR) {
 
 
 function messageUser(userId) {
-     if ($("#messageText").length > 0) {
-        $("#messageText").remove();
+     if ($("#messagediv").length > 0) {
+        $("#messagediv").remove();
     };
     $("#" + userId).append(
-        '<tr><td><input id="messageText" type="text"/></td></tr>' +
-        '<tr><td><input type="button" value="Send" onclick="sendMessageToUser(\'' + userId + '\')"/></td></tr>');
+        '<div id="messagediv"><tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<tr><td><input type="button" value="Send" onclick="sendMessageToUser(\'' + userId + '\')"/></td></tr></div>');
 }
 
 
@@ -223,7 +224,7 @@ function sendMessageToUser(userId) {
     var postdata = {
         sender_id: $.cookie("user_id"),
         receiver_id: userId,
-        content: $("#messageText").val();
+        content: $("#messageText").val()
     };
 
     $.ajax({
@@ -238,10 +239,10 @@ function sendMessageToUser(userId) {
     });
 }
 
-function onMessageSent() {
+function onMessageSent(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
-        if ($("#messageText").length > 0) {
-            $("#messageText").remove();
+        if ($("#messagediv").length > 0) {
+            $("#messagediv").remove();
         }
         alert("Message sent!");
     } else {
