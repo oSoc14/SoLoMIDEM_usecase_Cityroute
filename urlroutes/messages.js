@@ -65,7 +65,7 @@ exports.getMessages = function(request, response) {
     	function() {
     		response.send({
             	"meta": utils.createOKMeta(),
-            	"response": { "message": message }
+            	"response": { "message": content }
         	});
     	});
 }
@@ -91,7 +91,7 @@ function sendMessageToUser(sender_id, receiver_id, content, date, responseAction
             if (err) {
                 response.send({
                     "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                    "response": {}
+                    "response": { }
                 });
             } else {
                 return responseAction();
@@ -106,6 +106,7 @@ exports.sendMessageToGroup = function(request, response) {
     var config = require('../auth/dbconfig');
     var server = require('../server');
     var utils = require('../utils');
+    var ObjectId = mongojs.ObjectId;
 
     var sender_id = request.body.sender_id;
     var groupId = request.body.group_id;
@@ -116,7 +117,7 @@ exports.sendMessageToGroup = function(request, response) {
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var groupscollection = db.collection(config.groupscollection);
-        groupscollection.find({ 'id': groupId })
+        groupscollection.find({ '_id': ObjectId(groupId) })
             .each(function (err, docs) {
                 if (err) {
                     response.send({
@@ -135,28 +136,18 @@ exports.sendMessageToGroup = function(request, response) {
                 } else {
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
                     resultAmount++;
-                    var sent_count = 0;
-                    for (var i = docs.users.length - 1; i >= 0; i--) {
+                    for (var i = 0; i < docs.users.length - 1; i++) {
                         sendMessageToUser(
                         	sender_id,
                         	docs.users[i],
                         	content,
                         	new Date(),
-                        	function() {
-                        		sent_count = sent_count + 1
-                        	})
+                        	function() {});
                     };
-                    if (sent_count == docs.users.length) {
-                    	response.send({
-            				"meta": utils.createOKMeta(),
-            				"response": { "message": message }
-        				});
-                    } else {
-                    	response.send({
-                        	"meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                        	"response": {}
-                    	});
-                    }        
+                    response.send({
+            			"meta": utils.createOKMeta(),
+            			"response": { "message": content }
+        			});   
                 }
             });
     });
