@@ -108,7 +108,7 @@ app.post("/groups/removeuser", groups.removeUser);
 app.post("/groups/profileformembership", groups.getProfileForMembership);
 
 app.post("/messages/send", messages.sendMessage);
-app.get("/messages", messages.getMessages);
+app.get("/messages/:user_id", messages.getMessages);
 app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 
 

@@ -31,16 +31,16 @@ function showMessages() {
     $("#channels").html("");
     $("#groups").hide();
     $("#messages").show();
-    showMessages();
-}
+    displayMessages();
+  }
 
 
 // Show the messages
-function showMessages() {
+function displayMessages() {
     $("#yourMessages").empty();
 
     var userid = $.cookie("user_id");
-    var url =  "http://" + config_serverAddress + "/messages?user_id=" + userid;
+    var url =  "http://" + config_serverAddress + "/messages/" + userid;
   
     $.ajax({
        type: 'GET',
@@ -98,12 +98,14 @@ function displayMessage(sender, message) {
     var date = message.date;
     if (message.sender_id == $.cookie("user_id")) {
          $("#yourMessages").append("<div id='" + message.id + "'>" + 
-             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
-             "<li data= '" + message.id + "'>" + "<b>" + date + ". You said to " + first_name + " " + last_name + ": </b>" + content + "</li>");
+             "<li data= '" + message.id + "'>" + 
+             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
+             "<b>" + date + ". You said to " + first_name + " " + last_name + ": </b>" + content + "</li>");
     } else {
         $("#yourMessages").append("<div id='" + message.id + "'>" + 
-            "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
-            "<li data= '" + message.id + "'>" + "<b>" + date + ". " + first_name + " " + last_name + " said: </b>" + content + "</li>");
+            "<li data= '" + message.id + "'>" + 
+            "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
+            "<b>" + date + ". " + first_name + " " + last_name + " said: </b>" + content + "</li>");
     }
 }
 
