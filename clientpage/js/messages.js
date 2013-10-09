@@ -56,15 +56,22 @@ function displayMessages() {
 
 
 function onMessagesReceived(data, textStatus, jqXHR) {
+    // TODO: sort messages on date, pretty print date 
     if (data.meta.code == 200) {
         var messages = data.response.messages;
-        for (var i = 0; i < messages.length; i++) {
-            var message = messages[i];
-
+        messages.forEach(function (message) {
             var searchdata = { 
                 id: message.sender_id,
                 token: $.cookie("token")
             };
+
+            function successHandler(data, textStatus, jqXHR) {
+                if (data.meta.code == 200) {
+                    displayMessage(data.response, message);
+                } else {
+                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                }
+            }
 
             var url =  "http://" + config_serverAddress + "/users/profile";
             $.ajax({
@@ -72,18 +79,12 @@ function onMessagesReceived(data, textStatus, jqXHR) {
                 data: searchdata,
                 dataType: "json",
                 type: "POST",
-                success: function(data, textStatus, jqXHR) {
-                    if (data.meta.code == 200) {
-                        displayMessage(data.response, message);
-                    } else {
-                        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-                    }
-                },
+                success: successHandler,
                 error: function(jqXHR, errorstatus, errorthrown) {
                     alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
-        }
+        });
     } else {
         alertAPIError(data.meta.message);
     }
