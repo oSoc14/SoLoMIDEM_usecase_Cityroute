@@ -89,7 +89,7 @@ function messageGroup(groupId) {
         $("#messagediv").remove();
     };
     $("#" + groupId).append(
-        '<div id="messagediv"><tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<div id="messagediv"><tr><td><textarea id="messageText" rows="7" cols="40"/></td></tr>' + "<br>" +
         '<tr><td><input type="button" value="Send" onclick="sendMessageToGroup(\'' + groupId + '\')"/></td></tr></div>');
 }
 
@@ -214,7 +214,7 @@ function messageUser(userId) {
         $("#messagediv").remove();
     };
     $("#" + userId).append(
-        '<div id="messagediv"><tr><td><input id="messageText" type="text"/></td></tr>' +
+        '<div id="messagediv"><tr><td><textarea id="messageText" rows="7" cols="40"/></td></tr>' + "<br>" +
         '<tr><td><input type="button" value="Send" onclick="sendMessageToUser(\'' + userId + '\')"/></td></tr></div>');
 }
 

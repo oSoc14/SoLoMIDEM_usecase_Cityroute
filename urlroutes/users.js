@@ -280,6 +280,55 @@ exports.getProfile = function (request, response) {
     });
 }
 
+exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, successCallback, failCallback) {
+    var utils = require("../utils");
+    var https = require('https');
+    var querystring = require('querystring');
+    var requestlib = require('request');
+    var citylife = require('../auth/citylife');
+
+    var getSenderCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + sender_id;
+    var getReceiverCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + receiver_id;
+
+    requestlib({
+        uri: getSenderCall,
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        }
+    }, function (error, responselib, sender) {
+        if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
+            failCallback(error);
+        } else {
+            if (responselib.statusCode == 401) {
+                failCallback(error);
+            } else {
+                requestlib({
+                    uri: getReceiverCall,
+                    method: "GET",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    }
+                }, function (error, responselib, receiver) {
+                    if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
+                        failCallback(error);
+                    } else {
+                        if (responselib.statusCode == 401) {
+                            failCallback(error);
+                        } else {
+                            successCallback({ 
+                                'message': message, 
+                                'sender': (JSON.parse(sender)).response, 
+                                'receiver': (JSON.parse(receiver)).response 
+                            });
+                        }
+                    }
+                });
+            }
+        }
+    });
+}
+
 
 /**
  * Temporary function to drop everything from database and start from scratch.

@@ -16,6 +16,7 @@
 // declare external files
 var express = require("express");
 var utils = require("./utils");
+var moment = require('moment');
 var users = require("./urlroutes/users");
 var spots = require("./urlroutes/spots");
 var routes = require("./urlroutes/routes");
@@ -108,7 +109,7 @@ app.post("/groups/removeuser", groups.removeUser);
 app.post("/groups/profileformembership", groups.getProfileForMembership);
 
 app.post("/messages/send", messages.sendMessage);
-app.get("/messages/:user_id", messages.getMessages);
+app.post("/messages/foruser", messages.getMessages);
 app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 
 

@@ -40,13 +40,23 @@ function displayMessages() {
     $("#yourMessages").empty();
 
     var userid = $.cookie("user_id");
-    var url =  "http://" + config_serverAddress + "/messages/" + userid;
+    var before_date = new Date();
+    before_date.setDate(before_date.getDate() + 1);
+    var after_date = new Date();
+    after_date.setDate(before_date.getDate() - 8);
+    var url =  "http://" + config_serverAddress + "/messages/foruser";
+    var postdata = {
+        'user_id': userid,
+        'before_date': before_date,
+        'after_date': after_date,
+        'token': $.cookie("token")
+    }
   
     $.ajax({
-       type: 'GET',
-       crossDomain:true,
+       type: 'POST',
+       dataType: "json",
         url: url,
-        cache: false,
+        data: postdata,
         success: onMessagesReceived,
         error: function(jqXHR, errorstatus, errorthrown) {
            alert("Error: " + errorstatus);
@@ -56,34 +66,11 @@ function displayMessages() {
 
 
 function onMessagesReceived(data, textStatus, jqXHR) {
-    // TODO: sort messages on date, pretty print date 
+    // pretty print date, make messages browsable by date (currently shows messages of last 7 days)
     if (data.meta.code == 200) {
-        var messages = data.response.messages;
-        messages.forEach(function (message) {
-            var searchdata = { 
-                id: message.sender_id,
-                token: $.cookie("token")
-            };
-
-            function successHandler(data, textStatus, jqXHR) {
-                if (data.meta.code == 200) {
-                    displayMessage(data.response, message);
-                } else {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-                }
-            }
-
-            var url =  "http://" + config_serverAddress + "/users/profile";
-            $.ajax({
-                url: url,
-                data: searchdata,
-                dataType: "json",
-                type: "POST",
-                success: successHandler,
-                error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-                }
-            });  
+        var messagesAndUsers = data.response;
+        messagesAndUsers.forEach(function (messageAndUser) {
+            displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
     } else {
         alertAPIError(data.meta.message);
@@ -91,22 +78,21 @@ function onMessagesReceived(data, textStatus, jqXHR) {
 }
 
 
-function displayMessage(sender, message) {
-    var first_name = sender.first_name;
-    var last_name = sender.last_name;
+function displayMessage(sender, receiver, message) {
     var thumbnail_url = sender.thumbnail_url;
     var content = message.content;
     var date = message.date;
+    var mom = moment(new Date(date)).fromNow();
     if (message.sender_id == $.cookie("user_id")) {
          $("#yourMessages").append("<div id='" + message.id + "'>" + 
              "<li data= '" + message.id + "'>" + 
              "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-             "<b>" + date + ". You said to " + first_name + " " + last_name + ": </b>" + content + "</li>");
+             "<b>" + " " + mom + ", you said to " + receiver.first_name + " " + receiver.last_name + ": </b>" + "<br>" + content + "</li>");
     } else {
         $("#yourMessages").append("<div id='" + message.id + "'>" + 
             "<li data= '" + message.id + "'>" + 
             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-            "<b>" + date + ". " + first_name + " " + last_name + " said: </b>" + content + "</li>");
+            "<b>" + " " + mom + ", " + sender.first_name + " " + sender.last_name + " said: </b>" + "<br>" + content + "</li>");
     }
 }
 

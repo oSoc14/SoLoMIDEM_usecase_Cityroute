@@ -23,12 +23,29 @@ exports.getMessages = function(request, response) {
     var config = require('../auth/dbconfig');
     var server = require('../server');
     var utils = require('../utils');
+    var users = require('../urlroutes/users.js');
 
-    var user_id = request.params.user_id;
+    var user_id = request.body.user_id;
+    var before_date = request.body.before_date;
+    var after_date = request.body.after_date;
+    var token = request.body.token;
+
+    if (before_date == null) {
+        before_date = new Date();
+    } else {
+        before_date = new Date(request.body.before_date);
+    }
+
+    if (after_date == null) {
+        after_date = new Date();
+    } else {
+        after_date = new Date(request.body.after_date);
+        after_date.setDate(after_date.getDate() - 365);
+    }
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.messagesCollection);
-        collection.find({ $or: [ { 'receiver_id': user_id }, { 'sender_id': user_id } ] })
+        collection.find({ $or: [ { 'receiver_id': user_id }, { 'sender_id': user_id } ], 'date': { $gte: after_date }, 'date': { $lte: before_date } })
              .toArray(function (err, docs) {
                     if (err) {
                         response.send({
@@ -36,10 +53,32 @@ exports.getMessages = function(request, response) {
                             "response": {}
                         });
                     } else {
-                        response.send({
-                            "meta": utils.createOKMeta(),
-                            "response": { "messages": docs }
-                        });
+                    	var messagesAndUsers = [];
+                    	docs.forEach(function (message) {
+                    		users.linkUsersToMessage(
+                    			message,
+                    			message.sender_id,
+                    			message.receiver_id,
+                    			token, 
+                    			function (result) {
+                    				messagesAndUsers.push(result);
+                    				if (messagesAndUsers.length == docs.length) {
+                    					messagesAndUsers.sort(function (x, y) {
+                    						return (new Date(x.message.date)).getTime() > (new Date(y.message.date)).getTime();
+                    					});
+                    					response.send({
+                            				"meta": utils.createOKMeta(),
+                            				"response": messagesAndUsers
+                       					 });
+                    				}
+                    			},
+                    			function (error) {
+                    				response.send({
+                						"meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
+                						"response": {}
+            						});
+                    			})
+                    	});
                     }
         });
     });
