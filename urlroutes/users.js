@@ -330,6 +330,44 @@ exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, su
 }
 
 
+exports.setLastMessageReadTimestamp = function(userid, timestamp) {
+    var mongojs = require('mongojs');
+    var config = require('../auth/dbconfig');
+    var server = require('../server');
+    var utils = require('../utils');
+
+    var resultAmount = 0;
+
+    server.mongoConnectAndAuthenticate(function (err, conn, db) {
+        var usersCollection = db.collection(config.usersCollection);
+        usersCollection.find({ 'user_id': userid })
+            .each(function (err, docs) {
+                if (!docs) {
+                    // we visited all docs in the collection
+                    // if docs is empty
+                    if (resultAmount == 0) {
+                        usersCollection.insert(
+                            { 
+                                'user_id'   : userid,
+                                'timestamp' : timestamp
+                            },
+                            function (err, docs) {});
+                    }
+                } else {
+                    // increase resultAmount so on next iteration the algorithm knows the id was found.
+                    resultAmount++;
+                    usersCollection.save({
+                        '_id'       : docs._id,
+                        'user_id'   : userid,
+                        'timestamp' : timestamp
+                    },
+                    function (err, docs) {}); 
+                }
+            });
+    });
+}
+
+
 /**
  * Temporary function to drop everything from database and start from scratch.
  */

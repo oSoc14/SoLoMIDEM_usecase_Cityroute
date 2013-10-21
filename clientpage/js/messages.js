@@ -72,6 +72,23 @@ function onMessagesReceived(data, textStatus, jqXHR) {
         messagesAndUsers.forEach(function (messageAndUser) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
+
+        var url =  "http://" + config_serverAddress + "/messages/markasread";
+        var postdata = {
+            'user_id': $.cookie("user_id"),
+            'read_until': new Date()
+        }
+  
+        $.ajax({
+            type: 'POST',
+            dataType: "json",
+            url: url,
+            data: postdata,
+            success: function() { },
+            error: function(jqXHR, errorstatus, errorthrown) {
+                alert("Error: " + errorstatus);
+            }
+        });
     } else {
         alertAPIError(data.meta.message);
     }

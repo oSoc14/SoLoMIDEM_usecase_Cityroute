@@ -133,6 +133,9 @@ function sendMessageToUser(sender_id, receiver_id, content, date, responseAction
                     "response": { }
                 });
             } else {
+                exports.getNumberOfUnreadMessages(receiver_id, function(number) { 
+                    server.sendNumberOfUnreadMessages(receiver_id, number);
+                });
                 return responseAction();
             }
         });  
@@ -190,4 +193,47 @@ exports.sendMessageToGroup = function(request, response) {
                 }
             });
     });
+}
+
+exports.markMessagesAsRead = function(request, response) {
+    var users = require('../urlroutes/users.js');
+
+    var user_id = request.body.user_id;
+    var read_until = request.body.read_until;
+
+    users.setLastMessageReadTimestamp(user_id, read_until);
+}
+
+
+exports.getNumberOfUnreadMessages = function(userid, onFound) {
+    var mongojs = require('mongojs');
+    var config = require('../auth/dbconfig');
+    var server = require('../server');
+
+    server.mongoConnectAndAuthenticate(function (err, conn, db) {
+        var usersCollection = db.collection(config.usersCollection);
+        usersCollection.find({ 'user_id': userid })
+            .each(function (err, messageTimestamp) {
+                var collection = db.collection(config.messagesCollection);
+                if (!messageTimestamp) {
+                    collection.find({ 'receiver_id': userid })
+                        .toArray(function (err, docs) {
+                            if (!err) {
+                                return onFound(docs.length);
+                            } else {
+                                return onFound(0);
+                            }
+                        });
+                    } else {
+                        collection.find({ 'receiver_id': userid, 'date': { $gt: new Date(messageTimestamp.timestamp) } })
+                            .toArray(function (err, docs) {
+                                if (!err) {
+                                 return onFound(docs.length);
+                                } else {
+                                    return onFound(0);
+                                }
+                            });
+                    }
+            });
+        });
 }
