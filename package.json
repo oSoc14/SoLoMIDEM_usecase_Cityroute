@@ -8,6 +8,7 @@
     "request": "",
     "polyline": "",
     "querystring": "",
-    "moment": "~2.3.1"
+    "moment": "~2.3.1",
+    "ws": ""
   }
 }
