@@ -96,7 +96,10 @@ function onMessagesReceived(data, textStatus, jqXHR) {
 
 
 function displayMessage(sender, receiver, message) {
-    var thumbnail_url = sender.thumbnail_url;
+    var thumbnail_url = sender.avatar;
+    if (thumbnail_url === null) {
+        thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+    }
     var content = message.content;
     var date = message.date;
     var mom = moment(new Date(date)).fromNow();

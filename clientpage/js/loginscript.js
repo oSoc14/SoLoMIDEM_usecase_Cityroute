@@ -16,23 +16,32 @@ function loginuser(){
     var psw = $("#password").val();
     var userName = $("#username").val();
     var encoded = $.base64('btoa',userName + ":" + psw, false);
-    var url =  "http://" + config_serverAddress + "/users/login/" + encoded;
+    var url =  "http://" + config_serverAddress + "/users/login/";
     
     // send a request to the nodeJS API to log the user in
     // parameters: Base64 encoded <username>:<password>
     // returns: bearer token
-    
+
+     var postdata = {
+        "username": userName,
+        "password": psw,
+        "encoded": encoded 
+    };
+
     $.ajax({
-       type: 'GET',
-       crossDomain:true,
         url: url,
+        data: postdata,
+        dataType: "json",
+        type: "POST",
         success: onLoggedIn,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
+
     $("#login").hide();
     $("#loader").show();
+
 };
 
 /**
@@ -41,8 +50,7 @@ function loginuser(){
 function onLoggedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200){
         $.cookie("token", data.response.token);
-        $.cookie("email", data.response.email);
-        $.cookie("user_id", data.response.user_id);
+        $.cookie("user_id", data.response.id);
 
         // TODO: UitID linking
 
@@ -73,6 +81,7 @@ function onLoggedIn(data, textStatus, jqXHR) {
                 if (message == 'new_messages_for_user?') {
                     ws.send('user_id', $.cookie("user_id"));
                 } else {
+                    console.log("new: " + message);
                     $( "#messagesTab").val("Messages -- " + message + " new");
                 }
             }
@@ -96,7 +105,7 @@ function onUitIdLinked(data, textStatus, jqXHR) {
 */
 function logOut() {
 
-    var url =  "http://" + config_serverAddress + "/users/logout/" + $.cookie("token");
+    /*var url =  "http://" + config_serverAddress + "/users/logout/" + $.cookie("token");
     // send a request to the nodeJS API to log the user out
     // parameters: the baearer token
     // returns: empty
@@ -108,7 +117,9 @@ function logOut() {
         error: function(jqXHR, errorstatus, errorthrown) {
            alert(errorstatus + ": aaa" + errorthrown);
         }
-    }); 
+    });*/
+    $.removeCookie("token");
+    location.reload();
 };
 
 /**

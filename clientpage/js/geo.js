@@ -54,8 +54,13 @@ function onGetSpots(data, textStatus, jqXHR) {
         // clear the list of spots for the routebuilder
         routeBuilderClearSpots();
         $.each(data.response.data.items, function(index, value) {
-            $('#spotListTable').append('<tr><td>' + value.title + '</td><td>' + value.meta_info.distance_str + 
-            '</td><td> <input type="button" onclick=checkIn("' + value.link.params.id + '") value="Check In" /></tr>');
+            var image = value.discover_card_data.image_url;
+            if (image === null) {
+              image = "http://www.viamusica.com/images/icon_location02.gif";
+            }
+            $('#spotListTable').append('<tr><td>' + value.detail_data.title + '</td>' +
+            '<td>' +  "<img src='" + image + "' alt='<spot image>' width='" + (browserWidth/40) + "'>" + '</td>' +  
+            '</td><td> <input type="button" onclick="checkIn(' + "'" + value.item + "'" + "," + "'" + value.channel + "'" + ')" value="Check In" /></tr>');
             $("#geolocationPar").hide();
             $("#spotList").show();
             routeBuilderAddSpot(value);
@@ -69,8 +74,8 @@ function onGetSpots(data, textStatus, jqXHR) {
 * check in at a given spot
 * @param spotID the id of the spot where you want to check in
 */
-function checkIn( spotID ) {
-    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&token=" + $.cookie("token");
+function checkIn( spotID, channelID ) {
+    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     $.ajax({
        type: 'GET',
        crossDomain:true,
@@ -91,7 +96,7 @@ function checkIn( spotID ) {
 function onCheckedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         $("#generateTab").show();
-        showRoute(data.response.data.spot_id);
+        showRoute(data.response.spot_id);
     } else {
         alert("The Citylife API returned an error. This could be caused by an expired session. Please log in again");
         logOut();
@@ -116,7 +121,7 @@ function showRoute ( spotID ){
     var url =  "http://" + config_serverAddress + "/routes/?spot_id=" + spotID;
     $.ajax({
         type: 'GET',
-        crossDomain:true,
+        crossDomain: true,
         cache: false,
         url: url,
         success: onGetRoutes,
@@ -159,7 +164,6 @@ function selectRoute(routeID) {
    * parameters: latitude and longitude
    * returns: list of spots
    */
-   
     var url =  "http://" + config_serverAddress + "/routes/" + routeID;
     $("#routes").hide();
     $("#map-canvas").show();

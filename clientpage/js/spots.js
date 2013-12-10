@@ -17,7 +17,7 @@ var routeData;
 * get the geo location
 */
 function getGeolocation() {
-    $.getScript("/js/auth/apikey.js",function(){googleKey = mapsapikey});
+    //$.getScript("/js/auth/apikey.js",function(){googleKey = mapsapikey});
     
     navigator.geolocation.getCurrentPosition(onLocationKnown,function(err){
         alert("Could not request geolocation");
@@ -54,11 +54,21 @@ function onLocationKnown(position) {
 */
 function onGetSpots(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
+        var browserHeight = $(window).height();
+        var browserWidth= $(window).width();
+
         // clear the list of spots for the routebuilder
         routeBuilderClearSpots();
-        $.each(data.response.data.items, function(index, value) {
-            $('#spotListTable').append('<tr><td>' + value.title + '</td><td>' + value.meta_info.distance_str + 
-                '</td><td> <input type="button" onclick=checkIn("' + value.link.params.id + '") value="Check In" /></tr>');
+        $.each(data.response, function(index, value) {
+            var image = value.discover_card_data.image_url;
+            if (image === null) {
+              image = "http://www.viamusica.com/images/icon_location02.gif";
+            }
+            $('#spotListTable').append(
+                '<tr><td><b>' + value.detail_data.title + '</b></td>' + 
+                '<td>' +  "<img src='" + image + "' alt='<spot image>' width='" + (browserWidth/6) + "'>" + '</td>' + 
+                //'<td>' + value.detail_data.description + 
+                '</td><td> <input type="button" onclick="checkIn(' + "'" + value.item + "'" + "," + "'" + value.channel + "'" + ')" value="Check In" /></tr>');
             $("#geolocationPar").hide();
             $("#spotList").show();
             routeBuilderAddSpot(value);
@@ -72,12 +82,12 @@ function onGetSpots(data, textStatus, jqXHR) {
 * check in at a given spot
 * @param spotID the id of the spot where you want to check in
 */
-function checkIn( spotID ) {
+function checkIn( spotID, channelID ) {
 
     // send a request to the nodeJS API to check in at a spot
     // parameters: the bearer token and the spot id
     // returns: confirmation of the check-in, spot ID
-    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&token=" + $.cookie("token");
+    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     $.ajax({
        type: 'GET',
        crossDomain:true,
@@ -88,10 +98,6 @@ function checkIn( spotID ) {
            alert("Error: " + errorstatus);
         }
     });
-    
-    // set the start spot for a route
-    routeBuilderSetFirstSpot(spotID);
-     $("#map-canvas").height(0);
 };
 
 /**
@@ -99,12 +105,15 @@ function checkIn( spotID ) {
 */
 function onCheckedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
+        routeBuilderSetFirstSpot((JSON.parse(data.response)).id);
+        $("#map-canvas").height(0);
+
         $("#generateTab").show();
         $("#groupsTab").show();
         $("#messagesTab").show();
-        showRoute(data.response.data.spot_id);
+        showRoute((JSON.parse(data.response)).item_id);
     } else {
-        alert("The Citylife API returned an error. This could be caused by an expired session. Please log in again");
-        logOut();
+        alert("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
+        //logOut();
     }    
-};
+}

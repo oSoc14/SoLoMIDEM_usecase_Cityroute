@@ -113,7 +113,6 @@ function selectRoute(routeID) {
    * parameters: latitude and longitude
    * returns: list of spots
    */
-   
     var url =  "http://" + config_serverAddress + "/routes/" + routeID;
     $("#routes").hide();
     $("#map-canvas").show();

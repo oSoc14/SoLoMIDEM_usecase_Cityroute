@@ -11,7 +11,7 @@ var googleMap;
 var myMarker;
 var taskID;
 var nearbySpotOpened = false;
-var CHECKIN_DISTANCE_TRESHOLD = 0.100; // the range when a pop-up for a check-in pops up (in km)
+var CHECKIN_DISTANCE_TRESHOLD = 0.250; // the range when a pop-up for a check-in pops up (in km)
 
 var visitedSpots = [];
 
@@ -23,10 +23,10 @@ var visitedSpots = [];
 function generateRoute( ) {
     $("#aside").show();
     var numSpots = routeData.spots.length -1;
-    var originLat = routeData.spots[0].response.latitude;
-    var originLong = routeData.spots[0].response.longitude;
-    var destLat = routeData.spots[numSpots].response.latitude;
-    var destLong = routeData.spots[numSpots].response.longitude;
+    var originLat = routeData.spots[0].latitude;
+    var originLong = routeData.spots[0].longitude;
+    var destLat = routeData.spots[numSpots].latitude;
+    var destLong = routeData.spots[numSpots].longitude;
     var latLong = new google.maps.LatLng(originLat, originLong);
     var destLatLong = new google.maps.LatLng(destLat, destLong);    
     
@@ -43,7 +43,7 @@ function generateRoute( ) {
     $.each(routeData.spots, function(index, value) {
                         //the first and the last spot are not waypoints!
                         if (index != 0 && index != numSpots){
-                            var coords = new google.maps.LatLng(value.response.latitude, value.response.longitude);
+                            var coords = new google.maps.LatLng(value.latitude, value.longitude);
                             waypoints.push({location:coords, stopover:true});
                             }
                         });
@@ -131,8 +131,8 @@ function onRouteCalculated (directionsResult, directionsStatus){
 function addIcon(spot, iconString){
     var markerOptions = 
         {   
-            position: new google.maps.LatLng(spot.response.latitude, spot.response.longitude),
-            title: "Location:" + spot.response.name,
+            position: new google.maps.LatLng(spot.latitude, spot.longitude),
+            title: "Location:" + spot.name,
             animation: google.maps.Animation.DROP,
             clickable: true,
             icon: iconString            
@@ -143,7 +143,7 @@ function addIcon(spot, iconString){
         var infoWindow = new google.maps.InfoWindow();
         
         // add a infowindow with the name of the spot
-        infoWindow.setContent("<b>Location:</b>" + spot.response.name + "<br /><b>Description:</b>" + spot.response.description);
+        infoWindow.setContent("<b>Location:</b>" + spot.name + "<br /><b>Description:</b>" + spot.description);
         
         google.maps.event.addListener(marker, 'click', function() {
             infoWindow.open(googleMap, marker);
@@ -160,15 +160,15 @@ function showRouteMetaInfo(waypoints){
     $("#routeSpotsList").html("");
     
     //add start point
-    $("#routeSpotsList").append("<li>" + routeData.spots[0].response.name + "</li>");    
+    $("#routeSpotsList").append("<li>" + routeData.spots[0].name + "</li>");    
     
     // add waypoints
     for (var i = 0; i < waypoints.length; ++i ){
-          $("#routeSpotsList").append("<li>" + routeData.spots[waypoints[i] + 1].response.name + "</li>");
+          $("#routeSpotsList").append("<li>" + routeData.spots[waypoints[i] + 1].name + "</li>");
     }
     
     //add last point
-    $("#routeSpotsList").append("<li>" + routeData.spots[waypoints.length + 1].response.name + "</li>");
+    $("#routeSpotsList").append("<li>" + routeData.spots[waypoints.length + 1].name + "</li>");
 };
 
 
@@ -178,7 +178,7 @@ function showRouteMetaInfo(waypoints){
 */
 function checkSpotsOnRoute ( currentPosition ) {
     $.each( routeData.spots, function (index, value) {
-        var distance = haversine( currentPosition.lat(), value.response.latitude, currentPosition.lng(), value.response.longitude);
+        var distance = haversine( currentPosition.lat(), value.latitude, currentPosition.lng(), value.longitude);
         if (!nearbySpotOpened && distance <= CHECKIN_DISTANCE_TRESHOLD) {
             if ( $.inArray( value, visitedSpots ) < 0 ) {
                 showSpotInfo(value);
@@ -196,8 +196,8 @@ function checkSpotsOnRoute ( currentPosition ) {
 function showSpotInfo (spot) {
     $("#spotInfo").hide();
        
-    var latitude = spot.response.latitude;
-    var longitude = spot.response.longitude;
+    var latitude = spot.latitude;
+    var longitude = spot.longitude;
     
     var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude;
     
@@ -223,18 +223,42 @@ function showSpotInfo (spot) {
 **/
 function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
     if (data.meta.code == 200) {
-        $("#spotInfo").html("<b> Spot: </b> " + spot.response.name + "</br> <b>Description:</b>" + spot.response.description +
-            "<br /> <img src ='" + spot.response.images.cover.link +  "' width = '200' height='200'/>");
-         $("#spotInfo").append("<input type='button' value='Check in here' onclick=checkinAtNearSpot('" + spot.response.id + "') /><input type='button' value='Close' onclick= $('#spotInfo').slideUp();nearbySpotOpened = false; />");
+        $("#spotInfo").html("<b> Spot: </b> " + spot.name + "</br> <b>Description:</b>" + spot.description +
+            "<br /> <img src ='" + spot.image +  "' width = '200' height='200'/>");
+         $("#spotInfo").append("<input type='button' value='Check in here' onclick=checkinAtNearSpot('" + (spot.url.split('/spots/'))[1] + "') /><input type='button' value='Close' onclick= $('#spotInfo').slideUp();nearbySpotOpened = false; />");
          $("#spotInfo").append("<div onclick=$('#nearbyList').slideToggle()> Show/Hide nearby spots </div>");
             
         $("#spotInfo").append("<div  id = 'nearbyList' class='nearbySpots';/>");
-        $.each(data.response.data.items, function (index, value) {
-            if (value.link.params.id != spot.response.id)
-                $("#nearbyList").append("<div>" + value.title + "<br/><img width='150' height='150' src='" + value.mapspng + "'</div>");
-        });          
-        $('#nearbyList').hide();
-        $("#spotInfo").slideDown();
+
+
+         function getSpotDataFromChannelEntry(channel_entry, callback) {
+            var item_url = channel_entry.item;
+            $.ajax({
+                type: 'GET',
+                crossDomain:true,
+                url: item_url,
+                cache: false,
+                dataType:"json",
+                beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
+                success: function(item, textStatus, jqXHR) {
+                    var result = { mapspng: channel_entry.mapspng, spot: item };
+                    callback(null, result);
+                },
+                error: function(jqXHR, errorstatus, errorthrown) {
+                    alert(errorstatus + ": " + errorthrown);
+                }
+            });  
+        }
+
+        async.map(data.response, getSpotDataFromChannelEntry, function(err, results) {
+            $.each(results, function (index, data) {
+                if (data.spot.item_id != spot.id)
+                    $("#nearbyList").append("<div>" + data.spot.data.name + "<br/><img width='150' height='150' src='" + data.mapspng + "'</div>");
+            });          
+            $('#nearbyList').hide();
+            $("#spotInfo").slideDown();
+        });
+
     } else {
         alertAPIError(data.meta.message);
     }        

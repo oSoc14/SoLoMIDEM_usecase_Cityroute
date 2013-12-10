@@ -195,14 +195,20 @@ function onShowGroup(data, textStatus, jqXHR) {
 // Renders the profile in the GUI.
 function onUserProfileFound(data, textStatus, jqXHR) {
      if (data.meta.code == 200) {
-       var profile = data.response;
+       var profile = JSON.parse(data.response);
        var first_name = profile.first_name;
        var last_name = profile.last_name;
-       var thumbnail_url = profile.thumbnail_url;
+       var thumbnail_url = null;
+       if (profile.avatar !== null) {
+            thumbnail_url = profile.avatar;
+       } else {
+            thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+       }
+       var id = (profile.url.split('/profiles/'))[1];
        $("#members").append("<div id='" + profile.id + "'>" + 
         "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
-        "<li data= '" + profile.id + "'>" + first_name + " " + last_name + "</li>" +
-        '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + profile.id + '\')"/></td></tr>');
+        "<li data= '" + id + "'>" + first_name + " " + last_name + "</li>" +
+        '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + id + '\')"/></td></tr>');
     } else {
         alertAPIError(data.meta.message);
     }

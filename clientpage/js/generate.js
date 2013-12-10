@@ -17,41 +17,62 @@ var generatedRoute = false;;
 * generate a route based on a channel and a current spot
 */
 function autoGenerateRoute() {
-    var spot = spots[0];
+    var entry = spots[0];
     var token = $.cookie("token");
     var channelname = $('#channelList').find(":selected").val();
-    var latitude = spot.meta_info.latitude;
-    var longitude = spot.meta_info.longitude;
-    var id = spot.link.params.id;
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
     var maxGroupSize = parseInt($('#maxGroupSizeGenerate').val());
     var startdate = $( "#datepicker_from_generate" ).datepicker( "getDate" );
     var enddate = $( "#datepicker_to_generate" ).datepicker( "getDate" );
 
-    if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
-    } else {
-        var url = "http://" + config_serverAddress + "/routes/generate/" + channelname + "?token=" + token + 
-            "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
-            "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
-            "&startdate=" + startdate + "&enddate=" + enddate;
-    
-        // send a request to the nodeJS API to get an automatically generated route
-        // parameters: latitude and longitude, channel name, bearer token, spot ID and a radius
-        // returns: a fully generated route
-    
+    function getSpotDataFromChannelEntry(channel_entry, callback) {
+        var item_url = channel_entry.item;
         $.ajax({
             type: 'GET',
             crossDomain:true,
-            url: url,
+            url: item_url,
             cache: false,
-            success: onGetGeneratedRoute,
+            dataType:"json",
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
+            success: function(item, textStatus, jqXHR) {
+                callback(item);
+            },
             error: function(jqXHR, errorstatus, errorthrown) {
-            alert(errorstatus + ": " + errorthrown);
+                alert(errorstatus + ": " + errorthrown);
             }
-        }); 
-        $("#generate").hide();
-        $("#loader").show();
+        });  
+    }
+
+    if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
+        alert("Minimum group cannot be larger than maximum group size!");
+    } else {
+        getSpotDataFromChannelEntry(entry, function(spot) {
+            var latitude = spot.point.latitude;
+            var longitude = spot.point.longitude;
+            var id = spot.item_id;
+
+            var url = "http://" + config_serverAddress + "/routes/generate/" + channelname + "?token=" + token + 
+                "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
+                "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
+                "&startdate=" + startdate + "&enddate=" + enddate;
+
+            // send a request to the nodeJS API to get an automatically generated route
+            // parameters: latitude and longitude, channel name, bearer token, spot ID and a radius
+            // returns: a fully generated route
+    
+            $.ajax({
+                type: 'GET',
+                crossDomain:true,
+                url: url,
+                cache: false,
+                success: onGetGeneratedRoute,
+                error: function(jqXHR, errorstatus, errorthrown) {
+                    alert(errorstatus + ": " + errorthrown);
+                }
+            }); 
+            $("#generate").hide();
+            $("#loader").show();
+        });
     }
 };
 

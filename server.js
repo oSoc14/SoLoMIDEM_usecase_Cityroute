@@ -73,7 +73,7 @@ exports.mongoConnectAndAuthenticate = mongoConnectAndAuthenticate;
 
 
 // define the users API url routes.
-app.get("/users/login/:base64", users.login);
+app.post("/users/login", users.login);
 app.get("/users/logout/:token", users.logout);
 app.post("/users/profile", users.getProfile);
 

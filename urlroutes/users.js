@@ -30,15 +30,26 @@ exports.login = function (request, response) {
     var config = require('../auth/dbconfig');
     var server = require('../server');
 
-    requestlib({
-        uri: citylife.authenticationCall,
-        method: "POST",
-        json: {},
-        headers: {
-            'Authorization': "Basic " + request.params.base64,
-            'Content-Type': 'application/json'
-        }
-    }, function (error, responselib, body) {
+    var username = request.body.username;
+    var password = request.body.password;
+    
+    var app_key_secret_encoded = new Buffer("cityroute:cityroute-LkoCvAVzp674LIm8").toString('base64');
+
+    var options = {
+            uri: citylife.authenticationCall_new,
+            method: "POST",
+            form: {
+                "grant_type": "password",
+                "username": username,
+                "password": password
+            },
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Authorization': "Basic " + app_key_secret_encoded
+            }
+        };
+
+    requestlib(options, function (error, responselib, body) {
         if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
             response.send({
                 "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
@@ -52,7 +63,38 @@ exports.login = function (request, response) {
                 });
             }
             else {
-                response.send(body);
+                var token = JSON.parse(body).access_token;
+                var user_url = "https://vikingspots.com/citylife/users/me/";
+
+                requestlib({
+                    uri: user_url,
+                    method: "GET",
+                    headers: {
+                        'Accept': 'application/json',
+                        'Authorization': "Bearer " + token
+                    }
+                }, function (error, responselib, body) {
+                    if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
+                        response.send({
+                             "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
+                            "response": {}
+                        });
+                    } else {
+                        if (responselib.statusCode == 401) {
+                            response.send({
+                                "meta": utils.createErrorMeta(401, "X_001", "Credentials are not valid."),
+                                "response": {}
+                            });
+                        } else {
+                            var user = JSON.parse(body);
+                            user["token"] = token;
+                            response.send({
+                                "meta": utils.createOKMeta(),
+                                "response": user
+                            });
+                        }
+                    }
+                });
             }
         }
     });
@@ -252,13 +294,14 @@ exports.getProfile = function (request, response) {
     var userid = request.body.id;
     var token = request.body.token;
 
-    var getUserByIdCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + userid;
+    var getUserByIdCall = "https://vikingspots.com/citylife/profiles/" + userid;
 
     requestlib({
         uri: getUserByIdCall,
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+         method: "GET",
+         headers: {
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + token
         }
     }, function (error, responselib, body) {
         if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
@@ -274,10 +317,14 @@ exports.getProfile = function (request, response) {
                 });
             }
             else {
-                response.send(body);
+                response.send({
+                    "meta": utils.createOKMeta(),
+                    "response": body
+                });
             }
         }
     });
+
 }
 
 exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, successCallback, failCallback) {
@@ -287,14 +334,15 @@ exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, su
     var requestlib = require('request');
     var citylife = require('../auth/citylife');
 
-    var getSenderCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + sender_id;
-    var getReceiverCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + receiver_id;
+    var getSenderCall = "https://vikingspots.com/citylife/profiles/" + sender_id;
+    var getReceiverCall = "https://vikingspots.com/citylife/profiles/" + receiver_id;
 
     requestlib({
         uri: getSenderCall,
         method: "GET",
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + token
         }
     }, function (error, responselib, sender) {
         if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
@@ -307,7 +355,8 @@ exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, su
                     uri: getReceiverCall,
                     method: "GET",
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        'Accept': 'application/json',
+                        'Authorization': "Bearer " + token
                     }
                 }, function (error, responselib, receiver) {
                     if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {
@@ -318,8 +367,8 @@ exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, su
                         } else {
                             successCallback({ 
                                 'message': message, 
-                                'sender': (JSON.parse(sender)).response, 
-                                'receiver': (JSON.parse(receiver)).response 
+                                'sender': JSON.parse(sender), 
+                                'receiver': JSON.parse(receiver) 
                             });
                         }
                     }

@@ -117,7 +117,7 @@ exports.generateRoute = function (request, response) {
     var endDate = request.query.enddate;
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
-    }; 
+    }
     if (startDate != null) {
         startDate = new Date(request.query.startdate);
     }
@@ -168,7 +168,7 @@ exports.generateRouteFromChannelArray = function (request, response) {
     var endDate = request.query.enddate;
     if (minimumGroupSize == null) {
         minimumGroupSize = 1;
-    };
+    }
     if (startDate != null) {
         startDate = new Date(request.query.startdate);
     }
@@ -203,6 +203,13 @@ exports.findById = function (request, response) {
     var mongojs = require('mongojs');
     var ObjectId = mongojs.ObjectId;
     // search the route in the database and don't edit anything.
+
+    //console.log(request.params.id);
+
+    //var words = request.params.id.split("/");
+
+    //console.log(ObjectId(words[words.length - 2]));
+
     searchById(ObjectId(request.params.id), response, true);
 }
 
@@ -251,6 +258,7 @@ searchById = function(id, response, returnResponse)
                     resultAmount++;
                     // this contains the JSON array with spots
                     var spotArray = docs.points;
+
                     // initialize parse variables
                     var count = 0;
                     var resultArray = [];
@@ -263,11 +271,13 @@ searchById = function(id, response, returnResponse)
 
                     // for each spot, do a query to the CityLife API for more info about that spot
                     for (var i = 0; i < spotArray.length; ++i) {
+                        var url = citylife.getSpotByIdCall_new + spotArray[i].item + "/";
                         requestlib({
-                            uri: citylife.getSpotByIdCall + spotArray[i].item,
+                            uri: url,
                             method: "GET",
                             headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded'
+                                'Content-Type': 'application/x-www-form-urlencoded',
+                                'Accept': 'application/json'
                             }
                         }, function (error, responselib, body) {
                             if (responselib.statusCode != 200 || error) {
@@ -311,7 +321,9 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
     // insert the results in the correct order as they are defined by a route.
     for (var i = 0; i < spotsIdArray.length; ++i) {
-        if (spotsIdArray[i] == parseInt(jsonResult.response.id)) {
+        var url_components = jsonResult.url.split("/");
+        var spot_id = url_components[url_components.length - 2];
+        if (spotsIdArray[i] == parseInt(spot_id)) {
             resultArray[i] = jsonResult;
         }
     }
@@ -325,7 +337,7 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
         // fill markers array with long and lat, and include a label based on route order.
         for (var j = 0; j < spotArray.length; ++j) {
-            markers[j] = { 'label': j+1, 'location': resultArray[j].response.latitude + " " + resultArray[j].response.longitude };
+            markers[j] = { 'label': j+1, 'location': resultArray[j].latitude + " " + resultArray[j].longitude };
         }
                 
         // define the number of spots and the waypoints string
@@ -333,17 +345,17 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
         var waypoints = "";
 
         // define location of start and endpoint
-        var originLat = resultArray[0].response.latitude;
-        var originLong = resultArray[0].response.longitude;
-        var destLat = resultArray[numSpots].response.latitude;
-        var destLong = resultArray[numSpots].response.longitude;
+        var originLat = resultArray[0].latitude;
+        var originLong = resultArray[0].longitude;
+        var destLat = resultArray[numSpots].latitude;
+        var destLong = resultArray[numSpots].longitude;
 
         var latLong = originLat + ", " + originLong;
         var destLatLong = destLat + ", " + destLong;
 
         // fill waypoint string with spots between start and endpoint
         for (var i = 1; i < numSpots; ++i) {
-            waypoints += resultArray[i].response.latitude + ", " + resultArray[i].response.longitude + "|";
+            waypoints += resultArray[i].latitude + ", " + resultArray[i].longitude + "|";
         }
 
         // Do a query to the Google Maps Directions API
@@ -506,11 +518,11 @@ exports.addRoute = function (request, response) {
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         //var db = mongojs(config.dbname);
         var collection = db.collection(config.collection);
-        var minimumGroupSize = request.endDate.minimumGroupSize;
+        var minimumGroupSize = request.body.minimumGroupSize;
         var maximumGroupSize = request.body.maximumGroupSize;
         if (minimumGroupSize == null) {
             minimumGroupSize = 1;
-        }; 
+        }
 
         // insert the route in the database
         collection.insert({
