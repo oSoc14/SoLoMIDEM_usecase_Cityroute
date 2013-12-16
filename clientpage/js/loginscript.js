@@ -9,6 +9,9 @@
  *
  */
 
+
+ var WS = null;
+
 /**
 * log a user in
 **/
@@ -73,19 +76,6 @@ function onLoggedIn(data, textStatus, jqXHR) {
 
         location.reload();
 
-        var host = window.document.location.origin.replace(/^http/, 'ws');
-        var ws = new WebSocket(host);
-
-        ws.onopen = function() {
-            ws.onmessage = function(message) {
-                if (message == 'new_messages_for_user?') {
-                    ws.send('user_id', $.cookie("user_id"));
-                } else {
-                    console.log("new: " + message);
-                    $( "#messagesTab").val("Messages -- " + message + " new");
-                }
-            }
-        }
     }
     else if (data.meta.code == 401)
         alert("Incorrect username or password");

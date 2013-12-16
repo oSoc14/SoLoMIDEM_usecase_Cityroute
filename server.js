@@ -117,6 +117,7 @@ app.post("/messages/markasread", messages.markMessagesAsRead);
 
 app.use(express.static(__dirname + '/clientpage'));
 
+
 // start server on port 8888 OR on the port in the cloud deployment config.
 console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
 app.listen(process.env.PORT || 8888);
@@ -128,26 +129,28 @@ var CONNECTED_WEBSOCKETS_UNREADMESSAGES = {};
 function sendNumberOfUnreadMessages(userid, number) {
     var socket = CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
     if (socket) {
-        CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid].send(number);
+        CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid].send("" + number);
     };
 }
 
 exports.sendNumberOfUnreadMessages = sendNumberOfUnreadMessages;
 
-var messagesWebSocketServer = new WebSocketServer({ server: app });
+var messagesWebSocketServer = new WebSocketServer(/*{ server: app }*/ { port: (process.env.PORT || 5000) });
 console.log('Messages websocket server created');
 
 messagesWebSocketServer.on('connection', function(ws) {
+    console.log("websocket connection opened.");
     ws.send('new_messages_for_user?');
 
-    ws.on('user_id', function(userid) {
+    ws.on('message', function(userid) {
         CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid] = ws;
+
+        ws.on('close', function() {
+            delete CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
+        });
+
         messages.getNumberOfUnreadMessages(userid, function (number) { 
-            sendNumberOfUnreadMessages(receiver_id, number);
+            sendNumberOfUnreadMessages(userid, number);
         });
     });
-
-  ws.on('close', function() {
-    delete CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
-  });
 });

@@ -105,6 +105,24 @@ function checkIn( spotID, channelID ) {
 */
 function onCheckedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
+        var http_host = window.document.location.origin.replace(/^http/, 'ws');
+        var ws_host = (http_host.split(":"))[0] + ":" + (http_host.split(":"))[1] + ":" + 5000;
+        if (WS === null) {
+            WS = new WebSocket(ws_host);
+        }
+
+        WS.onopen = function() {
+            console.log("websocket to server " + ws_host + " successfully opened.");
+            WS.onmessage = function(message) {
+                if (message.data == 'new_messages_for_user?') {
+                    WS.send($.cookie("user_id"));
+                } else {
+                    console.log("Messages -- " + message.data + " new");
+                    $( "#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + message.data + " new" + '</a></li>');
+                }
+            }
+        }
+
         routeBuilderSetFirstSpot((JSON.parse(data.response)).id);
         $("#map-canvas").height(0);
 

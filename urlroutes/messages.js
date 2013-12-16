@@ -38,14 +38,14 @@ exports.getMessages = function(request, response) {
 
     if (after_date == null) {
         after_date = new Date();
+        after_date.setDate(after_date.getDate() - 365);
     } else {
         after_date = new Date(request.body.after_date);
-        after_date.setDate(after_date.getDate() - 365);
     }
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var collection = db.collection(config.messagesCollection);
-        collection.find({ $or: [ { 'receiver_id': user_id }, { 'sender_id': user_id } ], 'date': { $gte: after_date }, 'date': { $lte: before_date } })
+        collection.find({ $or: [ { 'receiver_id': user_id }, { 'sender_id': user_id } ], 'date': { $gte: after_date, $lte: before_date } })
              .toArray(function (err, docs) {
                     if (err) {
                         response.send({
