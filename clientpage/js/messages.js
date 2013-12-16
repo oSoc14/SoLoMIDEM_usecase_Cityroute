@@ -6,6 +6,7 @@
  *
  */
 
+
 /**
 * function that shows/hides the correct divs when using messages
 */
@@ -31,19 +32,22 @@ function showMessages() {
     $("#channels").html("");
     $("#groups").hide();
     $("#messages").show();
-    displayMessages();
-  }
 
-
-// Show the messages
-function displayMessages() {
-    $("#yourMessages").empty();
-
-    var userid = $.cookie("user_id");
     var before_date = new Date();
     before_date.setDate(before_date.getDate() + 1);
     var after_date = new Date();
     after_date.setDate(before_date.getDate() - 8);
+    displayMessages(before_date, after_date);
+  }
+
+
+
+// Show the messages
+function displayMessages(before_date, after_date) {
+    $("#yourMessages").empty();
+
+    var userid = $.cookie("user_id");
+
     var url =  "http://" + config_serverAddress + "/messages/foruser";
     var postdata = {
         'user_id': userid,
@@ -68,10 +72,13 @@ function displayMessages() {
 function onMessagesReceived(data, textStatus, jqXHR) {
     // pretty print date, make messages browsable by date (currently shows messages of last 7 days)
     if (data.meta.code == 200) {
+        $("#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + 0 + " new" + '</a></li>');
+        
         var messagesAndUsers = data.response;
         messagesAndUsers.forEach(function (messageAndUser) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
+        $("#yourMessages").append('<input type="button" value="Load all messages" onclick="loadOlderMessages()"/>');
 
         var url =  "http://" + config_serverAddress + "/messages/markasread";
         var postdata = {
@@ -84,7 +91,8 @@ function onMessagesReceived(data, textStatus, jqXHR) {
             dataType: "json",
             url: url,
             data: postdata,
-            success: function() { },
+            success: function() { 
+            },
             error: function(jqXHR, errorstatus, errorthrown) {
                 alert("Error: " + errorstatus);
             }
@@ -92,6 +100,11 @@ function onMessagesReceived(data, textStatus, jqXHR) {
     } else {
         alertAPIError(data.meta.message);
     }
+}
+
+
+function loadOlderMessages() {
+    displayMessages(null, null);
 }
 
 

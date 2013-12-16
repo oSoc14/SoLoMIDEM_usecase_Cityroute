@@ -212,28 +212,27 @@ exports.getNumberOfUnreadMessages = function(userid, onFound) {
 
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         var usersCollection = db.collection(config.usersCollection);
-        usersCollection.find({ 'user_id': userid })
-            .each(function (err, messageTimestamp) {
-                var collection = db.collection(config.messagesCollection);
-                if (!messageTimestamp) {
-                    collection.find({ 'receiver_id': userid })
+        usersCollection.findOne({ 'user_id': userid }, function (err, messageTimestamp) {
+            var collection = db.collection(config.messagesCollection);
+            if (!messageTimestamp) {
+                collection.find({ 'receiver_id': userid })
+                    .toArray(function (err, docs) {
+                        if (!err) {
+                            return onFound(docs.length);
+                        } else {
+                            return onFound(0);
+                        }
+                    });
+                } else {
+                    collection.find({ 'receiver_id': userid, 'date': { $gt: new Date(messageTimestamp.timestamp) } })
                         .toArray(function (err, docs) {
-                            if (!err) {
-                                return onFound(docs.length);
+                           if (!err) {
+                             return onFound(docs.length);
                             } else {
                                 return onFound(0);
-                            }
-                        });
-                    } else {
-                        collection.find({ 'receiver_id': userid, 'date': { $gt: new Date(messageTimestamp.timestamp) } })
-                            .toArray(function (err, docs) {
-                                if (!err) {
-                                 return onFound(docs.length);
-                                } else {
-                                    return onFound(0);
-                                }
-                            });
-                    }
+                           }
+                    });
+                }
             });
         });
 }

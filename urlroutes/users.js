@@ -400,7 +400,14 @@ exports.setLastMessageReadTimestamp = function(userid, timestamp) {
                                 'user_id'   : userid,
                                 'timestamp' : timestamp
                             },
-                            function (err, docs) {});
+                            function (err, docs) {
+                                /*if (!err) {
+                                    response.send({
+                                        "meta": utils.createOKMeta(),
+                                        "response": docs
+                                    });
+                                }*/
+                            });
                     }
                 } else {
                     // increase resultAmount so on next iteration the algorithm knows the id was found.
@@ -410,7 +417,14 @@ exports.setLastMessageReadTimestamp = function(userid, timestamp) {
                         'user_id'   : userid,
                         'timestamp' : timestamp
                     },
-                    function (err, docs) {}); 
+                    function (err, docs) {
+                        /*if (!err) {
+                            response.send({
+                                "meta": utils.createOKMeta(),
+                                "response": docs
+                             });
+                        }*/
+                    }); 
                 }
             });
     });

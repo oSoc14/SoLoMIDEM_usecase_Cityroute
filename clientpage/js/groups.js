@@ -205,7 +205,8 @@ function onUserProfileFound(data, textStatus, jqXHR) {
             thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
        }
        var id = (profile.url.split('/profiles/'))[1];
-       $("#members").append("<div id='" + profile.id + "'>" + 
+       id = (id.split('/'))[0];
+       $("#members").append("<div id='" + id + "'>" + 
         "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
         "<li data= '" + id + "'>" + first_name + " " + last_name + "</li>" +
         '<tr><td><input type="button" value="Send message" onclick="messageUser(\'' + id + '\')"/></td></tr>');
@@ -266,13 +267,15 @@ function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
        var first_name = profile.first_name;
        var last_name = profile.last_name;
        var thumbnail_url = profile.thumbnail_url;
-       $("#memberShipRequests").append("<div id='" + profile.id + "'>" + 
+       var id = (profile.url.split('/profiles/'))[1];
+       id = (id.split('/'))[0];
+       $("#memberShipRequests").append("<div id='" + id + "'>" + 
             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>'>" +
-            "<li data= '" + profile.id + "'>" + first_name + " " + last_name + "</li>");
+            "<li data= '" + id + "'>" + first_name + " " + last_name + "</li>");
        $("#memberShipRequests").append(
             '<div>' + 
-            '<tr><td><input type="button" value="Accept" onclick="acceptMembership(\'' + groupid + '\', \'' + profile.id + '\')"/></td></tr>' +
-            '<tr><td><input type="button" value="Decline" onclick="declineMembership(\'' + groupid + '\', \'' + profile.id + '\')"/></td></tr>' +
+            '<tr><td><input type="button" value="Accept" onclick="acceptMembership(\'' + groupid + '\', \'' + id + '\')"/></td></tr>' +
+            '<tr><td><input type="button" value="Decline" onclick="declineMembership(\'' + groupid + '\', \'' + id + '\')"/></td></tr>' +
             '<div>');
     } else {
         alertAPIError(data.meta.message);
