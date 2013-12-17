@@ -117,8 +117,10 @@ function onCheckedIn(data, textStatus, jqXHR) {
                 if (message.data == 'new_messages_for_user?') {
                     WS.send($.cookie("user_id"));
                 } else {
-                    //console.log("Messages -- " + message.data + " new");
-                    $( "#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + message.data + " new" + '</a></li>');
+                    var messagesTab = $('#messagesTab');
+                    var link = $(messagesTab.children()[0]);
+                    var new_messages_label = "Messages -- " + message.data + " new";
+                    link.text(new_messages_label);
                 }
             }
         }

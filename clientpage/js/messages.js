@@ -33,6 +33,7 @@ function showMessages() {
     $("#groups").hide();
     $("#messages").show();
 
+    console.log("showMessages");
     var before_date = new Date();
     before_date.setDate(before_date.getDate() + 1);
     var after_date = new Date();
@@ -73,7 +74,7 @@ function onMessagesReceived(data, textStatus, jqXHR) {
     // pretty print date, make messages browsable by date (currently shows messages of last 7 days)
     if (data.meta.code == 200) {
         $("#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + 0 + " new" + '</a></li>');
-        
+
         var messagesAndUsers = data.response;
         messagesAndUsers.forEach(function (messageAndUser) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
