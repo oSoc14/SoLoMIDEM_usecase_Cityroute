@@ -16,7 +16,7 @@ var discoverChannelCall_new = "https://vikingspots.com/citylife/channels/discove
 
 var getSpotByIdCall = "https://vikingspots.com/en/api/4/spots/getbyid?spot_id=";
 
-var getSpotByIdCall_new = "https://vikingspots.com/citylife/spots/";
+var getSpotByIdCall_new = "https://vikingspots.com/citylife/items/";
 
 var getUserByIdCall = "https://vikingspots.com/en/api/4/users/importbyid?userid=";
 var channelCall = "https://vikingspots.com/en/api/4/channels/call/";

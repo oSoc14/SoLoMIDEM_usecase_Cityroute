@@ -39,9 +39,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
 
     // check for url parameters, spot_id should be defined
     if (typeof request.body.spot_id !== undefined) {
-
-        // parse spot_id to an integer to avoid malicious attempts
-        var spot_id_safe = parseInt(request.body.spot_id);
+        var spot_id = request.body.spot_id;
         var date = request.body.date;
         if (date == null) {
             date = new Date();
@@ -63,7 +61,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
                     }
                     else {
                         // find all routes which have item x as ending point
-                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id_safe, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
+                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                             .toArray(function (err, docs2) {
                                 if (err) {
                                     response.send({
@@ -202,6 +200,7 @@ exports.generateRouteFromChannelArray = function (request, response) {
 exports.findById = function (request, response) {
     var mongojs = require('mongojs');
     var ObjectId = mongojs.ObjectId;
+    var token = new Buffer(request.query.token, 'base64').toString('ascii');
     // search the route in the database and don't edit anything.
 
     //console.log(request.params.id);
@@ -210,7 +209,7 @@ exports.findById = function (request, response) {
 
     //console.log(ObjectId(words[words.length - 2]));
 
-    searchById(ObjectId(request.params.id), response, true);
+    searchById(ObjectId(request.query.id), response, token, true);
 }
 
 /**
@@ -219,7 +218,7 @@ exports.findById = function (request, response) {
  * @param response allows this function to return the response to the original request
  * @param returnResponse true if normal call, false if the static map png still needs to be generated and added
  */
-searchById = function(id, response, returnResponse)
+searchById = function(id, response, token, returnResponse)
 {
     // declare external files
     var utils = require("../utils");
@@ -266,18 +265,19 @@ searchById = function(id, response, returnResponse)
 
                     // create a array containing the spot urls in the right order
                     for (var i = 0; i < spotArray.length; ++i) {
-                        spotsIdArray[i] = parseInt(spotArray[i].item);
+                        spotsIdArray[i] = spotArray[i].item;
                     }
 
                     // for each spot, do a query to the CityLife API for more info about that spot
                     for (var i = 0; i < spotArray.length; ++i) {
-                        var url = citylife.getSpotByIdCall_new + spotArray[i].item + "/";
+                        var url = spotArray[i].item;
                         requestlib({
                             uri: url,
                             method: "GET",
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded',
-                                'Accept': 'application/json'
+                                'Accept': 'application/json',
+                                'Authorization': "Bearer " + token
                             }
                         }, function (error, responselib, body) {
                             if (responselib.statusCode != 200 || error) {
@@ -321,9 +321,8 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
     // insert the results in the correct order as they are defined by a route.
     for (var i = 0; i < spotsIdArray.length; ++i) {
-        var url_components = jsonResult.url.split("/");
-        var spot_id = url_components[url_components.length - 2];
-        if (spotsIdArray[i] == parseInt(spot_id)) {
+        var spot_id = jsonResult.url;
+        if (spotsIdArray[i] == spot_id) {
             resultArray[i] = jsonResult;
         }
     }
@@ -337,7 +336,7 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
         // fill markers array with long and lat, and include a label based on route order.
         for (var j = 0; j < spotArray.length; ++j) {
-            markers[j] = { 'label': j+1, 'location': resultArray[j].latitude + " " + resultArray[j].longitude };
+            markers[j] = { 'label': j+1, 'location': resultArray[j].point.latitude + " " + resultArray[j].point.longitude };
         }
                 
         // define the number of spots and the waypoints string
@@ -345,17 +344,17 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
         var waypoints = "";
 
         // define location of start and endpoint
-        var originLat = resultArray[0].latitude;
-        var originLong = resultArray[0].longitude;
-        var destLat = resultArray[numSpots].latitude;
-        var destLong = resultArray[numSpots].longitude;
+        var originLat = resultArray[0].point.latitude;
+        var originLong = resultArray[0].point.longitude;
+        var destLat = resultArray[numSpots].point.latitude;
+        var destLong = resultArray[numSpots].point.longitude;
 
         var latLong = originLat + ", " + originLong;
         var destLatLong = destLat + ", " + destLong;
 
         // fill waypoint string with spots between start and endpoint
         for (var i = 1; i < numSpots; ++i) {
-            waypoints += resultArray[i].latitude + ", " + resultArray[i].longitude + "|";
+            waypoints += resultArray[i].point.latitude + ", " + resultArray[i].point.longitude + "|";
         }
 
         // Do a query to the Google Maps Directions API
@@ -524,6 +523,8 @@ exports.addRoute = function (request, response) {
             minimumGroupSize = 1;
         }
 
+        var token = request.body.token;
+
         // insert the route in the database
         collection.insert({
             "name": request.body.name,
@@ -541,7 +542,7 @@ exports.addRoute = function (request, response) {
                 });
             } else {
                 // this function returns a result to the user, but a boolean is set so the static map png will be generated first.
-                searchById(docs[0]._id, response, false);
+                searchById(docs[0]._id, response, token, false);
             }
         });
     });

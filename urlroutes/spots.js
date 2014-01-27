@@ -11,8 +11,132 @@
  *
  */
 
+function getChannelEntryFromDiscoverItem(item, auth_token, callback) {
+    var requestlib = require('request');
+
+    requestlib({
+        uri: item.entry_url,
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + auth_token
+        }
+    }, function (error, responselib, body) {
+        if (error || responselib.statusCode != 200) {
+            callback(error, null);
+        } else {
+            callback(null, JSON.parse(body));
+        }
+    });
+}
+
+function getSpotFromChannelEntry(channel_entry, auth_token, callback) {
+    var requestlib = require('request');
+
+    requestlib({
+        uri: channel_entry.item,
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + auth_token
+        }
+    }, function (error, responselib, body) {
+        if (error || responselib.statusCode != 200) {
+            callback(error, null);
+        } else {
+            callback(null, JSON.parse(body));
+        }
+    });
+}
+
+function getSpotFromCheckIn(checkin, auth_token, callback) {
+    var requestlib = require('request');
+    requestlib({
+        uri: checkin.item,
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + auth_token
+        }
+    }, function (error, responselib, body) {
+        if (error || responselib.statusCode != 200) {
+            callback(error, null);
+        } else {
+            callback(null, JSON.parse(body));
+        }
+    });
+}
+
+function getSpotFromDiscoveryItem(item, auth_token, callback) {
+    getChannelEntryFromDiscoverItem(item, auth_token, function(err, channel_entry) {
+        if (err) {
+            callback(err, null);
+        } else {
+            getSpotFromChannelEntry(channel_entry, auth_token, callback);
+        }
+    });
+}
+
+
+
+function getSpotsFromChannelEntries(entries, auth_token, callback) {
+    var async = require('../lib/async-master/lib/async');
+
+    function to_map(item, single_item_callback) {
+        getSpotFromChannelEntry(item, auth_token, single_item_callback);
+    }
+
+    async.map(entries, to_map, function (err, spots) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, spots);
+        }
+    });
+}
+
+
+function getSpotsFromDiscoverItems(items, auth_token, callback) {
+    var async = require('../lib/async-master/lib/async');
+
+    function to_map(item, single_item_callback) {
+        getSpotFromDiscoverItem(item, auth_token, single_item_callback);
+    }
+
+    async.map(items, to_map, function (err, spots) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, spots);
+        }
+    });
+}
+
+
+function getChannelEntriesFromDiscoverItems(items, auth_token, callback) {
+    var async = require('../lib/async-master/lib/async');
+
+    function to_map(item, single_item_callback) {
+        getChannelEntryFromDiscoverItem(item, auth_token, single_item_callback);
+    }
+
+    async.map(items, to_map, function (err, entries) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, entries);
+        }
+    });
+}
+
+
+
 
 /**
+ *
  * Find relevant spots for a user based on his location
  * @param token user token
  * @param latitude latitude of the user
@@ -31,22 +155,23 @@ exports.findRelevantSpots = function (request, response) {
     // check for url parameters; lat, long and token should be defined.
     if (typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.token !== undefined) {
 
+        var token = new Buffer(request.query.token, 'base64').toString('ascii');
         // date time is also required for the City Life API, so get it in the right format
         var time = new Date();
         var now = "" + time.getFullYear() + "-" + utils.addZero(time.getMonth()) + "-" + utils.addZero(time.getDay()) + " " + utils.addZero(time.getHours()) + ":" + utils.addZero(time.getMinutes()) + ":" + utils.addZero(time.getSeconds());
 
+        var url = discoverChannelCall_new 
+            "&latitude= " + request.query.latitude + 
+            "&longitude=" + request.query.longitude +
+            "&time=" + now;
+
         // do call to citylife discover API
         requestlib({
-            uri: citylife.discoverCall,
-            method: "POST",
-            form: {
-                "bearer_token": request.query.token,
-                "longitude": request.query.longitude,
-                "latitude": request.query.latitude,
-                "time": "" + now
-            },
+            uri: url,
+            method: "GET",
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json'
             }
         }, function (error, responselib, body) {
             if (responselib.statusCode != 200 || error) {
@@ -58,23 +183,37 @@ exports.findRelevantSpots = function (request, response) {
                 // parse the result to JSON
                 var jsonResult = JSON.parse(body);
 
-                // calculate a static map for each relevant spot
-                var markers = [];
-                for (var i = 0; i < jsonResult.response.data.items.length; ++i) {
-                    markers[0] = { 'location': jsonResult.response.data.items[i].meta_info.latitude + " " + jsonResult.response.data.items[i].meta_info.longitude };
-                    jsonResult.response.data.items[i].mapspng = gm.staticMap(
-                        '',
-                        15,
-                        '250x250',
-                        false,
-                        false,
-                        'roadmap',
-                        markers,
-                        null,
-                        null);
-                }
-                // send the result
-                response.send(jsonResult);
+                getSpotsFromDiscoverItems(jsonResult.results, token, function (err, spots) {
+                    if (err) {
+                        response.send({
+                            "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + err),
+                            "response": {}
+                        });
+                    } else {
+                        // calculate a static map for each relevant spot
+                        // and add it to the spot object as a new field.
+                        // I'm dirty and I know it.
+                        var markers = [];
+                        for (var i = 0; i < spots.length; ++i) {
+                            markers[0] = { 'location': spots[i].point.latitude + " " + spots[i].point.longitude };
+                                spots[i].mapspng = gm.staticMap(
+                                    '',
+                                    15,
+                                    '250x250',
+                                    false,
+                                    false,
+                                    'roadmap',
+                                    markers,
+                                    null,
+                                    null);
+                        }
+                        
+                        response.send({
+                            "meta": utils.createOKMeta(),
+                            "response": spots
+                        });
+                    }
+                });
             }
         });
     } else {
@@ -87,6 +226,7 @@ exports.findRelevantSpots = function (request, response) {
 }
 
 /**
+ *
  * The main function responsible for generating a route. It is a recursive function which ends when the maximum number of spots is reached, or no relevant spot is found within the radius.
  * @param lat latitude of the previous spot
  * @param long longitude of the previous spot
@@ -250,9 +390,7 @@ saveGeneratedRoute = function (minGroupSize, maxGroupSize, startDate, endDate, j
             }
         });
     });
-    
-    
-}
+};
 
 /**
  * Returns a list of nearby Spots.
@@ -268,10 +406,11 @@ exports.findSpotsByLatLong = function (request, response) {
     var requestlib = require('request');
     var citylife = require('../auth/citylife');
     var gm = require('../lib/googlemaps');
-    var async = require('../lib/async-master/lib/async')
+    var async = require('../lib/async-master/lib/async');
 
     // check for url parameters, lat and long should be defined.
-    if (typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined) {
+    if (typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.token !== undefined) {
+        var token = new Buffer(request.query.token, 'base64').toString('ascii');
         
         // date time is also required for the City Life API, so get it in the right format
         var time = Math.round((new Date()).getTime() / 1000);
@@ -296,50 +435,34 @@ exports.findSpotsByLatLong = function (request, response) {
                 // parse the result to a JSON
                 var jsonResult = JSON.parse(body);
 
-                function addMapToSpot(spot, callback) {
-                    requestlib({
-                        uri: spot.entry_url,
-                        method: "GET",
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'Accept': 'application/json'
-                            }
-                    }, function (error, responselib, body) {
-                        //console.log(error);
-                        if (responselib.statusCode != 200 || error) {
-                            // bad request
-                            callback({ "statusCode": responselib.statusCode, "error": error }, null);
-                        } else {
-                            var markers = [];
-                            var spot_details = JSON.parse(body);
-                            markers[0] = { 'location': spot_details.point.latitude + " " + spot_details.point.longitude };
-
-                            spot_details.mapspng = gm.staticMap(
-                                '',
-                                 15,
-                                '250x250',
-                                false,
-                                false,
-                                'roadmap',
-                                markers,
-                                 null,
-                                null);
-
-                            callback(null, spot_details);
-                        }
-                    });
-                }
-
-                async.map(jsonResult.results, addMapToSpot, function(err, results) {
+                 getChannelEntriesFromDiscoverItems(jsonResult.results, token, function (err, entries) {
                     if (err) {
                         response.send({
-                            "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
+                            "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + err),
                             "response": {}
                         });
                     } else {
+                        // calculate a static map for each relevant spot
+                        // and add it to the spot object as a new field.
+                        // I'm dirty and I know it.
+                        var markers = [];
+                        for (var i = 0; i < entries.length; ++i) {
+                            markers[0] = { 'location': entries[i].point.latitude + " " + entries[i].point.longitude };
+                                entries[i].mapspng = gm.staticMap(
+                                    '',
+                                    15,
+                                    '250x250',
+                                    false,
+                                    false,
+                                    'roadmap',
+                                    markers,
+                                    null,
+                                    null);
+                        }
+                        
                         response.send({
                             "meta": utils.createOKMeta(),
-                            "response": results
+                            "response": entries
                         });
                     }
                 });
@@ -369,6 +492,7 @@ exports.checkIn = function (request, response) {
     var requestlib = require('request');
     var citylife = require('../auth/citylife');
 
+
     // check for url parameters, lat and long should be defined.
     if (typeof request.query.token !== undefined && typeof request.query.spot_id !== undefined !== request.query.channel) {
         var token = new Buffer(request.query.token, 'base64').toString('ascii');
@@ -392,18 +516,8 @@ exports.checkIn = function (request, response) {
                     "response": {}
                 });
             } else {
-                var item_url = body.item;
-
-                requestlib({
-                    uri: item_url,
-                    method: "GET",
-                    headers: {
-                        'Accept': 'application/json',
-                        'Authorization': "Bearer " + token
-                    }
-                }, function (error, responselib, body) {
-                    if (responselib.statusCode != 200 || error) {
-                        // bad request
+                getSpotFromCheckIn(body, token, function (err, spot) {
+                    if (err) {
                         response.send({
                             "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
                             "response": {}
@@ -411,9 +525,9 @@ exports.checkIn = function (request, response) {
                     } else {
                         response.send({
                             "meta": utils.createOKMeta(),
-                            "response": body
+                            "response": spot
                         });
-                    } 
+                    }
                 });
             }
         });
@@ -441,29 +555,23 @@ exports.search = function (request, response) {
     var querystring = require('querystring');
     var requestlib = require('request');
     var citylife = require('../auth/citylife');
+    var async = require('../lib/async-master/lib/async');
 
     // check for url parameters, lat and long should be defined.
-    if (typeof request.query.token !== undefined && typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.search_term !== undefined) {
+    if (typeof request.query.token !== undefined && typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.search_term !== undefined && typeof request.query.token !== undefined) {
 
+        var token = new Buffer(request.query.token, 'base64').toString('ascii');
         // date time is also required for the City Life API, so get it in the right format
         var time = new Date();
         var now = "" + time.getFullYear() + "-" + utils.addZero(time.getMonth()) + "-" + utils.addZero(time.getDay()) + " " + utils.addZero(time.getHours()) + ":" + utils.addZero(time.getMinutes()) + ":" + utils.addZero(time.getSeconds());
 
-        // send request to CityLife API
         requestlib({
-            uri: citylife.channelCall,
-            method: "POST",
-            json: {
-                "bearer_token": request.query.token,
-                "params": '{ "term": "' + request.query.search_term + '"}',
-                "latitude": request.query.latitude,
-                "longitude": request.query.longitude,
-                "channel": "spots",
-                "view": "SearchResults",
-                "time": "" + now
-            },
+            uri: (citylife.discoverChannelCall_new + "?latitude=" + request.query.latitude + "&longitude=" + request.query.longitude + "&time=" + now + "&search=" + request.query.search_term),
+            method: "GET",
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Authorization': "Bearer " + token
             }
         }, function (error, responselib, body) {
             if (responselib.statusCode != 200 || error) {
@@ -472,13 +580,23 @@ exports.search = function (request, response) {
                     "response": {}
                 });
             } else {
-                // just return the response of the CityLife API
-                response.send(body);
+                var results = (JSON.parse(body)).results;
+                getSpotsFromChannelEntries(results, request.query.token, function(err, spots) {
+                    if (err) {
+                        response.send({
+                            "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
+                            "response": {}
+                        });
+                    } else {
+                        response.send({
+                            "meta": utils.createOKMeta(),
+                            "response": spot
+                        });
+                    }
+                });
             }
         });
-    }
-    else {
-        // bad request
+    } else {
         response.send({
             "meta": utils.createErrorMeta(400, "X_001", "The 'token', 'latitude', 'longitude' or 'search_term' field has no data and doesn't allow a default or null value."),
             "response": {}
@@ -499,12 +617,16 @@ exports.findById = function (request, response) {
     var requestlib = require('request');
     var citylife = require('../auth/citylife');
 
+    var token = new Buffer(request.query.token, 'base64').toString('ascii');
+
     // send request to the CityLife API
     requestlib({
-        uri: citylife.getSpotByIdCall + request.params.id,
+        uri: request.query.id,
         method: "GET",
         headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': "Bearer " +  token
         }
     }, function (error, responselib, body) {
         if (responselib.statusCode != 200 || error) {
@@ -513,13 +635,10 @@ exports.findById = function (request, response) {
                 "response": {}
             });
         } else {
-            // parse to JSON but return as string.
-            var jsonResult = JSON.parse(body);
-
-            response.send(JSON.stringify(jsonResult));
+            response.send(jsonResult);
         }
     });
 };
 
 // allow this function to be called from other modules
-exports.findSpotByChannel = findSpotByChannel;
+//exports.findSpotByChannel = findSpotByChannel;

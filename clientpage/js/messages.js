@@ -33,7 +33,6 @@ function showMessages() {
     $("#groups").hide();
     $("#messages").show();
 
-    console.log("showMessages");
     var before_date = new Date();
     before_date.setDate(before_date.getDate() + 1);
     var after_date = new Date();

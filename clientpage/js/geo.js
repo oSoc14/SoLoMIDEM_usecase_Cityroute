@@ -53,14 +53,16 @@ function onGetSpots(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         // clear the list of spots for the routebuilder
         routeBuilderClearSpots();
-        $.each(data.response.data.items, function(index, value) {
+        $.each(data.response, function(index, value) {
             var image = value.discover_card_data.image_url;
-            if (image === null) {
+            if (image === null  || image.length == 0) {
               image = "http://www.viamusica.com/images/icon_location02.gif";
             }
-            $('#spotListTable').append('<tr><td>' + value.detail_data.title + '</td>' +
-            '<td>' +  "<img src='" + image + "' alt='<spot image>' width='" + (browserWidth/40) + "'>" + '</td>' +  
-            '</td><td> <input type="button" onclick="checkIn(' + "'" + value.item + "'" + "," + "'" + value.channel + "'" + ')" value="Check In" /></tr>');
+            var channel = value.channel;
+            var id = value.item;
+            $('#spotListTable').append('<tr><td>' + value.discover_card_data.title + '</td>' +
+              '<td>' +  "<img src='" + image + "' alt='<spot image>' width='" + (browserWidth/40) + "'>" + '</td>' +  
+              '</td><td> <input type="button" onclick="checkIn(' + "'" + id + "'" + "," + "'" + channel + "'" + ')" value="Check In" /></tr>');
             $("#geolocationPar").hide();
             $("#spotList").show();
             routeBuilderAddSpot(value);
@@ -96,7 +98,7 @@ function checkIn( spotID, channelID ) {
 function onCheckedIn(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         $("#generateTab").show();
-        showRoute(data.response.spot_id);
+        showRoute(data.response.url);
     } else {
         alert("The Citylife API returned an error. This could be caused by an expired session. Please log in again");
         logOut();
@@ -164,7 +166,7 @@ function selectRoute(routeID) {
    * parameters: latitude and longitude
    * returns: list of spots
    */
-    var url =  "http://" + config_serverAddress + "/routes/" + routeID;
+   var url =  "http://" + config_serverAddress + "/routes/find?id=" + routeID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     $("#routes").hide();
     $("#map-canvas").show();
     $("#map-canvas").height(300);

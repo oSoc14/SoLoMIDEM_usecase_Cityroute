@@ -550,13 +550,14 @@ exports.getProfileForMembership = function(request, response) {
     var token = request.body.token;
     var groupid = request.body.groupid
 
-    var getUserByIdCall = "https://vikingspots.com/en/api/4/users/importbyid?bearer_token=" + token + "&userid=" + userid;
+    var getUserByIdCall = "https://vikingspots.com/citylife/profiles/" + userid;
 
     requestlib({
         uri: getUserByIdCall,
-        method: "GET",
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
+         method: "GET",
+         headers: {
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + token
         }
     }, function (error, responselib, body) {
         if (( responselib.statusCode != 200 && responselib.statusCode != 401 ) || error) {

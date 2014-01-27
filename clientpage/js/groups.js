@@ -262,11 +262,17 @@ function onMessageSent(data, textStatus, jqXHR) {
 // Renders the profile in the GUI.
 function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
      if (data.meta.code == 200) {
-       var profile = data.response.profile;
-       var groupid = data.response.groupid;
+        var response = JSON.parse(data.response);
+       var profile = response.profile;
+       var groupid = response.groupid;
        var first_name = profile.first_name;
        var last_name = profile.last_name;
-       var thumbnail_url = profile.thumbnail_url;
+       var thumbnail_url = null;
+       if (profile.avatar !== null) {
+            thumbnail_url = profile.avatar;
+       } else {
+            thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+       }
        var id = (profile.url.split('/profiles/'))[1];
        id = (id.split('/'))[0];
        $("#memberShipRequests").append("<div id='" + id + "'>" + 

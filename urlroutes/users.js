@@ -324,7 +324,6 @@ exports.getProfile = function (request, response) {
             }
         }
     });
-
 }
 
 exports.linkUsersToMessage = function(message, sender_id, receiver_id, token, successCallback, failCallback) {

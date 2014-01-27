@@ -84,9 +84,9 @@ app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 // define the spots API url routes.
 app.get("/spots", spots.findSpotsByLatLong);
 app.get("/spots/checkin", spots.checkIn);
-app.get("/spots/relevant", spots.findRelevantSpots);
+//app.get("/spots/relevant", spots.findRelevantSpots);
 app.get("/spots/search", spots.search);
-app.get("/spots/:id", spots.findById);
+app.get("/spots/findbyid", spots.findById);
 // TODO: app.get("/spots/usersnearby/:userid", spots.getNearbyUsers);
 
 // define the routes API url routes.
@@ -94,7 +94,7 @@ app.post("/routes/routesatspot", routes.findRoutesStartingAtSpot);
 app.post("/routes", routes.addRoute);
 app.get("/routes/generate/:channelname", routes.generateRoute);
 app.get("/routes/generate", routes.generateRouteFromChannelArray);
-app.get("/routes/:id", routes.findById);
+app.get("/routes/find", routes.findById);
 
 // define the groups API url routes.
 app.post("/groups/id", groups.findById);
