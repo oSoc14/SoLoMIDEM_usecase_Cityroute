@@ -61,7 +61,7 @@ exports.findRoutesStartingAtSpot = function (request, response) {
                     }
                     else {
                         // find all routes which have item x as ending point
-                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + spot_id, 'startDate': { $lte: date }, 'endDate': { $gte: date } })
+                        collection.find({ $where: 'this.points[this.points.length-1].item == ' + "'" + spot_id + "'", 'startDate': { $lte: date }, 'endDate': { $gte: date } })
                             .toArray(function (err, docs2) {
                                 if (err) {
                                     response.send({

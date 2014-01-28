@@ -43,7 +43,7 @@ function generateRoute( ) {
     $.each(routeData.spots, function(index, value) {
                         //the first and the last spot are not waypoints!
                         if (index != 0 && index != numSpots){
-                            var coords = new google.maps.LatLng(value.latitude, value.longitude);
+                            var coords = new google.maps.LatLng(value.point.latitude, value.point.longitude);
                             waypoints.push({location:coords, stopover:true});
                             }
                         });
@@ -95,7 +95,6 @@ function onRouteCalculated (directionsResult, directionsStatus){
     // imagenames for the markerimages
     var markerArray = ["markerA","markerB","markerC","markerD","markerE","markerF","markerG","markerH","markerI","markerJ","markerK"];
     dirDisplay.setDirections(directionsResult);
-    
     
     var waypoints = directionsResult.routes[0].waypoint_order;
 
