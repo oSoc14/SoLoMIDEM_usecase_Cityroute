@@ -91,7 +91,7 @@ function onGetSpots(data, textStatus, jqXHR) {
             var id = value.item;
             $('#spotListTable').append(
                 '<tr><td><b>' + value.discover_card_data.title + '</b></td>' + 
-                '<td>' +  "<img src='" + image + "' alt='<spot image>' height='" + (browserHeight/6) + "'>" + '</td>' + 
+                '<td>' +  "<img src='" + image + "' alt='<spot image>' height='" + (browserHeight/6) + "'width='" + (browserWidth/4) + "'>" + '</td>' + 
                 //'<td>' + value.detail_data.description + 
                 '</td><td> <input type="button" onclick="checkIn(' + "'" + id + "'" + "," + "'" + channel + "'" + ')" value="Check In" /></tr>');
             $("#geolocationPar").hide();
