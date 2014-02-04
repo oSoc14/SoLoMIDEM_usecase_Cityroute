@@ -105,9 +105,8 @@ function onRouteCalculated (directionsResult, directionsStatus){
     }      
 
     addIcon(routeData.spots[0],"http://www.google.com/mapfiles/dd-start.png");
-    addIcon(routeData.spots[waypoints.length + 1],"http://www.google.com/mapfiles/dd-end.png");
+    addIcon(routeData.spots[waypoints.length + 1],"http://www.google.com/mapfiles/dd-end.png");  
 
-       
     window.clearInterval(taskID);
     /* Check each 3 seconds for an update of the position */
     taskID = window.setInterval(function(){
@@ -177,13 +176,13 @@ function showRouteMetaInfo(waypoints){
 */
 function checkSpotsOnRoute ( currentPosition ) {
     $.each( routeData.spots, function (index, value) {
-        var distance = haversine( currentPosition.lat(), value.latitude, currentPosition.lng(), value.longitude);
+        var distance = haversine( currentPosition.lat(), value.point.latitude, currentPosition.lng(), value.point.longitude);
         if (!nearbySpotOpened && distance <= CHECKIN_DISTANCE_TRESHOLD) {
             if ( $.inArray( value, visitedSpots ) < 0 ) {
                 showSpotInfo(value);
                 visitedSpots.push(value);
                 nearbySpotOpened = true;                
-            }      
+            }
         }
         });
 };
@@ -195,10 +194,10 @@ function checkSpotsOnRoute ( currentPosition ) {
 function showSpotInfo (spot) {
     $("#spotInfo").hide();
        
-    var latitude = spot.data.latitude;
-    var longitude = spot.data.longitude;
+    var latitude = spot.point.latitude;
+    var longitude = spot.point.longitude;
     
-    var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude;
+    var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + $.base64('btoa', $.cookie("token"), false);
     
     // send a request to the nodeJS API to get information about nearby spots
     // parameters: latitude and longitude
