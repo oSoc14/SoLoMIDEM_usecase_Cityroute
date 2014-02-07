@@ -125,37 +125,50 @@ exports.findByName = function(request, response) {
     });
 }
 
+
+exports.findGroupsByMemberId = function(userid, callback, errback) {
+    var mongojs = require('mongojs');
+    var server = require('../server');
+    var config = require('../auth/dbconfig');
+
+    server.mongoConnectAndAuthenticate(function (err, conn, db) {
+        var collection = db.collection(config.groupscollection);
+        collection.find({ 'users': { $all: [ userid ] } })
+             .toArray(function (err, docs) {
+                    if (err) {
+                        errback(err);
+                    } else {
+                        callback(docs);
+                    }
+        });
+    });
+}
+
+
 // Find groups by member.
 // Returns all groups for which the user is a member (a real member, not just if he/she requested membership).
 exports.findByMember = function(request, response) {
     var mongojs = require('mongojs');
     var member_id = request.body.member;
     var utils = require("../utils");
-    var mongojs = require('mongojs');
-    var config = require('../auth/dbconfig');
-    var citylife = require('../auth/citylife');
     var querystring = require('querystring');
     var https = require('https');
     var requestlib = require('request');
-    var server = require('../server');
 
-    server.mongoConnectAndAuthenticate(function (err, conn, db) {
-        var collection = db.collection(config.groupscollection);
-        collection.find({ 'users': { $all: [ member_id ] } })
-             .toArray(function (err, docs) {
-                    if (err) {
-                        response.send({
-                            "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
-                            "response": {}
-                        });
-                    } else {
-                        response.send({
-                            "meta": utils.createOKMeta(),
-                            "response": { "groups": docs }
-                        });
-                    }
+    exports.findGroupsByMemberId(
+        member_id,
+        function (groups) {
+            response.send({
+                "meta": utils.createOKMeta(),
+                "response": { "groups": groups }
+            });
+        },
+        function (err) {
+            response.send({
+                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                "response": {}
+            });
         });
-    });
 }
 
 

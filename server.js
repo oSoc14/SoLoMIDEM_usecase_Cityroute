@@ -87,7 +87,7 @@ app.get("/spots/checkin", spots.checkIn);
 //app.get("/spots/relevant", spots.findRelevantSpots);
 app.get("/spots/search", spots.search);
 app.get("/spots/findbyid", spots.findById);
-// TODO: app.get("/spots/usersnearby/:userid", spots.getNearbyUsers);
+app.get("/spots/usersnearby", spots.getCompleteGroupsForRouteStartingAtSpot);
 
 // define the routes API url routes.
 app.post("/routes/routesatspot", routes.findRoutesStartingAtSpot);

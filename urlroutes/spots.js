@@ -640,5 +640,87 @@ exports.findById = function (request, response) {
     });
 };
 
+
+exports.getCompleteGroupsForRouteStartingAtSpot = function (request, response) {
+    // declare external files
+    var utils = require("../utils");
+    var https = require('https');
+    var requestlib = require('request');
+    var citylife = require('../auth/citylife');
+    var groups = require('../urlroutes/groups');
+    var async = require('../lib/async-master/lib/async');
+
+    var user_id = request.query.user_id;
+    var spot_id = request.query.spot_id;
+    var route_id = request.query.route_id;
+    var token = new Buffer(request.query.token, 'base64').toString('ascii');
+
+    var CHECKIN_TIMEOUT = 300 * 1000; // 300 seconds
+
+    function isUserNearby(member_id, callback) {
+        var checkins_url = citylife.checkinCall + "?item_id=" + spot_id + "&user=" + member_id + "&" + citylife.config_solomidem_secret;
+
+        requestlib({
+            uri: checkins_url,
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'Accept': 'application/json',
+                'Authorization': "Bearer " +  token
+            }
+        }, function (error, responselib, body) {
+            if (responselib.statusCode != 200 || error) {
+                callback(error, null);
+            } else {
+                console.log(body);
+                var checkins = (JSON.parse(body)).results;
+                if (checkins.length < 1) {
+                    callback(null, { user: member_id, nearby: false });
+                } else {
+                    var checkin_date = new Date(checkins[0].created_on * 1000);
+                    console.log(checkin_date);
+                    console.log(new Date());
+                    console.log(new Date() - checkin_date);
+                    callback(null, { user: member_id, nearby: ((new Date() - checkin_date) < CHECKIN_TIMEOUT) });
+                }
+            }
+        });
+    }
+
+    function getNearbyMembersForGroup(group, callback) {
+        async.map(group.users, isUserNearby, function (err, nearbyOrNotArray) {
+            if (err) {
+                callback(err, null);
+            } else {
+                callback(null, { group: group, nearbyMembers: nearbyOrNotArray });
+            }
+        });
+    }
+
+    groups.findGroupsByMemberId(
+        user_id,
+        function (groups) {
+            async.map(groups, getNearbyMembersForGroup, function (err, groupsArray) {
+                if (err) {
+                    response.send({
+                        "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                        "response": {}
+                    });
+                } else {
+                    response.send({
+                        "meta": utils.createOKMeta(),
+                        "response": groupsArray
+                    });
+                }
+            });
+        },
+        function (err) {
+            response.send({
+                "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                "response": {}
+            });
+        });
+}
+
 // allow this function to be called from other modules
 //exports.findSpotByChannel = findSpotByChannel;

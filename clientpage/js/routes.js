@@ -79,27 +79,140 @@ function onGetRoutes(data, textStatus, jqXHR) {
     }
 };
 
+
 function addRouteInformation(index, value) {
   function showCompleteGroupsForRoute(route) {
-    // TODO: Create a list of groups of which enough members are nearby to participate in the route.
-    // find nearby members of groups where user is member of as well
-    // If enough members to participate are nearby, add this group to the list of groups
-    var groups = [];
-    var html = "<div><label><b>Matching nearby groups: <b></label><ul id='matchingGroups'></ul></div>";
-    // TODO: append group list items
-    return html;
+    var html = "<div><label><b>Matching nearby groups: <b></label><ul id='matchingGroups'>";
+    
+    function renderGroupIfMatches(index, group) {
+        var name = group.group.name;
+        var minSize = route.minimumGroupSize;
+        var maxSize = route.maximumGroupSize;
+        var members = group.nearbyMembers;
+        var presentMembers = [];
+        var missingMembers = [];
+        $.each(members, function (index, member) {
+            if (member.nearby) {
+                presentMembers.push(member);
+            } else {
+                missingMembers.push(member);
+            }
+        });
+
+        function getUserProfile(user, callback) {
+            var searchdata = { 
+                id: user.user,
+                token: $.cookie("token")
+            };
+            var url =  "http://" + config_serverAddress + "/users/profile";
+            $.ajax({
+                url: url,
+                data: searchdata,
+                dataType: "json",
+                type: "POST",
+                success: function (data, textStatus, jqXHR) {
+                  if (data.meta.code == 200) {
+                    callback(null, data.response);
+                  } else {
+                    callback(data.meta.message, null);
+                  }
+                },
+                error: function(jqXHR, errorstatus, errorthrown) {
+                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                }
+            });  
+        }
+
+        // Group is not too big or too small for the route
+        if ((maxSize === null || presentMembers.length <= maxSize) && members.length >= minSize) {
+            // Render a group as a complete group for the route
+            if (presentMembers.length >= minSize) {
+              html = html + "<div><b>Complete: " + name + "</b>";
+              async.map(presentMembers, getUserProfile, function (err, profiles) {
+                $.each(profiles, function (index, json) {
+                  var profile = JSON.parse(json);
+                  var thumbnail_url = profile.avatar;
+                  if (thumbnail_url === null) {
+                    thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+                  }
+                  html = html + "<li>" +
+                    "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
+                    "<p style='color:green'>" + profile.first_name + " " + profile.last_name + "</p>" +
+                    "</li>";
+                });
+                html = html + "</div>";
+                $("#" + value._id).append(html);
+              });
+            // Render the group as an incomplete group
+            } else {
+                html = html + "<li><b> Incomplete: " + name + " " + "(" + (minSize - presentMembers.length) + " more needed)" + "</b></li>";
+                // Render the present members
+                async.map(presentMembers, getUserProfile, function (err, profiles) {
+                  $.each(profiles, function (index, json) {
+                    var profile = JSON.parse(json);
+                    var thumbnail_url = profile.avatar;
+                    if (thumbnail_url === null) {
+                      thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+                    }
+                    html = html + "<li>" +
+                      "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
+                      "<p style='color:green'>" + profile.first_name + " " + profile.last_name + "</p>" +
+                      "</li>";
+                  });
+                  // Render the missing members
+                  async.map(missingMembers, getUserProfile, function (err, profiles) {
+                    $.each(profiles, function (index, json) {
+                      var profile = JSON.parse(json);
+                      var thumbnail_url = profile.avatar;
+                      if (thumbnail_url === null) {
+                       thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+                      }
+                      html = html + "<li>" +
+                        "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
+                        "<p style='color:grey'>" + profile.first_name + " " + profile.last_name + "</p>" +
+                        "</li>";
+                    });
+                    html = html + "</div>";
+                    $("#" + value._id).append(html);
+                  });
+                });
+            }
+        }
+    }
+
+    var spot_id = ((current_spot.split('https://vikingspots.com/citylife/items/'))[1].split("/"))[0];
+    var url =  "http://" + config_serverAddress + 
+      "/spots/usersnearby?spot_id=" + spot_id + 
+      "&user_id=" + $.cookie("user_id") +
+      "&route_id=" + route._id +
+      "&token=" + $.base64('btoa', $.cookie("token"), false);
+
+      // Get all groups and members info and render for each group if it is complete
+    $.ajax({
+       type: 'GET',
+       crossDomain: true,
+        url: url,
+        cache: false,
+        success: function (data, textStatus, jqXHR) { $.each(data.response, renderGroupIfMatches); },
+        cache: false,
+        error: function(jqXHR, errorstatus, errorthrown) {
+           alert("Error: " + errorstatus);
+        }
+    });
   } 
 
     var maxParticipants = value.maximumGroupSize;
     if (maxParticipants == null) {
       maxParticipants = "Unlimited";
     }
+    // Add all the group info to the route
     var html = " <div class='routeinfo' > " + "<h3>" + value.name + "</h3>" /*+ "<br />"*/ + value.description + 
             "<br />" + "<b>Minimum participants: </b>" + value.minimumGroupSize +
             "<br />" + "<b>Maximum participants: </b>" + maxParticipants +
-            "<br />" + showCompleteGroupsForRoute(value) +
+            "<br />" +  "<div id='" + value._id + "'></div>" + //showCompleteGroupsForRoute(value) +
             "<br /><img onclick=selectRoute('" + value._id + "') src='" + value.png + "' width='150' height= '150'/>";
       
+    showCompleteGroupsForRoute(value);
     $("#routes").append(html);
 };
 

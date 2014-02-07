@@ -5,6 +5,8 @@
  * Contains the URI's to the CityLife API (not public)
  */
 
+// SECRET TO GET PRIVATE USER INFO FROM CITYLIFE, REQUEST YOUR SECRET API KEY
+var config_solomidem_secret = "XXX";
 
 var authenticationCall_new = "https://id.citylife.be/auth/token/";
 
@@ -22,3 +24,4 @@ exports.deAuthenticationCall = deAuthenticationCall;
 exports.discoverChannelCall_new = discoverChannelCall_new;
 exports.getSpotByIdCall_new = getSpotByIdCall_new;
 exports.checkinCall = checkinCall;
+exports.config_solomidem_secret = config_solomidem_secret;
