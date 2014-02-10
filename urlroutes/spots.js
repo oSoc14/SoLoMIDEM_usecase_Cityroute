@@ -283,7 +283,6 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
     }, function (error, responselib, body) {
         if (responselib.statusCode != 200 || error) {
             // bad request
-            //console.log(body);
             response.send({
                 "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
                 "response": {}
@@ -325,7 +324,6 @@ function findSpotByChannel (lat, long, names, radius, minGroupSize, maxGroupSize
             // if no other relevant spot is found within the radius, save the route.
             // the route must exist of at least 2 spots
             if (jsonResult.length > 1) {
-                //console.log("test");
                 saveGeneratedRoute(minGroupSize, maxGroupSize, startDate, endDate, jsonResult, namesArray, response);
             } else {
                 response.send({
@@ -509,7 +507,6 @@ exports.checkIn = function (request, response) {
                 'Authorization': "Bearer " + token
             }
         }, function (error, responselib, body) {
-            //console.log(responselib);
             if ((responselib.statusCode != 200) && (responselib.statusCode != 201) || error) {
                 response.send({
                     "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
@@ -658,7 +655,7 @@ exports.getCompleteGroupsForRouteStartingAtSpot = function (request, response) {
     var CHECKIN_TIMEOUT = 300 * 1000; // 300 seconds
 
     function isUserNearby(member_id, callback) {
-        var checkins_url = citylife.checkinCall + "?item_id=" + spot_id + "&user=" + member_id + "&" + citylife.config_solomidem_secret;
+        var checkins_url = citylife.checkinCall + "?item_id=" + spot_id + "&user_id=" + member_id + "&" + citylife.config_solomidem_secret;
 
         requestlib({
             uri: checkins_url,
@@ -672,15 +669,11 @@ exports.getCompleteGroupsForRouteStartingAtSpot = function (request, response) {
             if (responselib.statusCode != 200 || error) {
                 callback(error, null);
             } else {
-                console.log(body);
                 var checkins = (JSON.parse(body)).results;
                 if (checkins.length < 1) {
                     callback(null, { user: member_id, nearby: false });
                 } else {
                     var checkin_date = new Date(checkins[0].created_on * 1000);
-                    console.log(checkin_date);
-                    console.log(new Date());
-                    console.log(new Date() - checkin_date);
                     callback(null, { user: member_id, nearby: ((new Date() - checkin_date) < CHECKIN_TIMEOUT) });
                 }
             }
