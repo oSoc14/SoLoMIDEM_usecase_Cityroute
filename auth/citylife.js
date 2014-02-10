@@ -6,7 +6,7 @@
  */
 
 // SECRET TO GET PRIVATE USER INFO FROM CITYLIFE, REQUEST YOUR SECRET API KEY
-var config_solomidem_secret = "XXX";
+var config_solomidem_secret = "solomidem-backdoor=solomidem-1hwtrwgi1tjctklv35a0lp4isvq4c9nun5h0r6gf6c9c3";
 
 var authenticationCall_new = "https://id.citylife.be/auth/token/";
 
