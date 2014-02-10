@@ -16,6 +16,8 @@ var discoverChannelCall_new = "https://vikingspots.com/citylife/channels/discove
 
 var getSpotByIdCall_new = "https://vikingspots.com/citylife/items/";
 
+var getSpotDetailsCall = "https://vikingspots.com/citylife/spots/";
+
 var checkinCall = "https://vikingspots.com/citylife/checkins/";
 
 
@@ -24,4 +26,5 @@ exports.deAuthenticationCall = deAuthenticationCall;
 exports.discoverChannelCall_new = discoverChannelCall_new;
 exports.getSpotByIdCall_new = getSpotByIdCall_new;
 exports.checkinCall = checkinCall;
+exports.getSpotDetailsCall = getSpotDetailsCall;
 exports.config_solomidem_secret = config_solomidem_secret;

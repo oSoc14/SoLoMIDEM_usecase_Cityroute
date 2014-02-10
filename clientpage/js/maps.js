@@ -198,7 +198,7 @@ function showSpotInfo (spot) {
     var longitude = spot.point.longitude;
     
     var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + $.base64('btoa', $.cookie("token"), false);
-    
+  
     // send a request to the nodeJS API to get information about nearby spots
     // parameters: latitude and longitude
     // returns: list of nearby spots    
@@ -222,27 +222,31 @@ function showSpotInfo (spot) {
 function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
 
     function getSpotDataFromChannelItem(item, callback) {
-        var url = "https://vikingspots.com/citylife/spots/" + item.item_id;
+        var url = "http://" + config_serverAddress + "/spots/details?spot_id=" + item.item_id + "&token=" + $.cookie("token");
+
         $.ajax({
             type: 'GET',
             crossDomain:true,
             url: url,
             cache: false,
-            dataType:"json",
-            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
             success: function(spot, textStatus, jqXHR) {
                 callback(spot);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
                 alert(errorstatus + ": " + errorthrown);
             }
-        });  
+        }); 
     }
 
     if (data.meta.code == 200) {
-        getSpotDataFromChannelItem(spot, function (s) {
+        getSpotDataFromChannelItem(spot, function (details_response) {
+            var s = details_response.response;
+            var image = s.web_image;
+            if (image === null || image.length == 0) {
+              image = "http://www.viamusica.com/images/icon_location02.gif";
+            }
             $("#spotInfo").html("<b> Spot: </b> " + spot.data.name + "</br> <b>Description:</b>" + spot.data.description +
-                "<br /> <img src ='" + s.web_image +  "' width = '200' height='200'/>");
+                "<br /> <img src ='" + image +  "' width = '200' height='200'/>");
             $("#spotInfo").append("<input type='button' value='Check in here' onclick=checkinAtNearSpot('" + spot.url + "') /><input type='button' value='Close' onclick= $('#spotInfo').slideUp();nearbySpotOpened = false; />");
              $("#spotInfo").append("<div onclick=$('#nearbyList').slideToggle()> Show/Hide nearby spots </div>");
             

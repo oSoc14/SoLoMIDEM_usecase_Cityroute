@@ -82,6 +82,7 @@ app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 //app.get("/users/:key", users.dropAll);
 
 // define the spots API url routes.
+app.get("/spots/details", spots.getSpotDetails);
 app.get("/spots", spots.findSpotsByLatLong);
 app.get("/spots/checkin", spots.checkIn);
 //app.get("/spots/relevant", spots.findRelevantSpots);

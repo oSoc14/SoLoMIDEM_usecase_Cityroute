@@ -133,6 +133,39 @@ function getChannelEntriesFromDiscoverItems(items, auth_token, callback) {
 }
 
 
+exports.getSpotDetails = function (request, response) {
+    var utils = require('../utils');
+    var https = require('https');
+    var querystring = require('querystring');
+    var requestlib = require('request');
+    var citylife = require('../auth/citylife');
+
+    var spot_id = request.query.spot_id;
+    var token = new Buffer(request.query.token, 'base64').toString('ascii');
+    var url = citylife.getSpotDetailsCall + spot_id;
+
+    requestlib({
+        uri: url,
+        method: "GET",
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'application/json',
+            'Authorization': "Bearer " + token
+        }
+    }, function (error, responselib, body) {
+        if (error || responselib.statusCode != 200) {
+            response.send({
+                    "meta": utils.createErrorMeta(400, "X_001", "The CityLife API returned an error. Please try again later. " + error),
+                    "response": {}
+                });
+        } else {
+            response.send({
+                "meta": utils.createOKMeta(),
+                "response": JSON.parse(body)
+            });
+        }
+    });
+}
 
 
 /**
