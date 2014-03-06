@@ -26,7 +26,42 @@ function getChannelEntryFromDiscoverItem(item, auth_token, callback) {
         if (error || responselib.statusCode != 200) {
             callback(error, null);
         } else {
-            callback(null, JSON.parse(body));
+            var offers_url = "https://vikingspots.com/citylife/offers/";
+            var spend_offers_url = "https://vikingspots.com/citylife/spend-offers/";
+            var entry = JSON.parse(body);
+            var entry_id = (((entry.item).split('https://vikingspots.com/citylife/items/'))[1].split("/"))[0];
+
+            requestlib({
+                uri: offers_url + "?item_id=" + entry_id + "&state=live",
+                method: "GET",
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Accept': 'application/json',
+                    'Authorization': "Bearer " + auth_token
+                }
+            }, function (error, responselib, offers) {
+                if (error || responselib.statusCode != 200) {
+                    callback(error, null);
+                } else {
+                    entry.offers = JSON.parse(offers);
+                    requestlib({
+                        uri: spend_offers_url + "?item_id=" + entry_id + "&state=live",
+                        method: "GET",
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'Accept': 'application/json',
+                            'Authorization': "Bearer " + auth_token
+                        }
+                    }, function (error, responselib, spend_offers) {
+                        if (error || responselib.statusCode != 200) {
+                            callback(error, null);
+                        } else {
+                            entry.spend_offers = JSON.parse(spend_offers);
+                            callback(null, entry);
+                        }
+                    });
+                }
+            });
         }
     });
 }
