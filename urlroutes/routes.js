@@ -265,37 +265,67 @@ searchById = function(id, response, token, returnResponse)
 
                     // create a array containing the spot urls in the right order
                     for (var i = 0; i < spotArray.length; ++i) {
-                        spotsIdArray[i] = spotArray[i].item;
+                        if (spotArray[i].event !== undefined) {
+                            spotsIdArray[i] = spotArray[i].event;
+                        } else {
+                            spotsIdArray[i] = spotArray[i].item;
+                        }
                     }
 
                     // for each spot, do a query to the CityLife API for more info about that spot
                     for (var i = 0; i < spotArray.length; ++i) {
-                        var url = spotArray[i].item;
-                        requestlib({
-                            uri: url,
-                            method: "GET",
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded',
-                                'Accept': 'application/json',
-                                'Authorization': "Bearer " + token
-                            }
-                        }, function (error, responselib, body) {
-                            if (responselib.statusCode != 200 || error) {
-                                response.send({
-                                    "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CityLife API " + error),
-                                    "response": {}
-                                });
-                            } else {
-                                // for each spot, parse the result
-                                parseRouteSpots(error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
-                                count++;
-                            }
-                        });
+                        if (spotArray[i].event !== undefined) {
+                            // We have a CultuurNet event
+                            var url = spotArray[i].event;
+                            var url = spotArray[i].item;
+                            requestlib({
+                                uri: url,
+                                method: "GET",
+                                headers: {
+                                    'Accept': 'application/json'
+                                }
+                            }, function (error, responselib, body) {
+                                if (responselib.statusCode != 200 || error) {
+                                    response.send({
+                                        "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CultuurNet API " + error),
+                                        "response": {}
+                                 });
+                                } else {
+                                    // for each spot, parse the result
+                                    parseRouteSpots(error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
+                                    count++;
+                                }
+                            });
+                        } else {
+                            // We have a CityLife spot
+                            var url = spotArray[i].item;
+                            requestlib({
+                                uri: url,
+                                method: "GET",
+                                headers: {
+                                    'Content-Type': 'application/x-www-form-urlencoded',
+                                    'Accept': 'application/json',
+                                    'Authorization': "Bearer " + token
+                                }
+                            }, function (error, responselib, body) {
+                                if (responselib.statusCode != 200 || error) {
+                                    response.send({
+                                        "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CityLife API " + error),
+                                        "response": {}
+                                    });
+                                } else {
+                                    // for each spot, parse the result
+                                    parseRouteSpots(error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
+                                    count++;
+                                }
+                            });
+                        }
                     }
                 }
             });
     });
 };
+
 
 
 /**

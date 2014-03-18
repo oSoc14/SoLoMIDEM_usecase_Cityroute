@@ -14,8 +14,20 @@ exports.getEventsByLatLong = function(request, response) {
 
     var latitude = request.body.latitude;
     var longitude = request.body.longitude;
-    var url = "http://search.uitdatabank.be/search/rest/search?q=*:*&pt=" + latitude + "," + longitude + "&sfield=physical_gis&d=1&fq={!geofilt}&sort=geodist()+asc";
-    
+    var startdate = request.body.startdate;
+    var enddate = request.body.enddate;
+    var startISODate = "*";
+    var endISODate = "*";
+    if (startdate !== null && startdate !== undefined && startdate !== "") {
+    	startISODate = (new Date(startdate)).toISOString();
+    }
+    if (enddate !== null && enddate !== undefined && enddate !== "") {
+    	endISODate = (new Date(enddate)).toISOString();
+    }
+    var url = "http://search.uitdatabank.be/search/rest/search?q=*:*&pt=" + latitude + "," + longitude + 
+    	"&sfield=physical_gis&d=" + 1 +
+    	"&availablefrom:[" + startISODate + "+TO+" + endISODate + "]&fq={!geofilt}&sort=geodist()+asc";
+   
     requestlib({
     	uri: url,
        	method: "GET",
