@@ -23,6 +23,7 @@ var spots = require("./urlroutes/spots");
 var routes = require("./urlroutes/routes");
 var groups = require("./urlroutes/groups");
 var messages = require("./urlroutes/messages");
+var cultuurnet = require("./urlroutes/cultuurnet");
 var config = require("./auth/dbconfig.js");
 
 // use express and its bodyParser for POST requests.
@@ -114,6 +115,8 @@ app.post("/messages/send", messages.sendMessage);
 app.post("/messages/foruser", messages.getMessages);
 app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 app.post("/messages/markasread", messages.markMessagesAsRead);
+
+app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 
 
 app.use(express.static(__dirname + '/clientpage'));

@@ -63,7 +63,7 @@ function restart() {
     $("#sortableInput").html("");
     $("#spotListTable").html("");
     $("#suggestions").html("");
-    $("#recommended").html("");
+    $("#events").html("");
     $("#spotInfo").hide();
     $("#routeSpots").hide();
     $("#searchform").hide();
