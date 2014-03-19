@@ -80,6 +80,7 @@ app.post("/users/profile", users.getProfile);
 
 app.post("/cultuurnet/linkuitid", users.linkUitId);
 app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
+app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 //app.get("/users/:key", users.dropAll);
 
 // define the spots API url routes.
@@ -115,8 +116,6 @@ app.post("/messages/send", messages.sendMessage);
 app.post("/messages/foruser", messages.getMessages);
 app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 app.post("/messages/markasread", messages.markMessagesAsRead);
-
-app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 
 
 app.use(express.static(__dirname + '/clientpage'));

@@ -14,14 +14,14 @@
  *  {
  *      name:               The name of the route,
         description:        The description of the route,
-        points:             The array of CityLife spots on the route,
+        points:             The array of CityLife spots and/or CultuurNet events on the route,
         minimumGroupSize:   The minimum size of a group to participate in the route (minumum 1),
         maximumGroupSize:   The maximum size if a group  to participate in the route (optional, null is unlimited),
         startDate:          The date at which the route starts to be valid (optional),
         endDate:            The date at which the route stops to be valid (optional).
  *  }
  *
- * TODO: extend with iRail public transport spots and CultuurNet events.
+ * TODO: extend with iRail public transport spots.
  */
 
 /**
@@ -351,9 +351,16 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
     // insert the results in the correct order as they are defined by a route.
     for (var i = 0; i < spotsIdArray.length; ++i) {
-        var spot_id = jsonResult.url;
-        if (spotsIdArray[i] == spot_id) {
-            resultArray[i] = jsonResult;
+        if (jsonResult.url !== undefined) {
+            var spot_id = jsonResult.url;
+            if (spotsIdArray[i] == spot_id) {
+                resultArray[i] = jsonResult;
+            }
+        } else {
+            var event_id = jsonResult.cdbid;
+            if (spotsIdArray[i] == event_id) {
+                resultArray[i] = jsonResult;
+            }
         }
     }
 
@@ -366,7 +373,12 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
 
         // fill markers array with long and lat, and include a label based on route order.
         for (var j = 0; j < spotArray.length; ++j) {
-            markers[j] = { 'label': j+1, 'location': resultArray[j].point.latitude + " " + resultArray[j].point.longitude };
+            if (resultArray[j].point !== undefined) {
+                markers[j] = { 'label': j+1, 'location': resultArray[j].point.latitude + " " + resultArray[j].point.longitude };
+            } else {
+                var gis = ((resultArray[j].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
+                markers[j] = { 'label': j+1, 'location': gis.ycoordinate + " " + gis.xcoordinate };
+            }
         }
                 
         // define the number of spots and the waypoints string
@@ -374,17 +386,39 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
         var waypoints = "";
 
         // define location of start and endpoint
-        var originLat = resultArray[0].point.latitude;
-        var originLong = resultArray[0].point.longitude;
-        var destLat = resultArray[numSpots].point.latitude;
-        var destLong = resultArray[numSpots].point.longitude;
+        var originLat = null;
+        var originLong = null;
+        var destLat = null;
+        var destLong = null;
+
+        if (resultArray[0].point !== undefined) {
+            originLat = resultArray[0].point.latitude;
+            originLong = resultArray[0].point.longitude;
+        } else {
+            var gis = ((resultArray[0].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
+            originLat = gis.ycoordinate;
+            originLong = gis.xcoordinate;
+        }
+        if (resultArray[numSpots].point !== undefined) {
+            destLat = resultArray[numSpots].point.latitude;
+            destLong = resultArray[numSpots].point.longitude;
+        } else {
+            var gis = ((resultArray[0].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
+            destLat = gis.ycoordinate;
+            destLong = gis.xcoordinate;
+        }
 
         var latLong = originLat + ", " + originLong;
         var destLatLong = destLat + ", " + destLong;
 
         // fill waypoint string with spots between start and endpoint
         for (var i = 1; i < numSpots; ++i) {
-            waypoints += resultArray[i].point.latitude + ", " + resultArray[i].point.longitude + "|";
+            if (resultArray[i].point !== undefined) {
+                waypoints += resultArray[i].point.latitude + ", " + resultArray[i].point.longitude + "|";
+            } else {
+                var gis = ((resultArray[i].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
+                waypoints += gis.ycoordinate + ", " + gis.xcoordinate + "|";
+            }
         }
 
         // Do a query to the Google Maps Directions API
