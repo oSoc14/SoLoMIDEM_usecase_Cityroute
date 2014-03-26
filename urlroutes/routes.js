@@ -277,7 +277,6 @@ searchById = function(id, response, token, returnResponse)
                         if (spotArray[i].event !== undefined) {
                             // We have a CultuurNet event
                             var url = spotArray[i].event;
-                            var url = spotArray[i].item;
                             requestlib({
                                 uri: url,
                                 method: "GET",
@@ -291,8 +290,10 @@ searchById = function(id, response, token, returnResponse)
                                         "response": {}
                                  });
                                 } else {
+                                    var returned = JSON.parse(body);
+                                    var event = returned.rootObject[0].event;
                                     // for each spot, parse the result
-                                    parseRouteSpots(error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
+                                    parseRouteSpots(error, responselib, event, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
                                     count++;
                                 }
                             });
@@ -308,6 +309,9 @@ searchById = function(id, response, token, returnResponse)
                                     'Authorization': "Bearer " + token
                                 }
                             }, function (error, responselib, body) {
+                                /*console.log(error);
+                                console.log(responselib.statusCode);
+                                console.log(body);*/
                                 if (responselib.statusCode != 200 || error) {
                                     response.send({
                                         "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CityLife API " + error),
@@ -315,7 +319,7 @@ searchById = function(id, response, token, returnResponse)
                                     });
                                 } else {
                                     // for each spot, parse the result
-                                    parseRouteSpots(error, responselib, body, resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
+                                    parseRouteSpots(error, responselib, JSON.parse(body), resultArray, spotArray, spotsIdArray, count, docs, response, returnResponse);
                                     count++;
                                 }
                             });
@@ -345,20 +349,18 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
     var requestlib = require('request');
     var gm = require('../lib/googlemaps');
     var utils = require('../utils');
-
-    // on result of a query, parse the result to a JSON
-    var jsonResult = JSON.parse(body);
+    var jsonResult = body;
 
     // insert the results in the correct order as they are defined by a route.
     for (var i = 0; i < spotsIdArray.length; ++i) {
-        if (jsonResult.url !== undefined) {
-            var spot_id = jsonResult.url;
-            if (spotsIdArray[i] == spot_id) {
+        if (jsonResult.cdbid !== undefined) {
+            var event_id = "http://search.uitdatabank.be/search/rest/detail/event/" + jsonResult.cdbid;
+            if (spotsIdArray[i] == event_id) {
                 resultArray[i] = jsonResult;
             }
         } else {
-            var event_id = jsonResult.cdbid;
-            if (spotsIdArray[i] == event_id) {
+            var spot_id = jsonResult.url;
+            if (spotsIdArray[i] == spot_id) {
                 resultArray[i] = jsonResult;
             }
         }
@@ -372,10 +374,11 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
         var points = [];
 
         // fill markers array with long and lat, and include a label based on route order.
-        for (var j = 0; j < spotArray.length; ++j) {
+        for (var j = 0; j < resultArray.length; ++j) {
             if (resultArray[j].point !== undefined) {
                 markers[j] = { 'label': j+1, 'location': resultArray[j].point.latitude + " " + resultArray[j].point.longitude };
             } else {
+                console.log(resultArray[j]);  // WTF??? contactinfo, y u no exist?
                 var gis = ((resultArray[j].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
                 markers[j] = { 'label': j+1, 'location': gis.ycoordinate + " " + gis.xcoordinate };
             }
