@@ -7,7 +7,7 @@
  * Server URLs config
  */
 
-var config_serverAddress = "cityroute.herokuapp.com"; 
+var config_serverAddress = "cityroute.herokuapp.com";
 //Comment the above and uncomment this for a local deployment
 //var config_serverAddress = "localhost:8888";
 

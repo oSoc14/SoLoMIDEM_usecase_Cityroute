@@ -172,7 +172,7 @@ exports.generateRouteFromChannelArray = function (request, response) {
     }
     if (endDate != null) {
         endDate = new Date(request.query.enddate);
-    } 
+    }
 
     // check for invalid request
     if (typeof request.query.token !== undefined && typeof request.query.latitude !== undefined && typeof request.query.longitude !== undefined && typeof request.query.spot_id !== undefined && typeof request.query.radius !== undefined && typeof request.query.channels !== undefined) {
@@ -229,7 +229,7 @@ searchById = function(id, response, token, returnResponse)
     var https = require('https');
     var requestlib = require('request');
     var server = require('../server');
-    
+
     var resultAmount = 0;
 
     // find the route by its id.
@@ -309,9 +309,6 @@ searchById = function(id, response, token, returnResponse)
                                     'Authorization': "Bearer " + token
                                 }
                             }, function (error, responselib, body) {
-                                /*console.log(error);
-                                console.log(responselib.statusCode);
-                                console.log(body);*/
                                 if (responselib.statusCode != 200 || error) {
                                     response.send({
                                         "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CityLife API " + error),
@@ -378,12 +375,11 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
             if (resultArray[j].point !== undefined) {
                 markers[j] = { 'label': j+1, 'location': resultArray[j].point.latitude + " " + resultArray[j].point.longitude };
             } else {
-                console.log(resultArray[j]);  // WTF??? contactinfo, y u no exist?
                 var gis = ((resultArray[j].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
                 markers[j] = { 'label': j+1, 'location': gis.ycoordinate + " " + gis.xcoordinate };
             }
         }
-                
+
         // define the number of spots and the waypoints string
         var numSpots = resultArray.length - 1;
         var waypoints = "";
@@ -406,7 +402,7 @@ parseRouteSpots = function (error, responselib, body, resultArray, spotArray, sp
             destLat = resultArray[numSpots].point.latitude;
             destLong = resultArray[numSpots].point.longitude;
         } else {
-            var gis = ((resultArray[0].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
+            var gis = ((resultArray[numSpots].contactinfo.addressAndMailAndPhone)[0]).address.physical.gis;
             destLat = gis.ycoordinate;
             destLong = gis.xcoordinate;
         }
