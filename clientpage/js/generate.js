@@ -167,14 +167,9 @@ function addGeneratedChannel(){
         alert("You have to pick at least two channels!");
     } else {
         
-        for (var i = 0; i < channels.length; ++i){
-            if (i < (channels.length - 1))
-                channelString += channels[i].getAttribute('data') + "|";
-            else
-                channelString += channels[i].getAttribute('data');
-        }
-    
         // structure for channel parameter: <channel1>|<channel2>|<channel3>|.....|<channel9>
+        channelString = channels.map(function(channel) { return channel.getAttribute('data') }).join('|');
+
         var url = "http://" + config_serverAddress + "/routes/generate/?channels=" + channelString + "&token=" + token + 
             "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
             "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
