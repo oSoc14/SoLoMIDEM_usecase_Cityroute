@@ -26,7 +26,7 @@ function autoGenerateRoute() {
     var enddate = $( "#datepicker_to_generate" ).datepicker( "getDate" );
 
     function getSpotDataFromChannelEntry(channel_entry, callback) {
-        var item_url = channel_entry.item;
+        var item_url = channel_entry.url;
         $.ajax({
             type: 'GET',
             crossDomain:true,
