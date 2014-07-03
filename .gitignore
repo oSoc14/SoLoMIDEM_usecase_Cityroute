@@ -1,0 +1,14 @@
+clientpage/js/auth/config.js
+.DS_Store
+
+/node_modules
+/npm-debug.log
+
+/test/assets/package-*/
+/test/assets/temp-*/
+/test/reports
+/test/tmp/
+
+/bower.json
+/component.json
+/bower_components
