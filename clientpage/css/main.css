@@ -427,3 +427,65 @@ nav a:hover {
 .inp {
     width: 100%;
 }
+
+
+  html, body {
+    height:100%;
+  }
+  #map-canvas {
+    height: 100%
+  }
+  #sortable {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  #sortable li {
+    margin: 0 3px 3px 3px;
+    padding: 0.4em;
+    padding-left: 1.5em;
+    font-size: 1em;
+  }
+  #sortable li span {
+    margin-left: 1.3em;
+    float:right
+  }
+  #sortable .ui-icon {
+    display: none;
+  }
+  #routeBuilder {
+    padding-bottom: 20px;
+  }
+  #recommended {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  #recommended li {
+    margin: 0 3px 3px 3px;
+    padding: 0.4em;
+    padding-left: 1.5em;
+    font-size: 1em;
+  }
+  #recommended li span {
+    position: absolute;
+    margin-left: -1.3em;
+  }
+  #searchresults {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  #searchresults li {
+    margin: 0 3px 3px 3px;
+    padding: 0.4em;
+    padding-left: 1.5em;
+    font-size: 1em;
+  }
+  #searchresults li span {
+    position: absolute;
+    margin-left: -1.3em;
+  }
+  #generate .ui-btn-inner {
+    display:none;
+  }
