@@ -181,9 +181,9 @@ nav a:hover {
 }
 /* Forms */
 input {
-  border: 2px solid #fff;
-  border-bottom: 1px dashed #aaa;
-  padding: 5px;
+  border: 1px dashed #aaa;
+  line-height: 32px;
+  padding: 0 5px;
 }
 /* custom CSS */
  .routeinfo {
