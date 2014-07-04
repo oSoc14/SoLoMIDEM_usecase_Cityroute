@@ -10,27 +10,8 @@
 * function that shows/hides the correct divs when using groups
 */
 function showGroups() {
-    $("#geolocationPar").hide();
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").hide();
-    $("#messages").hide();
-    $("#channels").html("");
-    $("#groups").show();
+    changeView('groups');
+
     refreshGroupsWhereUserIsMemberOf();
     clearSearchResults();
 }

@@ -25,23 +25,21 @@
 
   <header>
     <div class="container">
+      <span id="logoutLink" class="pull-right">
+        <a href="#" title="Get location again and find nearby spots" onclick="restart()">Check my location</a>
+        <a href="#" onclick="logOut()">Log Out</a>
+      </span>
       <h1>CityRoute</h1>
       <nav>
         <ul>
-          <li id="loginLink">
-            <a href="#" onclick="logOut()">Log Out</a>
+          <li>
+            <a href="#" onclick="showGenerate()">Routes</a>
           </li>
-          <li id="restart" onclick="restart()">
-            <a href="#" title="Get location again and find nearby spots">Check in</a>
+          <li>
+            <a href="#" onclick="showGroups()">Groups</a>
           </li>
-          <li id="generateTab" onclick="showGenerate()">
-            <a href="#">Routes</a>
-          </li>
-          <li id="groupsTab" onclick="showGroups()">
-            <a href="#">Groups</a>
-          </li>
-          <li id="messagesTab" onclick="showMessages()">
-            <a href="#">Messages</a>
+          <li>
+            <a href="#" id="navMessages" onclick="showMessages()">Messages</a>
           </li>
         </ul>
       </nav>
@@ -57,21 +55,20 @@
       <div class="content">
 
         <!-- Here comes the Lat Long information from the geolocation -->
-        <section id="geolocationPar">
+        <section id="geolocationPar" class="view-geostatus">
           <h3>Geo status</h3>
           <p>Waiting for geolocation...</p>
         </section>
 
         <!-- Here comes the list of nearby spots to check in -->
-        <section>
+        <section class="view-spots">
           <h3>Nearby spots</h3>
           <div id="spotList">
-            <table id="spotListTable"></table>
           </div>
         </section>
 
         <!-- The menu to auto-generate a route -->
-        <section id="generate">
+        <section id="generate" class="view-generate">
           <h3>Generate route</h3>
           <p>
             <label>Minimum group size</label>
@@ -128,7 +125,7 @@
           </p>
         </section>
 
-        <section id="loader">
+        <section id="loader" class="view-loader">
           <h3>Loading</h3>
           <p>
             <img src="img/loading.png"></img>
@@ -136,7 +133,7 @@
         </section>
 
         <!-- The login menu -->
-        <section id="login">
+        <section id="login" class="view-login">
           <h3>Login</h3>
           <form>
             <p>
@@ -158,13 +155,13 @@
         </section>
 
         <!-- In this div the possible routes for the checked in spot are shown -->
-        <section>
+        <section class="view-routes">
           <h3>Possible routes</h3>
           <div id="routes"></div>
         </section>
 
         <!-- In this div the routebuilder will be shown. This will be used to create routes -->
-        <section>
+        <section class="view-routes">
           <h3>Route builder</h3>
           <div data-role="content" data-theme="c" id="routeBuilder">
             <ul data-role="listview" data-inset="true" data-theme="d" id="sortable"></ul>
@@ -173,13 +170,13 @@
         </section>
 
         <!-- This div shows information about a nearby spot when you're in route view -->
-        <section>
+        <section class="view-spotinfo">
           <h3>Spot info</h3>
           <div id="spotInfo"></div>
         </section>
 
         <!-- This div shows group management -->
-        <section>
+        <section class="view-groups">
           <h3>Group management</h3>
           <div id="groups">
             <h4>You are in the following groups</h4>
@@ -217,14 +214,14 @@
           </div>
         </section>
 
-        <section id="messages">
+        <section id="messages" class="view-messages">
           <h3>Messages</h3>
           <ul id="yourMessages">
           </ul>
         </section>
 
         <!-- This div shows the google map -->
-        <section>
+        <section class="view-spotinfo view-map">
           <h3>Map</h3>
           <div id="map-canvas"></div>
         </section>

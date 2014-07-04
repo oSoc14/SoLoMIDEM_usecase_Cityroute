@@ -11,27 +11,7 @@
 * function that shows/hides the correct divs when using messages
 */
 function showMessages() {
-    $("#geolocationPar").hide();
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").hide();
-    $("#channels").html("");
-    $("#groups").hide();
-    $("#messages").show();
+    changeView('messages');
 
     var before_date = new Date();
     before_date.setDate(before_date.getDate() + 1);
@@ -72,7 +52,7 @@ function displayMessages(before_date, after_date) {
 function onMessagesReceived(data, textStatus, jqXHR) {
     // pretty print date, make messages browsable by date (currently shows messages of last 7 days)
     if (data.meta.code == 200) {
-        $("#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + 0 + " new" + '</a></li>');
+        $('#navMessages').html('Messages <b>' + 0 + ' new</b>');
 
         var messagesAndUsers = data.response;
         messagesAndUsers.forEach(function (messageAndUser) {

@@ -14,68 +14,35 @@
 $(document).ready( function() {
     // if a user is logged in
     if ($.cookie("token") != null) {
-        $("#login").hide();
-        $("#geolocationPar").show();
-        $("#loginLink").show();
-        $("#restart").show();
-
-        
+        changeView('geostatus');
         getGeolocation();
     }
     // if a user is not is not logged in
     else {
-        $("#geolocationPar").hide(),
-        $("#map-canvas").hide();
-        $("#routes").hide();
-        $("#spotlist").hide();        
-        $("#spotlistTable").html("");
-        $("#login").show();
-        $("#loginLink").hide();
-        $("#restart").hide();
+        changeView('login')
     }
     
-    // this happens always, logged in or not
-    $("#routeBuilder").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#generate").hide();
-    $("#generateTab").hide();
-    $("#groupsTab").hide();
-    $("#messagesTab").hide();    
-    $("#loader").hide();
-    $("#groups").hide();
-    $("#messages").hide();   
 });
 
+/**
+* prepares the page to change the view by hiding and clearing the content
+*/
+var currentView = '';
+function changeView(newView) {
+    $('body').removeClass(currentView + '-active').addClass(newView + '-active');
+    currentView = newView;
 
+    // stop the location tracking
+    window.clearInterval(taskID);
+    nearbySpotOpened = false;
+};
 
 /**
 * restart the web-application: hide all the views, clear necessary data and refresh the page.
 */
 function restart() {
+    changeView('geostatus');
     getGeolocation();
-    $("#geolocationPar").show(),
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#events").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    $("#generate").hide();
-    $("#generateTab").hide();   
-    $("#loader").hide();
-    $("#groupsTab").hide(); 
-    $("#messagesTab").hide(); 
-    $("#groups").hide();
-    $("#messages").hide();  
     
     // stop the location tracking
     window.clearInterval(taskID);

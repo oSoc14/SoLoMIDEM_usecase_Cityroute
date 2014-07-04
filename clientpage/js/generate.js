@@ -102,27 +102,7 @@ function onGetGeneratedRoute(data, textStatus, jqXHR) {
 * function that shows/hides the correct divs when generating a route 
 */
 function showGenerate() {
-    $("#geolocationPar").hide(),
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").show();
-    $("#channels").html("");
-    $("#groups").hide();
-    $("#messages").hide();
+    changeView('generate');
 };
 
 /**
