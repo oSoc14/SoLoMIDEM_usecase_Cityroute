@@ -18,17 +18,26 @@ A Node.js server with the following packages installed:
 * Request
 * Polyline
 * Querystring
+* Bower
 
 These can all be installed by just running the following command from the source folder.
+
+    # if not installed
+    npm install -g gulp bower
 
     # currently this repo contains all node modules
     # this command in not needed
     # removing the node modules and configuring the correct dependencies is planned
     npm install
+    bower install
 
 The GoogleMaps package is included in the lib folder due to some changes to its source code.
 
 A MongoDB database is needed but there is no database seed available at the moment.
+
+### Optional
+
+* Gulp
 
 ## Configuration
 
