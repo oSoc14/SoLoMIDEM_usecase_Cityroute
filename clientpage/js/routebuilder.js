@@ -62,9 +62,6 @@ function showRouteBuilder()  {
         var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
         acquireCultuurnetEventsByLatLong(latlong.latitude, latlong.longitude, startdate, enddate);
     });
-
-    $( "#datepicker_from" ).datepicker();
-    $( "#datepicker_to" ).datepicker();
     
     $("#routeBuilder").show();
     $("#searchform").show();

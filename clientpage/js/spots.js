@@ -122,7 +122,8 @@ function onGetSpots(data, textStatus, jqXHR) {
                 '<h4 class="spot-title">' + value.discover_card_data.title + '</h4>' +
                 '<p class="spot-addr">' + value.detail_data.address + '</p></div>' +
                 '<p class="spot-descr">' + shortDescription + '</p>' +
-                '<p class="spot-checkin"><button type="button" onclick="checkIn(\'' + id + "','" + channel + '\')">Check In</button></p>' +
+                '<p class="spot-checkin"><button type="button" ' +
+                'onclick="checkIn(\'' + id + "','" + channel + '\')" class="btn btn-default">Check In</button></p>' +
                 '</div>' +
                 '</div>'
                 );

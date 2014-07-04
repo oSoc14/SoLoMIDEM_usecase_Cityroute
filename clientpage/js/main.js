@@ -8,5 +8,3 @@ $("#sortable").bind("sortstop", function(event, ui) {
 $(function() {
   $("#tabs").tabs();
 });
-$("#datepicker_from_generate").datepicker();
-$("#datepicker_to_generate").datepicker();

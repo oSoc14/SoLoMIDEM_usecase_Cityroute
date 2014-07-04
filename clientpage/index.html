@@ -71,25 +71,25 @@
         <section id="generate" class="view-generate">
           <h3>Generate route</h3>
           <p>
-            <label>Minimum group size</label>
-            <input type="number" id="minGroupSizeGenerate" min="1" />
+            <label for="minGroupSizeGenerate">Minimum group size</label>
+            <input type="number" id="minGroupSizeGenerate" min="1" class="form-control" />
           </p>
           <p>
-            <label>Maximum group size</label>
-            <input type="number" id="maxGroupSizeGenerate" min="1" />
+            <label for="maxGroupSizeGenerate">Maximum group size</label>
+            <input type="number" id="maxGroupSizeGenerate" min="1" class="form-control" />
           </p>
           <p>
-            <label>Start date</label>
-            <input type="text" id="datepicker_from_generate" />
+            <label for="datepicker_from_generate">Start date</label>
+            <input type="date" id="datepicker_from_generate" class="form-control" />
           </p>
           <p>
-            <label>End date</label>
-            <input type="text" id="datepicker_to_generate" />
+            <label for="datepicker_to_generate">End date</label>
+            <input type="date" id="datepicker_to_generate" class="form-control" />
           </p>
           <p>
-            <label>Generate a route containing ONE channel</label>
+            <label for="channelList">Generate a route containing ONE channel</label>
             <!-- The possible channels are hard-coded -->
-            <select data-role="none" id="channelList">
+            <select data-role="none" id="channelList" class="form-control">
               <option value="shoppingplaces">Shopping</option>
               <option value="diningplaces">Dining</option>
               <option value="overnightingplaces">Hotels</option>
@@ -101,11 +101,11 @@
             </select>
           </p>
           <p>
-            <button type="button" data-role="none" onclick="autoGenerateRoute()">Generate with 1 channel</button>
+            <button type="button" onclick="autoGenerateRoute()" class="btn btn-default">Generate with 1 channel</button>
           </p>
           <p>
-            <label>Generate a route with multiple channels</label>
-            <select data-role="none" id="channelList_add">
+            <label for="channelList_add">Generate a route with multiple channels</label>
+            <select data-role="none" id="channelList_add" class="form-control">
               <option value="shoppingplaces">Shopping</option>
               <option value="diningplaces">Dining</option>
               <option value="overnightingplaces">Hotels</option>
@@ -117,11 +117,11 @@
             </select>
           </p>
           <p>
-            <button type="button" data-role="none" onclick="addChannel()">Add Channel</button>
+            <button type="button" onclick="addChannel()" class="btn btn-default">Add Channel</button>
           </p>
           <ul id="channels"></ul>
           <p>
-            <button type="button" data-role="none" onclick="addGeneratedChannel()">Generate with multiple channels</button>
+            <button type="button" onclick="addGeneratedChannel()" class="btn btn-default">Generate with multiple channels</button>
           </p>
         </section>
 
@@ -137,19 +137,19 @@
           <h3>Login</h3>
           <form>
             <p>
-              <label>Username</label>
-              <input type="email" id="username" />
+              <label for="username">Username</label>
+              <input type="email" id="username" value="test@mv.be" class="form-control" />
             </p>
             <p>
-              <label>Password</label>
-              <input type="password" id="password" />
+              <label for="password">Password</label>
+              <input type="password" id="password" value="test" class="form-control" />
             </p>
             <p>
-              <label>Link UitID (optional)</label>
-              <input type="email" id="uitid" />
+              <label for="uitid">Link UitID (optional)</label>
+              <input type="email" id="uitid" class="form-control" />
             </p>
             <p>
-              <button type="button" onclick="loginuser()">Log In</button>
+              <button type="button" onclick="loginuser()" class="btn btn-primary">Log In</button>
             </p>
           </form>
         </section>
@@ -158,6 +158,18 @@
         <section class="view-routes">
           <h3>Possible routes</h3>
           <div id="routes"></div>
+          <p class="checkbox">
+            <label>
+              <input type="checkbox" value="1" id="optimizeSwitch"> Optimize Waypoints
+            </label>
+          </p>
+          <p>
+            <button type="button" onclick="showRouteBuilder()" class="btn btn-default">Add new route</button>
+          </p>
+          <p>
+            <label for="current_datepicker">View for date</label>
+            <input type="date" id="current_datepicker" class="form-control" />
+          </p>
         </section>
 
         <!-- In this div the routebuilder will be shown. This will be used to create routes -->
@@ -189,11 +201,11 @@
               <div id="searchGroupForm">
                 <h4>Find more groups</h4>
                 <p>
-                  <label>Search term</label>
-                  <input type="text" id="searchGroupTerm" />
+                  <label for="searchGroupTerm">Search term</label>
+                  <input type="text" id="searchGroupTerm" class="form-control" />
                 </p>
                 <p>
-                  <button type="button" onclick="searchGroup()">Search group</button>
+                  <button type="button" onclick="searchGroup()" class="btn btn-default">Search group</button>
                 </p>
               </div>
               <p>
@@ -205,11 +217,11 @@
 
             <h4>Create new groups</h4>
             <p>
-              <label>Group name</label>
-              <input type="text" id="newGroupName" />
+              <label for="newGroupName">Group name</label>
+              <input type="text" id="newGroupName" class="form-control" />
             </p>
             <p>
-              <button type="button" onclick="addGroup()">Create group</button>
+              <button type="button" onclick="addGroup()" class="btn btn-success">Create group</button>
             </p>
           </div>
         </section>
@@ -268,11 +280,11 @@
             <h3>Search</h3>
             <div id="searchform">
               <p>
-                <label>Search term</label>
-                <input type="text" id="searchTerm" />
+                <label for="searchTerm">Search term</label>
+                <input type="text" id="searchTerm" class="form-control" />
               </p>
               <p>
-                <button type="button" onclick="search()">Search</button>
+                <button type="button" onclick="search()" class="btn btn-default">Search</button>
               </p>
             </div>
             <p>

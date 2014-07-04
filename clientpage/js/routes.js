@@ -52,17 +52,7 @@ function showRoute ( spotID ){
 */
 function onGetRoutes(data, textStatus, jqXHR) { 
   $("#routes").html("");
-  // for each route
-  //$("#routes").append("<p>View for date: <input type='text' id='current_datepicker' /></p>");
-  //$( "#current_datepicker" ).datepicker();
-  $('#routes').append('<div>'+
-    '<button type="button" onclick="showRouteBuilder()"/>Add new route</button>'  + 
-    ' Optimize Waypoints: <select id="optimizeSwitch"><option value="1">On</option><option value="0">Off</option></select>' + 
-    '<p>View for date: <input type="text" id="current_datepicker" /></p>'+
-    '</div>');
-  $('#optimizeSwitch').switchify();
 
-  $( "#current_datepicker" ).datepicker();
   $( "#current_datepicker" ).datepicker( "setDate", current_date);
 
   $( "#current_datepicker" ).on("change", function() { 
