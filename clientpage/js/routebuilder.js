@@ -20,7 +20,7 @@ function getSpotIdFromURL(url) {
 show the routebuilder using the spots[] variable
 */
 function showRouteBuilder()  {
-    $("#aside").show();
+    
     var spot = spots[0];
     acquireSuggestedSpots(spot);
     var latitude = spot.point.latitude;
@@ -34,19 +34,10 @@ function showRouteBuilder()  {
         $("#sortable").append(toAdd);
         $("#spot_" + id).data('latlong',{latitude: latitude, longitude: longitude});
     });
-
-    $("#routes").hide();
     
     /**
     Form to add a name and description for the new route
     */
-    $("#sortableInput").html("<table><tr><td>Route Name:</td> <td><input type='text' id='routeName' value='NewRoute1'/></td></tr>" +
-    "<tr><td> Route Description:</td> <td><textarea id='routeDescription' value='New Awesome Route'/></td></tr>" +
-    "<tr><td>Minimum group size:</td><td><input type='number' id='minGroupSize' min='1'/> </td></tr>" +
-    "<tr><td>Maximum group size:</td><td><input type='number' id='maxGroupSize' min='1'/> </td></tr></table>" +
-    "<p>Start date: <input type='text' id='datepicker_from' /></p>" + 
-    "<p>End date: <input type='text' id='datepicker_to' /></p>" +
-    "<p><input type='button' onclick = 'addNewRoute()' value='Add this new route'/></p>");
 
     $("#datepicker_from").change(function () {
         var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
@@ -62,10 +53,6 @@ function showRouteBuilder()  {
         var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
         acquireCultuurnetEventsByLatLong(latlong.latitude, latlong.longitude, startdate, enddate);
     });
-    
-    $("#routeBuilder").show();
-    $("#searchform").show();
-    $("#tabs").show();
 };
 
 /**

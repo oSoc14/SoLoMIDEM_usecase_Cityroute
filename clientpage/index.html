@@ -160,7 +160,7 @@
           <div id="routes"></div>
           <p class="checkbox">
             <label>
-              <input type="checkbox" value="1" id="optimizeSwitch"> Optimize Waypoints
+              <input type="checkbox" value="1" id="optimizeSwitch">Optimize Waypoints
             </label>
           </p>
           <p>
@@ -179,7 +179,35 @@
             <ul data-role="listview" data-inset="true" data-theme="d" id="sortable"></ul>
           </div>
           <div id="sortableInput"></div>
+          <p>
+            <label>Route Name</label>
+            <input type="text" id="routeName" value="NewRoute1" class="form-control" />
+          </p>
+          <p>
+            <label>Route Description</label>
+            <textarea id="routeDescription" value="New Awesome Route" class="form-control"></textarea>
+          </p>
+          <p>
+            <label>Minimum group size</label>
+            <input type="number" id="minGroupSize" min="1" class="form-control" />
+          </p>
+          <p>
+            <label>Maximum group size</label>
+            <input type="number" id="maxGroupSize" min="1" class="form-control" />
+          </p>
+          <p>
+            <label>Start date</label>
+            <input type="date" id="datepicker_from" class="form-control" />
+          </p>
+          <p>
+            <label>End date</label>
+            <input type="date" id="datepicker_to" class="form-control" />
+          </p>
+          <p>
+            <button type="button" onclick="addNewRoute()">Add this new route</button>
+          </p>
         </section>
+
 
         <!-- This div shows information about a nearby spot when you're in route view -->
         <section class="view-spotinfo">
