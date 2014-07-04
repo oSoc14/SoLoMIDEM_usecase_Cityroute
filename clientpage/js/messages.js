@@ -24,17 +24,15 @@ function showMessages() {
 
 // Show the messages
 function displayMessages(before_date, after_date) {
-    $("#yourMessages").empty();
-
-    var userid = $.cookie("user_id");
+    $("#yourMessages").prepend("<p>Loading new messages...</p>");
 
     var url =  "http://" + config_serverAddress + "/messages/foruser";
     var postdata = {
-        'user_id': userid,
-        'before_date': before_date,
-        'after_date': after_date,
+        'user_id':  $.cookie("user_id"),
         'token': $.cookie("token")
     }
+    if(before_date) postdata.before_date = before_date;
+    if(after_date) postdata.after_date = after_date;
   
     $.ajax({
        type: 'POST',
@@ -54,11 +52,11 @@ function onMessagesReceived(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         $('#navMessages').html('Messages <b>' + 0 + ' new</b>');
 
+        $('#yourMessages').empty();
         var messagesAndUsers = data.response;
         messagesAndUsers.forEach(function (messageAndUser) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
-        $("#yourMessages").append('<input type="button" value="Load all messages" onclick="loadOlderMessages()"/>');
 
         var url =  "http://" + config_serverAddress + "/messages/markasread";
         var postdata = {
@@ -87,26 +85,24 @@ function loadOlderMessages() {
     displayMessages(null, null);
 }
 
-
 function displayMessage(sender, receiver, message) {
-    var thumbnail_url = sender.avatar;
-    if (thumbnail_url === null) {
-        thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
-    }
-    var content = message.content;
-    var date = message.date;
-    var mom = moment(new Date(date)).fromNow();
-    if (message.sender_id == $.cookie("user_id")) {
-         $("#yourMessages").append("<div id='" + message.id + "'>" + 
-             "<li data= '" + message.id + "'>" + 
-             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-             "<b>" + " " + mom + ", you said to " + receiver.first_name + " " + receiver.last_name + ": </b>" + "<br>" + content + "</li>");
-    } else {
-        $("#yourMessages").append("<div id='" + message.id + "'>" + 
-            "<li data= '" + message.id + "'>" + 
-            "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-            "<b>" + " " + mom + ", " + sender.first_name + " " + sender.last_name + " said: </b>" + "<br>" + content + "</li>");
-    }
+  var thumbnail_url = sender.avatar;
+  if (thumbnail_url === null) {
+    thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+  }
+  var content = message.content;
+  var date = message.date;
+  var mom = moment(new Date(date)).fromNow();
+  var direction = message.sender_id == $.cookie('user_id') ? 'To ' + receiver.first_name + ' ' + receiver.last_name : 'From ' + sender.first_name + ' ' + sender.last_name;
+
+  $('#yourMessages').append(
+    '<div id="' + message.id + '" class="message">' +
+    '<img src="' + thumbnail_url + '" alt="Thumb">' +
+    '<p>' +
+    '<span class="message-direction">' + direction + '</span> ' +
+    content +
+    '</p>' +
+    '<p class="message-moment">' + mom + '</p> ' +
+    '</div>');
+
 }
-
-
