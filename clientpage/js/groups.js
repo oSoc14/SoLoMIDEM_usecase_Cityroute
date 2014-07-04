@@ -32,7 +32,7 @@ function showGroupsForWhichUserIsMember() {
         type: "POST",
         success: onShowGroupsForWhichUserIsMember,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -90,7 +90,7 @@ function sendMessageToGroup(groupId) {
         type: "POST",
         success: onMessageSent,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -109,7 +109,7 @@ function showGroup(groupId) {
         type: "POST",
         success: onShowGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -140,7 +140,7 @@ function onShowGroup(data, textStatus, jqXHR) {
                 type: "POST",
                 success: onUserProfileFound,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         };
@@ -162,7 +162,7 @@ function onShowGroup(data, textStatus, jqXHR) {
                     type: "POST",
                     success: onUserMembershipRequestingProfileFound,
                     error: function(jqXHR, errorstatus, errorthrown) {
-                        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                        console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                     }
                 });  
             };
@@ -222,7 +222,7 @@ function sendMessageToUser(userId) {
         type: "POST",
         success: onMessageSent,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -232,7 +232,7 @@ function onMessageSent(data, textStatus, jqXHR) {
         if ($("#messagediv").length > 0) {
             $("#messagediv").remove();
         }
-        alert("Message sent!");
+        console.log("Message sent!");
     } else {
         alertAPIError(data.meta.message);  
     }
@@ -284,7 +284,7 @@ function acceptMembership(groupId, userId) {
         type: "POST",
         success: onAcceptMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -293,7 +293,7 @@ function acceptMembership(groupId, userId) {
 function onAcceptMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You accepted the request.");
+       console.log("You accepted the request.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -314,7 +314,7 @@ function declineMembership(groupId, userId) {
         type: "POST",
         success: onDeclineMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -323,7 +323,7 @@ function declineMembership(groupId, userId) {
 function onDeclineMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You declined the request.");
+       console.log("You declined the request.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -344,7 +344,7 @@ function leaveGroup(group) {
         type: "POST",
         success: onLeaveGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+            console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });  
 }
@@ -353,7 +353,7 @@ function leaveGroup(group) {
 function onLeaveGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You left the group.");
+       console.log("You left the group.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -372,7 +372,7 @@ function deleteGroup(groupId) {
         type: "POST",
         success: onDeleteGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -381,7 +381,7 @@ function deleteGroup(groupId) {
 function onDeleteGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("Group deleted.");
+       console.log("Group deleted.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -404,7 +404,7 @@ function searchGroup() {
         type: "POST",
         success: onSearchGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -438,7 +438,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
                 type: "POST",
                 success: onProfileFoundForSearch,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         };
@@ -463,7 +463,7 @@ function requestMembership(groupId) {
         type: "POST",
         success: onRequestMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -472,7 +472,7 @@ function requestMembership(groupId) {
 function onRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
-       alert("Membership requested.");
+       console.log("Membership requested.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -493,7 +493,7 @@ function cancelMembershipRequest(groupId) {
         type: "POST",
         success: onCancelRequestMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -502,7 +502,7 @@ function cancelMembershipRequest(groupId) {
 function onCancelRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
-       alert("Membership request cancelled.");
+       console.log("Membership request cancelled.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -547,7 +547,7 @@ function addGroup() {
         type: "POST",
         success: onAddGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -556,7 +556,7 @@ function addGroup() {
 function onAddGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("Group created.");
+       console.log("Group created.");
     } else {
         alertAPIError(data.meta.message);
     }

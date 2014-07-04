@@ -110,7 +110,7 @@ function acquireSuggestedSpots(spot) {
         success: onGetSuggestedSpots,
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });  
 };
@@ -139,7 +139,7 @@ function acquireSuggestedSpots(spot) {
         cache: false,
         success: onGetSearchedSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert(errorstatus + ": " + errorthrown);
+            console.log(errorstatus + ": " + errorthrown);
         }
     });
  }
@@ -167,7 +167,7 @@ function acquireSuggestedSpotsByLatLong( latitude, longitude){
         cache: false,
         success: onGetSuggestedSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });  
 };
@@ -339,7 +339,7 @@ function addSearchedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1];
         var spotName = listitems[listID].innerHTML;
@@ -370,7 +370,7 @@ function acquireRelevantSpotsFromSearch(spotID) {
         cache: false,
         success: onGetRelevantSpotsFromSearch,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });     
 };
@@ -400,7 +400,7 @@ function addSuggestedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1] ;
         var spotName = listitems[listID].innerHTML;
@@ -423,7 +423,7 @@ function addEvent(listID) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");
 
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var eventID = listitems[listID].id.split('_')[1] ;
         var eventName = listitems[listID].innerHTML;
@@ -466,7 +466,7 @@ function acquireRecommendedSpots(spotID) {
         success: onGetRecommendedSpots,
         dataType:"json",
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("The what's next API is having some problems");
+           console.log("The what's next API is having some problems");
         }
     });  
 };
@@ -510,7 +510,7 @@ function addRecommendedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1] ;
         var spotName = listitems[listID].innerHTML;
@@ -546,7 +546,7 @@ function routeBuilderAddSpot( spot ) {
                 callback(spot);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });  
     }
@@ -573,7 +573,7 @@ function addNewRoute() {
     var startdate = $( "#datepicker_from" ).datepicker( "getDate" );
     var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
         var items = document.getElementById("sortable").getElementsByTagName("li");   
         var points = [];

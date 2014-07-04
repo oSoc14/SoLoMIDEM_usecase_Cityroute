@@ -41,7 +41,7 @@ function showRoute ( spotID ){
         url: url,
         success: onGetRoutes
         //error: function(jqXHR, errorstatus, errorthrown) {
-        //   alert("Error: " + errorstatus);
+        //   console.log("Error: " + errorstatus);
         //}
     });
 };
@@ -116,7 +116,7 @@ function addRouteInformation(index, value) {
                   }
                 },
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         }
@@ -194,7 +194,7 @@ function addRouteInformation(index, value) {
         success: function (data, textStatus, jqXHR) { $.each(data.response, renderGroupIfMatches); },
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
   } 
@@ -241,7 +241,7 @@ function selectRoute(routeID) {
         success: onGetRouteByID,
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };

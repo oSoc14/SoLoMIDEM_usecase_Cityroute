@@ -38,13 +38,13 @@ function autoGenerateRoute() {
                 callback(item);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });  
     }
 
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
         getSpotDataFromChannelEntry(entry, function(spot) {
             var latitude = spot.point.latitude;
@@ -67,7 +67,7 @@ function autoGenerateRoute() {
                 cache: false,
                 success: onGetGeneratedRoute,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert(errorstatus + ": " + errorthrown);
+                    console.log(errorstatus + ": " + errorthrown);
                 }
             }); 
             $("#generate").hide();
@@ -115,7 +115,7 @@ function addChannel() {
         
         $("#channels").append("<li data= '" + channelname + "'>" + channelText + "</li>");
     } else {
-        alert("You can add maximum 9 channels!");
+        console.log("You can add maximum 9 channels!");
     }
 };
 
@@ -140,11 +140,11 @@ function addGeneratedChannel(){
 
 
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
     
     if (channels.length < 2) {
-        alert("You have to pick at least two channels!");
+        console.log("You have to pick at least two channels!");
     } else {
         
         // structure for channel parameter: <channel1>|<channel2>|<channel3>|.....|<channel9>
@@ -168,7 +168,7 @@ function addGeneratedChannel(){
             cache: false,
             success: onGetGeneratedRoute,
             error: function(jqXHR, errorstatus, errorthrown) {
-               alert(errorstatus + ": " + errorthrown);
+               console.log(errorstatus + ": " + errorthrown);
             }
         }); 
         

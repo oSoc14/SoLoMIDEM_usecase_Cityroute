@@ -43,7 +43,7 @@ function displayMessages(before_date, after_date) {
         data: postdata,
         success: onMessagesReceived,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 }
@@ -74,7 +74,7 @@ function onMessagesReceived(data, textStatus, jqXHR) {
             success: function() { 
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert("Error: " + errorstatus);
+                console.log("Error: " + errorstatus);
             }
         });
     } else {

@@ -36,7 +36,7 @@ function getSpotDataFromChannelEntry(channel_entry, callback) {
             callback(item);
         },
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert(errorstatus + ": " + errorthrown);
+            console.log(errorstatus + ": " + errorthrown);
         }
     });  
 }
@@ -77,7 +77,7 @@ function onLocationKnown(position) {
         cache: false,
         success: onGetSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };
@@ -152,7 +152,7 @@ function checkIn( spotID, channelID ) {
         cache: false,
         success: onCheckedIn,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };
@@ -188,7 +188,7 @@ function onCheckedIn(data, textStatus, jqXHR) {
         $("#messagesTab").show();
         showRoute(data.response.url);
     } else {
-        alert("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
+        console.log("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
         //logOut();
     }    
 }

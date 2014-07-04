@@ -54,5 +54,5 @@ function restart() {
 * @param message: the error message that will be shown
 */
 function alertAPIError(message) {
-    alert("The CityLife API returned the following error message: " + message.msg_text);
+    console.log("The CityLife API returned the following error message: " + message.msg_text);
 };
