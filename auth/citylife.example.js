@@ -5,16 +5,22 @@
  * Contains the URI's to the CityLife API (not public)
  */
 
-var authenticationCall = "https://vikingspots.com/en/api/4/basics/login/";
-var deAuthenticationCall = "https://vikingspots.com/en/api/4/basics/logout/";
-var discoverChannelCall = "https://vikingspots.com/en/api/4/channels/discoverchannel/";
-var getSpotByIdCall = "https://vikingspots.com/en/api/4/spots/getbyid";
-var channelCall = "https://vikingspots.com/en/api/4/channels/call/";
-var discoverCall = "https://vikingspots.com/en/api/4/channels/discover/";
+// SECRET TO GET PRIVATE USER INFO FROM CITYLIFE, REQUEST YOUR SECRET API KEY
+var config_solomidem_secret = "xxx";
 
-exports.authenticationCall = authenticationCall;
+// Authentication urls
+var authenticationCall_new = "https://id.citylife.be/auth/token/";
+var deAuthenticationCall = "https://vikingspots.com/en/api/4/basics/logout/";
+var discoverChannelCall_new = "https://vikingspots.com/citylife/channels/discover/";
+var getSpotByIdCall_new = "https://vikingspots.com/citylife/items/";
+var getSpotDetailsCall = "https://vikingspots.com/citylife/spots/";
+var checkinCall = "https://vikingspots.com/citylife/checkins/";
+
+
+exports.authenticationCall_new = authenticationCall_new;
 exports.deAuthenticationCall = deAuthenticationCall;
-exports.discoverChannelCall = discoverChannelCall;
-exports.getSpotByIdCall = getSpotByIdCall;
-exports.channelCall = channelCall;
-exports.discoverCall = discoverCall;
+exports.discoverChannelCall_new = discoverChannelCall_new;
+exports.getSpotByIdCall_new = getSpotByIdCall_new;
+exports.checkinCall = checkinCall;
+exports.getSpotDetailsCall = getSpotDetailsCall;
+exports.config_solomidem_secret = config_solomidem_secret;

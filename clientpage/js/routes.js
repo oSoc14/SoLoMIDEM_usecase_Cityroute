@@ -17,19 +17,15 @@ var current_date = new Date();
 * @param spotID: the ID of the spot
 */
 function showRoute ( spotID ){
-   /** 
-   * send a request to the nodeJS API to acquire the nearby spots
-   * parameters: latitude and longitude
-   * returns: list of spots
-   */
+    /** 
+    * send a request to the nodeJS API to acquire the nearby spots
+    * parameters: latitude and longitude
+    * returns: list of spots
+    */
 
-   current_spot = spotID;
+    current_spot = spotID;
 
-   $("#spotList").hide();
-   $("#spotListTable").html("");
-   
-   $("#routes").show();
-   $("#aside").hide();
+    changeView('routes');
 
     var url =  "http://" + config_serverAddress + "/routes/routesatspot";
     var postdata = {
@@ -45,7 +41,7 @@ function showRoute ( spotID ){
         url: url,
         success: onGetRoutes
         //error: function(jqXHR, errorstatus, errorthrown) {
-        //   alert("Error: " + errorstatus);
+        //   console.log("Error: " + errorstatus);
         //}
     });
 };
@@ -55,28 +51,20 @@ function showRoute ( spotID ){
 * callback function after requesting the routes for a spot
 */
 function onGetRoutes(data, textStatus, jqXHR) { 
-    $("#routes").html("");
-    // for each route
-    //$("#routes").append("<p>View for date: <input type='text' id='current_datepicker' /></p>");
-    //$( "#current_datepicker" ).datepicker();
-    $("#routes").append("<div style='float:left;' ><input style='margin-right:50px;' type='button' value='Add new route' onclick='showRouteBuilder()'/> "  + 
-        " Optimize Waypoints: <select id='optimizeSwitch'><option value='1'>On</option><option value='0'>Off</option></select>" + 
-        "<p>View for date: <input type='text' id='current_datepicker' /></p></div>");
-        $('#optimizeSwitch').switchify();
+  $("#routes").html("");
 
-    $( "#current_datepicker" ).datepicker();
-    $( "#current_datepicker" ).datepicker( "setDate", current_date);
+  $( "#current_datepicker" ).datepicker( "setDate", current_date);
 
-    $( "#current_datepicker" ).on("change", function() { 
-        current_date = $( "#current_datepicker" ).datepicker( "getDate" );
-        showRoute(current_spot); 
-    });
+  $( "#current_datepicker" ).on("change", function() { 
+    current_date = $( "#current_datepicker" ).datepicker( "getDate" );
+    showRoute(current_spot); 
+  });
 
-    if (data.meta.code == 200) {
-        $.each(data.response.routes, addRouteInformation);
-    } else {
-        alertAPIError(data.meta.message);
-    }
+  if (data.meta.code == 200) {
+    $.each(data.response.routes, addRouteInformation);
+  } else {
+    alertAPIError(data.meta.message);
+  }
 };
 
 
@@ -118,7 +106,7 @@ function addRouteInformation(index, value) {
                   }
                 },
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         }
@@ -196,7 +184,7 @@ function addRouteInformation(index, value) {
         success: function (data, textStatus, jqXHR) { $.each(data.response, renderGroupIfMatches); },
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
   } 
@@ -243,7 +231,7 @@ function selectRoute(routeID) {
         success: onGetRouteByID,
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };

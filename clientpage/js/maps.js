@@ -73,7 +73,7 @@ function generateRoute( ) {
     var optimize = $("#optimizeSwitch").val() == 1;
     if (generatedRoute)
         optimize = false;
-    //alert(optimize);
+    //console.log(optimize);
     // generate the request
     var dirRequest = {
        origin: latLong,
@@ -137,7 +137,7 @@ function onRouteCalculated (directionsResult, directionsStatus){
                 var latLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 myMarker.setPosition(latLong);
                 checkSpotsOnRoute(latLong);
-            }, function (error) {alert("Error while acquiring current location");},{enableHighAccuracy:true});
+            }, function (error) {console.log("Error while acquiring current location");},{enableHighAccuracy:true});
     },3000);
 
     showRouteMetaInfo(directionsResult.routes[0].waypoint_order);
@@ -281,7 +281,7 @@ function showSpotInfo (spot) {
         cache: false,
         success: function (data, textStatus, jqXHR) {onGetNearbySpotsInfo(data, textStatus, jqXHR, spot);},
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };
@@ -304,7 +304,7 @@ function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
                 callback(spot);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });
     }
@@ -355,7 +355,7 @@ function checkinAtNearSpot (spotID) {
         cache: false,
         success: onCheckedInAtNearSpot,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };

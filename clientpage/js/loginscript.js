@@ -38,7 +38,7 @@ function loginuser(){
         type: "POST",
         success: onLoggedIn,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 
@@ -70,7 +70,7 @@ function onLoggedIn(data, textStatus, jqXHR) {
             type: "POST",
             success: onUitIdLinked,
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
             }
         });*/
 
@@ -78,15 +78,15 @@ function onLoggedIn(data, textStatus, jqXHR) {
 
     }
     else if (data.meta.code == 401)
-        alert("Incorrect username or password");
+        console.log("Incorrect username or password");
     else
-        alert("The Citylife API returned an error");
+        console.log("The Citylife API returned an error");
 };
 
 
 function onUitIdLinked(data, textStatus, jqXHR) {
     if (data.meta.code != 200) {
-        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+        console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
     }
 }
 
@@ -105,7 +105,7 @@ function logOut() {
         url: url,
         success: onLoggedOut,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": aaa" + errorthrown);
+           console.log(errorstatus + ": aaa" + errorthrown);
         }
     });*/
     $.removeCookie("token");

@@ -18,11 +18,8 @@ var routeData;
 */
 function getGeolocation() {
     //$.getScript("/js/auth/apikey.js",function(){googleKey = mapsapikey});
-    
-    navigator.geolocation.getCurrentPosition(onLocationKnown,function(err){
-        alert("Could not request geolocation");
-        },
-        {timeout:10000});
+    onLocationKnown();
+    //navigator.geolocation.getCurrentPosition(onLocationKnown, onLocationError, {timeout: 10000});
 };
 
 
@@ -39,7 +36,7 @@ function getSpotDataFromChannelEntry(channel_entry, callback) {
             callback(item);
         },
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert(errorstatus + ": " + errorthrown);
+            console.log(errorstatus + ": " + errorthrown);
         }
     });  
 }
@@ -49,12 +46,26 @@ function getSpotDataFromChannelEntry(channel_entry, callback) {
 * @param position: the current position
 */
 function onLocationKnown(position) {
+    position = {
+      "timestamp": 1404387513281,
+      "coords": {
+        "speed": null,
+        "heading": null,
+        "altitudeAccuracy": null,
+        "accuracy": 37,
+        "altitude": null,
+        "longitude": 3.2701124999999998,
+        "latitude": 50.8006804
+      }
+    };
     $("#geolocationPar").html("Latitude: " + position.coords.latitude +  "</br>Longitude: " + position.coords.longitude);   
-    
+
    // send a request to the nodeJS API to acquire the nearby spots
    // parameters: latitude and longitude
    // returns: list of spots
-    var url =  "http://" + config_serverAddress + "/spots?latitude=" + 
+
+   console.log("onLocationKnown")
+    var url =  "http://" + config_serverAddress + "/spots.json?latitude=" + 
         position.coords.latitude + 
         "&longitude=" + position.coords.longitude +
         "&token=" + $.base64('btoa', $.cookie("token"), false);
@@ -66,9 +77,19 @@ function onLocationKnown(position) {
         cache: false,
         success: onGetSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
+};
+
+/**
+* callback function for the geolocation API if location was not found within time
+* @param PositionError
+*/
+function onLocationError(error) {
+    $("#geolocationPar").html("Location not found within 10 seconds");   
+    
+    console.log(error);
 };
 
 /**
@@ -76,6 +97,7 @@ function onLocationKnown(position) {
 * parse the list of nearby spots and show them
 */
 function onGetSpots(data, textStatus, jqXHR) {
+    changeView('spots');
     if (data.meta.code == 200) {
         var browserHeight = $(window).height();
         var browserWidth= $(window).width();
@@ -87,13 +109,24 @@ function onGetSpots(data, textStatus, jqXHR) {
             if (image === null || image.length == 0) {
               image = "http://www.viamusica.com/images/icon_location02.gif";
             }
+            var shortDescription = value.detail_data.description;
+            if(shortDescription.length > 200){
+                shortDescription = shortDescription.substring(0,150) + '... <a href="#">Expand</a>';
+            }
             var channel = value.channel;
             var id = value.item;
-            $('#spotListTable').append(
-                '<tr><td><b>' + value.discover_card_data.title + '</b></td>' + 
-                '<td>' +  "<img src='" + image + "' alt='<spot image>' width='" + (browserWidth/4) + "'>" + '</td>' + 
-                //'<td>' + value.detail_data.description + 
-                '</td><td> <input type="button" onclick="checkIn(' + "'" + id + "'" + "," + "'" + channel + "'" + ')" value="Check In" /></tr>');
+            $('#spotList').append(
+                '<div class="spot spot-nearby">' +
+                '<div class="spot-image" style="background-image:url(' + image + ')"></div>' +
+                '<div class="spot-data"><div class="clearfix">' +
+                '<h4 class="spot-title">' + value.discover_card_data.title + '</h4>' +
+                '<p class="spot-addr">' + value.detail_data.address + '</p></div>' +
+                '<p class="spot-descr">' + shortDescription + '</p>' +
+                '<p class="spot-checkin"><button type="button" ' +
+                'onclick="checkIn(\'' + id + "','" + channel + '\')" class="btn btn-default">Check In</button></p>' +
+                '</div>' +
+                '</div>'
+                );
             $("#geolocationPar").hide();
             $("#spotList").show();
             routeBuilderAddSpot(value);
@@ -120,7 +153,7 @@ function checkIn( spotID, channelID ) {
         cache: false,
         success: onCheckedIn,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };
@@ -142,10 +175,9 @@ function onCheckedIn(data, textStatus, jqXHR) {
                 if (message.data == 'new_messages_for_user?') {
                     WS.send($.cookie("user_id"));
                 } else {
-                    var messagesTab = $('#messagesTab');
-                    var link = $(messagesTab.children()[0]);
-                    var new_messages_label = "Messages -- " + message.data + " new";
-                    link.text(new_messages_label);
+                    /* $('#navMessages b').text(...) would be cleaner
+                    *  but that <b> might be changed without knowing this dependency */
+                    $('#navMessages').html('Messages <b>' + message.data + ' new</b>');
                 }
             }
         }
@@ -157,7 +189,7 @@ function onCheckedIn(data, textStatus, jqXHR) {
         $("#messagesTab").show();
         showRoute(data.response.url);
     } else {
-        alert("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
+        console.log("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
         //logOut();
     }    
 }

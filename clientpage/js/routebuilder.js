@@ -20,7 +20,7 @@ function getSpotIdFromURL(url) {
 show the routebuilder using the spots[] variable
 */
 function showRouteBuilder()  {
-    $("#aside").show();
+    
     var spot = spots[0];
     acquireSuggestedSpots(spot);
     var latitude = spot.point.latitude;
@@ -34,19 +34,10 @@ function showRouteBuilder()  {
         $("#sortable").append(toAdd);
         $("#spot_" + id).data('latlong',{latitude: latitude, longitude: longitude});
     });
-
-    $("#routes").hide();
     
     /**
     Form to add a name and description for the new route
     */
-    $("#sortableInput").html("<table><tr><td>Route Name:</td> <td><input type='text' id='routeName' value='NewRoute1'/></td></tr>" +
-    "<tr><td> Route Description:</td> <td><textarea id='routeDescription' value='New Awesome Route'/></td></tr>" +
-    "<tr><td>Minimum group size:</td><td><input type='number' id='minGroupSize' min='1'/> </td></tr>" +
-    "<tr><td>Maximum group size:</td><td><input type='number' id='maxGroupSize' min='1'/> </td></tr></table>" +
-    "<p>Start date: <input type='text' id='datepicker_from' /></p>" + 
-    "<p>End date: <input type='text' id='datepicker_to' /></p>" +
-    "<p><input type='button' onclick = 'addNewRoute()' value='Add this new route'/></p>");
 
     $("#datepicker_from").change(function () {
         var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
@@ -62,13 +53,6 @@ function showRouteBuilder()  {
         var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
         acquireCultuurnetEventsByLatLong(latlong.latitude, latlong.longitude, startdate, enddate);
     });
-
-    $( "#datepicker_from" ).datepicker();
-    $( "#datepicker_to" ).datepicker();
-    
-    $("#routeBuilder").show();
-    $("#searchform").show();
-    $("#tabs").show();
 };
 
 /**
@@ -110,7 +94,7 @@ function acquireSuggestedSpots(spot) {
         success: onGetSuggestedSpots,
         cache: false,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });  
 };
@@ -139,7 +123,7 @@ function acquireSuggestedSpots(spot) {
         cache: false,
         success: onGetSearchedSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert(errorstatus + ": " + errorthrown);
+            console.log(errorstatus + ": " + errorthrown);
         }
     });
  }
@@ -167,7 +151,7 @@ function acquireSuggestedSpotsByLatLong( latitude, longitude){
         cache: false,
         success: onGetSuggestedSpots,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });  
 };
@@ -339,7 +323,7 @@ function addSearchedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1];
         var spotName = listitems[listID].innerHTML;
@@ -370,7 +354,7 @@ function acquireRelevantSpotsFromSearch(spotID) {
         cache: false,
         success: onGetRelevantSpotsFromSearch,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": " + errorthrown);
+           console.log(errorstatus + ": " + errorthrown);
         }
     });     
 };
@@ -400,7 +384,7 @@ function addSuggestedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1] ;
         var spotName = listitems[listID].innerHTML;
@@ -423,7 +407,7 @@ function addEvent(listID) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");
 
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var eventID = listitems[listID].id.split('_')[1] ;
         var eventName = listitems[listID].innerHTML;
@@ -466,7 +450,7 @@ function acquireRecommendedSpots(spotID) {
         success: onGetRecommendedSpots,
         dataType:"json",
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("The what's next API is having some problems");
+           console.log("The what's next API is having some problems");
         }
     });  
 };
@@ -510,7 +494,7 @@ function addRecommendedSpot( listID ) {
     var sortItems = document.getElementById("sortable").getElementsByTagName("li");  
     
     if (sortItems.length >= 10) {
-        alert("The current API allows maximum 8 intermediate points.");
+        console.log("The current API allows maximum 8 intermediate points.");
     } else {
         var spotID = listitems[listID].id.split('_')[1] ;
         var spotName = listitems[listID].innerHTML;
@@ -546,7 +530,7 @@ function routeBuilderAddSpot( spot ) {
                 callback(spot);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });  
     }
@@ -573,7 +557,7 @@ function addNewRoute() {
     var startdate = $( "#datepicker_from" ).datepicker( "getDate" );
     var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
         var items = document.getElementById("sortable").getElementsByTagName("li");   
         var points = [];
