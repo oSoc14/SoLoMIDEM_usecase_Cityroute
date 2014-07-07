@@ -1,4 +1,5 @@
 node_modules/
 auth/
+linkid/linkid-api/config.php
 clientpage/js/auth/
 clientpage/vendor
