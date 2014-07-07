@@ -1,7 +1,8 @@
 <?php
 
+error_reporting(-1);
+
 require_once('../LinkIDAuthnContext.php');
-require_once('config.php');
 
 date_default_timezone_set('UTC'); // needed for parsing dates
 
@@ -22,19 +23,36 @@ if (!isset($_SESSION)) {
 </head>
 
 <body>
-
+	<h2>User: <?php echo $authnContext->userId; ?></h2>
+	<a href="logout.php">Logout</a>
 	<?php
+	foreach ($authnContext->attributes as $key => $value) {
+		echo '<p><label>' .
+		$key . '</label>' .
+		$value[0]->value . '<p>';
+	}
 
-	$authnContext = $_SESSION[$authnContextParam];
+// connect
+$m = new MongoClient();
 
-	print("<h2>User: " . $authnContext->userId . "</h2>");
+// select a database
+$db = $m->CityRoute;
 
-	print ("<a href=\"logout.php\">Logout</a>");
+// select a collection (analogous to a relational database's table)
+$collection = $db->users;
 
-	print("<h3>Attributes</h3>");
-	print("<pre>");
-	print_r($authnContext->attributes);
-	print("</pre>");
+// add a record
+$document = array( "title" => "Calvin and Hobbes");
+$collection->remove($document);
+
+// find everything in the collection
+$cursor = $collection->find();
+
+// iterate through the results
+foreach ($cursor as $document) {
+     var_dump($document ). "\n";
+}
+
 
 	?>
 
