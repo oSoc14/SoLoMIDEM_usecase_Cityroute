@@ -1,42 +1,61 @@
 <?php
-
 require_once('../LinkIDAuthnContext.php');
 require_once('config.php');
-
-date_default_timezone_set('UTC'); // needed for parsing dates
 
 if (!isset($_SESSION)) {
 	session_start();
 }
 
-?>
+if (isset($_SESSION[$authnContextParam])) {
+	header( 'Location: http://78.23.228.130:8888' );
+	exit();
+}
 
-<!DOCTYPE html>
-<html>
-<head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>linkID Mobile Demo</title>
-	<meta name="description" content="CityRoute demo">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-</head>
+$authnContext = $_SESSION[$authnContextParam];
 
-<body>
+function addToDoc($name, $value) {
+	global $document;
+	$safename = str_replace('.', '_', $name);
+	$document[$safename] = $value;
+}
 
-	<?php
+foreach ($authnContext->attributes as $v) {
+	$name = $v[0]->name;
+	$value = $v[0]->value;
+	$t = gettype($value);
 
-	$authnContext = $_SESSION[$authnContextParam];
+	if($t == 'array'){
+		foreach ($value as $j) {
+			$name = $j->name;
+			$value = $j->value;
+			addToDoc($name, $value);
+		}
+	}
+	else{
+		addToDoc($name, $value);
+	}
+}
 
-	print("<h2>User: " . $authnContext->userId . "</h2>");
+// connect
+$m = new MongoClient();
 
-	print ("<a href=\"logout.php\">Logout</a>");
+// select a database
+$db = $m->CityRoute;
 
-	print("<h3>Attributes</h3>");
-	print("<pre>");
-	print_r($authnContext->attributes);
-	print("</pre>");
+// select a collection (analogous to a relational database's table)
+$collection = $db->users;
 
-	?>
+try {
+	$cursor = $collection->update(
+		array('_id' => $authnContext->userId),
+		array('user_data' => $document),
+		array("upsert" => true)
+		);
+} catch (MongoWriteConcernException $e) {
+	echo $e->getMessage(), "\n";
+}
 
-</body>
-</html>
+$curl = curl_init('http://localhost:8888/data/success');
+$res = curl_exec($curl);
+
+header('Location: http://78.23.228.130:8888');

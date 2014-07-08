@@ -405,3 +405,11 @@ html, body {
 .map-active .view-map {
   display: block;
 }
+/* LinkID Login button */
+#login-iframe{
+  background: #fff;
+  height: 300px;
+}
+.linkid-login img{
+  max-width: 100%;
+}

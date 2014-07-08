@@ -1,16 +1,21 @@
 <?php
 
-require_once('../linkid-sdk/LinkIDLoginConfig.php');
+require_once('../LinkIDLoginConfig.php');
+require_once('../LinkIDAuthnContext.php');
+$authnContextParam = "linkID.authnContext";
 
 date_default_timezone_set('UTC'); // needed for DateTime
 
 // set device context
-setLinkIDAuthnMessage("PHP Authn Message");
-setLinkIDFinishedMessage("PHP Finished Message");
+setLinkIDAuthnMessage("Dag flinke jongen");
+setLinkIDFinishedMessage("Login successful!");
 
 // set identity profiles
-setLinkIDIdentityProfiles(array("linkid_basic", "linkid_payment"));
+setLinkIDIdentityProfiles(array("linkid_basic"));
 
+if (!isset($_SESSION)) {
+  session_start();
+}
 ?>
 
 <!DOCTYPE html>
@@ -22,62 +27,30 @@ setLinkIDIdentityProfiles(array("linkid_basic", "linkid_payment"));
   <meta name="description" content="CityRoute demo">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script type="text/javascript" id="linkid-login-script"
-  src="http://demo.linkid.be/linkid-static/js/linkid-min.js"></script>
-  <style type="text/css">
-    html, body{
-      height: 100%;
-      margin: 0;
-      font-family: sans-serif;
-      display: -webkit-flex;
-      display: flex;
-      justify-content: center;
-      align-items:center;
-      align-content:center;
-      align-self: center;
-
-    }
-    body *{
-      display: block;
-      margin: 0;
-      padding: 0;
-    }
-    .container {
-      background: #ddd;
-    }
-    h1,a{
-      font-size: 2em;
-      margin: 0;
-      padding: 1em;
-      text-align: center;
-      color: #fff;
-    }
-    h1{
-      background: #055;
-    }
-    a{
-      transition:background .3s,box-shadow .5s;
-      cursor: pointer;
-      background: #0bb;
-      text-decoration: none;
-      box-shadow: 0 2px 5px #fff;
-    }
-    a:hover{
-      background: #099;
-      box-shadow: 0 2px 5px #999;
-    }
-  </style>
+  src="http://solomid.linkid.be/linkid-static/js/linkid-min.js"></script>
+  <link rel="stylesheet" type="text/css" href="http://78.23.228.130:8888/css/normalize.css">
+  <link rel="stylesheet" type="text/css" href="http://78.23.228.130:8888/css/main.css">
 </head>
 
 <body>
-
-  <div class="container qr-demo">
-    <h1>linkID Demo</h1>
-    
+  <div class="qr-demo">
     <iframe id="linkid" style="display: none;"></iframe>
-    <a href="#" class="linkid-login" data-login-href="./LinkIDLogin.php" data-protocol="HAWS" data-mobile-minimal="linkid" data-completion-href="./LoggedIn.php">
-      Start
-    </a>
+    <?php 
+    if (!isset($_SESSION[$authnContextParam])) {
+      ?>
+      <a href="#" class="linkid-login linkid-btn" data-login-href="./LinkIDLogin.php" data-protocol="HAWS"
+      data-mobile-minimal="linkid" data-completion-href="./LoggedIn.php"></a>
+      <?php
+      if(!isset($_SESSION)){
+        session_start();
+      }
+    }
+    else{
+      echo '<a href="logout.php" target="linkid" class="logout" title="' .
+      $_SESSION[$authnContextParam]->userId
+      . '">Logout</a>';
+    }
+    ?>
   </div>
-
 </body>
 </html>
