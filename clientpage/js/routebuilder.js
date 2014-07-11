@@ -77,7 +77,7 @@ function routeBuilderSetFirstSpot(spotID) {
 function acquireSuggestedSpots(spot) {
     var latitude = spot.point.latitude;
     var longitude = spot.point.longitude;
-    var url =  "http://" + config_serverAddress + "/spots/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude;
+    var url =  config.server.address + "/spots/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude;
     
     $("#suggestions").html("");
     $("#tabs-1-loader").show();
@@ -107,7 +107,7 @@ function acquireSuggestedSpots(spot) {
  * @param searchTerm the search term
  */
  function acquireSuggestedSpotsBySearch( latitude, longitude, searchTerm) {
-    var url = "http://" + config_serverAddress + "/spots/search/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude + "&search_term=" + searchTerm;
+    var url = config.server.address + "/spots/search/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude + "&search_term=" + searchTerm;
     
     $("#searchresults").html("");
     $("#tabs-3-loader").show();
@@ -135,7 +135,7 @@ function acquireSuggestedSpots(spot) {
 * @param longitude the longitude of the location
 */
 function acquireSuggestedSpotsByLatLong( latitude, longitude){
-    var url =  "http://" + config_serverAddress + "/spots/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude;
+    var url =  config.server.address + "/spots/?token=" + $.base64('btoa', $.cookie("token"), false) + "&latitude=" + latitude + "&longitude=" + longitude;
     
     $("#suggestions").html("");
     $("#tabs-1-loader").show();
@@ -158,7 +158,7 @@ function acquireSuggestedSpotsByLatLong( latitude, longitude){
 
 
 function acquireCultuurnetEventsByLatLong(latitude, longitude, startdate, enddate) {
-    var url = "http://" + config_serverAddress + "/cultuurnet/events";
+    var url = config.server.address + "/cultuurnet/events";
 
     $("#events").html("");
     $("#tabs-2-loader").show();
@@ -341,7 +341,7 @@ function addSearchedSpot( listID ) {
 */
 function acquireRelevantSpotsFromSearch(spotID) {
     // we need the lat long information to get relevant spots. first acquire spot info
-    var url = "http://" + config_serverAddress + "/spots/findbyid?id=" + spotID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url = config.server.address + "/spots/findbyid?id=" + spotID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     
     // send a request to the nodeJS API to get information about a spot
     // parameters: the spot id
@@ -585,7 +585,7 @@ function addNewRoute() {
                     endDate: enddate,
                     token: $.cookie("token")
                 };
-        var url =  "http://" + config_serverAddress + "/routes/";
+        var url =  config.server.address + "/routes/";
     
         // send a POST to the nodeJS API to save a route
         // parameters: the route information: the name , description and a list of points in JSON format

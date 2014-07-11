@@ -268,7 +268,7 @@ function showSpotInfo (spot) {
     var latitude = spot.point.latitude;
     var longitude = spot.point.longitude;
 
-    var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + $.base64('btoa', $.cookie("token"), false);
 
     // send a request to the nodeJS API to get information about nearby spots
     // parameters: latitude and longitude
@@ -293,7 +293,7 @@ function showSpotInfo (spot) {
 function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
 
     function getSpotDataFromChannelItem(item, callback) {
-        var url = "http://" + config_serverAddress + "/spots/details?spot_id=" + item.item_id + "&token=" + $.cookie("token");
+        var url = config.server.address + "/spots/details?spot_id=" + item.item_id + "&token=" + $.cookie("token");
 
         $.ajax({
             type: 'GET',
@@ -342,7 +342,7 @@ function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
 * @param spotID the spot where you want to check in at
 */
 function checkinAtNearSpot (spotID) {
-    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&token=" + $.cookie("token");
+    var url =  config.server.address + "/spots/checkin?spot_id=" + spotID + "&token=" + $.cookie("token");
 
     // send a request to the nodeJS API to check in at a spot
     // parameters: bearer token, spotID

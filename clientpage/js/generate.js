@@ -51,7 +51,7 @@ function autoGenerateRoute() {
             var longitude = spot.point.longitude;
             var id = spot.item_id;
 
-            var url = "http://" + config_serverAddress + "/routes/generate/" + channelname + "?token=" + token + 
+            var url = config.server.address + "/routes/generate/" + channelname + "?token=" + token + 
                 "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
                 "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
                 "&startdate=" + startdate + "&enddate=" + enddate;
@@ -150,7 +150,7 @@ function addGeneratedChannel(){
         // structure for channel parameter: <channel1>|<channel2>|<channel3>|.....|<channel9>
         channelString = channels.map(function(channel) { return channel.getAttribute('data') }).join('|');
 
-        var url = "http://" + config_serverAddress + "/routes/generate/?channels=" + channelString + "&token=" + token + 
+        var url = config.server.address + "/routes/generate/?channels=" + channelString + "&token=" + token + 
             "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
             "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
             "&startdate=" + startdate + "&enddate=" + enddate;

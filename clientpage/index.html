@@ -8,9 +8,9 @@
   <meta name="description" content="CityRoute demo">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link rel="stylesheet" href="css/normalize.min.css" />
-  <link rel="stylesheet" href="css/smoothness/jquery-ui-1.10.3.custom.min.css" />
   <link rel="stylesheet" href="vendor/bootstrap/dist/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="vendor/alertify/themes/alertify.core.css" />
+  <link rel="stylesheet" href="vendor/alertify/themes/alertify.default.css" />
   <link rel="stylesheet" href="css/jquery.switch.css" />
   <link rel="stylesheet" href="css/loader.css" />
   <link rel="stylesheet" href="css/main.css" />
@@ -18,20 +18,24 @@
   <script src="js/vendor/modernizr-2.6.2-respond-1.1.0.min.js"></script>
 </head>
 
-<body>
+<body class="loading-active account-no-active groups-no-active login-no-active messages-no-active route-no-active routes-no-active spots-no-active spotinfo-no-active">
   <!--[if lt IE 8]>
   <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
   <![endif]-->
 
   <header>
     <div class="container">
-      <span id="logoutLink" class="pull-right">
-        <a href="#" title="Get location again and find nearby spots" onclick="restart()">Check my location</a>
-        <a href="#" onclick="logOut()">Log Out</a>
-      </span>
+      </ul>
       <h1>CityRoute</h1>
-      <nav>
-        <ul>
+      <nav id="n">
+        <ul class="nav nav-pills hide-auth">
+          <li><a href="#" onclick="changeView('welcome')">Welcome</a></li>
+          <li><a href="#" onclick="changeView('login')">Login</a></li>
+        </ul>
+        <ul class="nav nav-pills hide-loading show-auth">
+          <li>
+            <a href="#" onclick="changeView('spots');return false;">Spots</a>
+          </li>
           <li>
             <a href="#" onclick="showGenerate()">Routes</a>
           </li>
@@ -41,6 +45,8 @@
           <li>
             <a href="#" id="navMessages" onclick="showMessages()">Messages</a>
           </li>
+          <li><a href="#" onclick="changeView('account')">Account</a></li>
+          <li><a href="#" onclick="logOut()">Log Out</a></li>
         </ul>
       </nav>
     </div>
@@ -50,25 +56,76 @@
   The frontend consists of 1 HTML page with different views that can be shown or hidden using JavaScript.
   -->
 
-  <main>
+  <main class="hide-loading">
+
+    <!-- Login iframe + login/logout buttons -->
+    <section id="login" class="show-login">
+      <iframe src="#" id="login-iframe" name="login-iframe"></iframe>
+    </section>
+
     <div class="container">
+
+      <!-- Account configuration -->
+      <section id="account" class="show-account">
+        <h3>Account</h3>
+        <h4>SolomID</h4>
+        <p>
+          linkID login data:
+          <pre id="user-data"></pre>
+        </p>
+        <h4>CityLife</h4>
+        <p class="hide-citylife">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modalCityLife"><span class="glyphicon glyphicon-link"></span> Linken met CityLife</button>
+        </p>
+        <div class="show-citylife">
+          <p>
+            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Gelinkt met CityLife</button>
+          </p>
+          <dl>
+            <dt>Naam</dt>
+            <dd id="citylife-name">x</dd>
+            <dt>id</dt>
+            <dd id="citylife-id">x</dd>
+          </dl>
+        </div>
+        <h4>iRail</h4>
+        <p class="hide-irail">
+          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modaliRail"><span class="glyphicon glyphicon-link"></span> Linken met iRail</button>
+        </p>
+        <div class="show-irail">
+          <p>
+            <button type="button" class="btn btn-success"><span class="glyphicon glyphicon-ok"></span> Gelinkt met iRail</button>
+          </p>
+          <dl>
+            <dt>Naam</dt>
+            <dd id="irail-name">x</dd>
+            <dt>id</dt>
+            <dd id="irail-id">x</dd>
+          </dl>
+        </div>
+      </section>
+
+      <!-- Content below is on left/right -->
       <div class="content">
 
         <!-- Here comes the Lat Long information from the geolocation -->
-        <section id="geolocationPar" class="view-geostatus">
+        <section id="geolocationPar" class="view view-geostatus">
           <h3>Geo status</h3>
           <p>Waiting for geolocation...</p>
         </section>
 
         <!-- Here comes the list of nearby spots to check in -->
-        <section class="view-spots">
+        <section class="show-spots">
           <h3>Nearby spots</h3>
+          <p>
+            <button title="Get location again and find nearby spots" onclick="restart()" class="btn btn-primary">Browse nearby spots</button>
+          </p>
           <div id="spotList">
           </div>
         </section>
 
         <!-- The menu to auto-generate a route -->
-        <section id="generate" class="view-generate">
+        <section id="generate" class="view view-generate">
           <h3>Generate route</h3>
           <p>
             <label for="minGroupSizeGenerate">Minimum group size</label>
@@ -125,20 +182,8 @@
           </p>
         </section>
 
-        <section id="loader" class="view-loader">
-          <h3>Loading</h3>
-          <p>
-            <img src="img/loading.png" />
-          </p>
-        </section>
-
-        <!-- The login menu -->
-        <iframe id="login-iframe" src="http://78.23.228.130:8889/" frameborder="0">
-
-        </iframe>
-
         <!-- In this div the possible routes for the checked in spot are shown -->
-        <section class="view-routes">
+        <section class="show-routes">
           <h3>Possible routes</h3>
           <div id="routes"></div>
           <p class="checkbox">
@@ -156,7 +201,7 @@
         </section>
 
         <!-- In this div the routebuilder will be shown. This will be used to create routes -->
-        <section class="view-routes">
+        <section class="show-routes">
           <h3>Route builder</h3>
           <div data-role="content" data-theme="c" id="routeBuilder">
             <ul data-role="listview" data-inset="true" data-theme="d" id="sortable"></ul>
@@ -193,13 +238,13 @@
 
 
         <!-- This div shows information about a nearby spot when you're in route view -->
-        <section class="view-spotinfo">
+        <section class="show-spotinfo">
           <h3>Spot info</h3>
           <div id="spotInfo"></div>
         </section>
 
         <!-- This div shows group management -->
-        <section class="view-groups">
+        <section class="show-groups">
           <h3>Group management</h3>
           <div id="groups">
             <h4>You are in the following groups</h4>
@@ -237,7 +282,7 @@
           </div>
         </section>
 
-        <section id="messages" class="view-messages">
+        <section id="messages" class="show-messages">
           <h3>Messages</h3>
           <div id="yourMessages">
           </div>
@@ -247,7 +292,7 @@
         </section>
 
         <!-- This div shows the google map -->
-        <section class="view-spotinfo view-map">
+        <section class="show-spotinfo">
           <h3>Map</h3>
           <div id="map-canvas"></div>
         </section>
@@ -322,17 +367,48 @@
     <!-- .container -->
   </main>
 
+
+  <!-- Modal overlays -->
+  <div class="modal fade" id="modalCityLife">
+    <div class="modal-dialog modal-sm">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+          <h4 class="modal-title">Linken met CityLife</h4>
+        </div>
+        <div class="modal-body">
+          <p>
+            <label>CityLife e-mail</label>
+            <input type="text" id="citylife-username" placeholder="E-mail" class="form-control" value="test@mv.be">
+          </p>
+          <p>
+            <label>CityLife wachtwoord</label>
+            <input type="password" id="citylife-password" placeholder="Wachtwoord" class="form-control" value="test">
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Annuleren</button>
+          <button type="button" class="btn btn-primary" onclick="connectCityLife()">Linken</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
   <!-- Backend server info -->
-  <script src="js/auth/config.js"></script>
+  <script src="config/config.js"></script>
 
   <!-- jQuery+plugins -->
+  <script src="/socket.io/socket.io.js"></script>
   <script src="vendor/jquery/dist/jquery.min.js"></script>
   <script>
   window.jQuery || document.write('<script src="js/vendor/jquery-1.10.1.min.js"><\/script>')
   </script>
-  <script src="js/vendor/jquery.base64.js"></script>
+  <script src="vendor/bootstrap/dist/js/bootstrap.min.js"></script>
+  <script src="vendor/alertify/alertify.min.js"></script>
   <script src="vendor/jquery-cookie/jquery.cookie.js"></script>
   <script src="js/jsapi.js"></script>
+
+  <!-- CityRoute -->
   <script src="js/CityRoute.js"></script>
   <script src="js/spots.js"></script>
   <script src="js/routes.js"></script>
@@ -346,7 +422,7 @@
   <script src="vendor/jqueryui-touch-punch/jquery.ui.touch-punch.min.js"></script>
   <script src="js/async-master/lib/async.js"></script>
 
-  <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.2.1/moment.min.js"></script>
+  <script src="vendor/moment/min/moment.min.js"></script>
 
   <script src="js/main.js"></script>
 </body>

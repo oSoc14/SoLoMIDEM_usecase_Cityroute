@@ -65,7 +65,7 @@ function onLocationKnown(position) {
    // returns: list of spots
 
    console.log("onLocationKnown")
-    var url =  "http://" + config_serverAddress + "/spots.json?latitude=" + 
+    var url =  config.server.address + "/spots.json?latitude=" + 
         position.coords.latitude + 
         "&longitude=" + position.coords.longitude +
         "&token=" + $.base64('btoa', $.cookie("token"), false);
@@ -145,7 +145,7 @@ function checkIn( spotID, channelID ) {
     // send a request to the nodeJS API to check in at a spot
     // parameters: the bearer token and the spot id
     // returns: confirmation of the check-in, spot ID
-    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     $.ajax({
        type: 'GET',
        crossDomain: true,
