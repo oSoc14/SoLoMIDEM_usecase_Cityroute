@@ -24,6 +24,7 @@ var routes = require("./urlroutes/routes");
 var groups = require("./urlroutes/groups");
 var messages = require("./urlroutes/messages");
 var cultuurnet = require("./urlroutes/cultuurnet");
+var irail = require("./urlroutes/irail");
 var config = require("./auth/dbconfig.js");
 
 // declare credentials
@@ -93,6 +94,9 @@ app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 //app.get("/users/:key", users.dropAll);
 
+app.post("/irail/stations", irail.getStationsInRadius);
+app.get("/irail/stations-checkedin", irail.getStationsCheckedIn);
+
 // define the spots API url routes.
 app.get("/spots/details", spots.getSpotDetails);
 app.get("/spots", spots.findSpotsByLatLong);
@@ -128,7 +132,6 @@ app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 app.post("/messages/markasread", messages.markMessagesAsRead);
 
 
-
 /* 
 Login status with linkID via Websockets using "socket.io" library
 Use the server instance of Express such that sockets connect to the same port
@@ -147,8 +150,6 @@ OR on the port in the cloud deployment config.
 */
 server.listen(process.env.PORT || 8888);
 console.log("Listening on port " + (process.env.PORT || 8888) + "...");
-
-
 
 
 /* Messaging via Websockets using "ws" library */
