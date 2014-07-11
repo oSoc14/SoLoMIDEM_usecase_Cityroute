@@ -307,38 +307,35 @@
         relevant (Citylife API, 
         recommended (What's Next API)
         search (Citylife API)) -->
-        <div id="tabs">
-          <ul>
-            <li>
-              <a href="#tabs-1">Deal locations</a>
-            </li>
-            <li>
-              <a href="#tabs-2">Events</a>
-            </li>
-            <li>
-              <a href="#tabs-3">Search</a>
-            </li>
-            <li>
-              <a href="#tabs-4">Stations</a>
-            </li>
-          </ul>
-          <div id="tabs-1">
+
+
+        <ul class="nav nav-pills" role="tablist">
+          <li>
+            <a href="#tab-suggestions" role="tab" data-toggle="pill">Deal locations</a>
+          </li>
+          <li>
+            <a href="#tab-events" role="tab" data-toggle="pill">Events</a>
+          </li>
+          <li>
+            <a href="#tab-search" role="tab" data-toggle="pill">Search</a>
+          </li>
+          <li>
+            <a href="#tab-stations" role="tab" data-toggle="pill">Stations</a>
+          </li>
+        </ul>
+
+        <div class="tab-content">
+          <div class="tab-pane active" id="tab-suggestions">
             <h3>Suggestions</h3>
-            <p>
-              <img id="tabs-1-loader" src="/img/ajax-loader.gif" />
-            </p>
             <ul id="suggestions" class="list-group">
             </ul>
           </div>
-          <div id="tabs-2">
+          <div class="tab-pane" id="tab-events">
             <h3>Events</h3>
-            <p>
-              <img id="tabs-2-loader" src="/img/ajax-loader.gif" />
-            </p>
             <ul id="events" class="list-group">
             </ul>
           </div>
-          <div id="tabs-3">
+          <div class="tab-pane" id="tab-search">
             <h3>Search</h3>
             <div id="searchform">
               <p>
@@ -349,17 +346,11 @@
                 <button type="button" onclick="search()" class="btn btn-default">Search</button>
               </p>
             </div>
-            <p>
-              <img id="tabs-3-loader" src="/img/ajax-loader.gif" />
-            </p>
             <ul id="searchresults" class="list-group">
             </ul>
           </div>
-          <div id="tabs-4">
+          <div class="tab-pane" id="tab-stations">
             <h3>Stations</h3>
-            <p>
-              <img id="tabs-4-loader" src="/img/ajax-loader.gif" />
-            </p>
             <ul id="stations" class="list-group">
             </ul>
           </div>

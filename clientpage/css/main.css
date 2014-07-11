@@ -273,6 +273,14 @@ html, body {
   text-decoration: none;
   color: #000
 }
+/* Nearby spots - Aside */
+aside .list-group-item button{
+  margin-right: 10px;
+}
+aside .list-group-item img{
+  max-width: 100%;
+  max-height: 150px;
+}
 /* Messages */
  .message {
   overflow: auto;
