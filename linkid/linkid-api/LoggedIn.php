@@ -6,11 +6,6 @@ if (!isset($_SESSION)) {
 	session_start();
 }
 
-if (isset($_SESSION[$authnContextParam])) {
-	header( 'Location: http://78.23.228.130:8888' );
-	exit();
-}
-
 $authnContext = $_SESSION[$authnContextParam];
 
 function addToDoc($name, $value) {
@@ -55,7 +50,37 @@ try {
 	echo $e->getMessage(), "\n";
 }
 
-$curl = curl_init('http://localhost:8888/data/success');
+$curl = curl_init('http://localhost:8888/auth/success');
 $res = curl_exec($curl);
 
-header('Location: http://78.23.228.130:8888');
+?>
+<!DOCTYPE html>
+<html class="inside-frame">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>linkID Mobile Demo</title>
+	<meta name="description" content="CityRoute demo">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="http://78.23.228.130:8888/vendor/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" type="text/css" href="http://78.23.228.130:8888/css/main.css">
+</head>
+
+<body>
+	<div class="qr-demo">
+		<p>
+			Login successful
+		</p>
+		<p>
+			You will soon be redirected.
+			<br>
+			If nothing happens, try to <a href="http://78.23.228.130:8888" target="_top">reload</a>.
+		</p>
+		<p>
+			<a href="logout.php" target="_self">Or just logout</a>.
+		</p>
+	</div>
+	<script>
+	</script>
+</body>
+</html>

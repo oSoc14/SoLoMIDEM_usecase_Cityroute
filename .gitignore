@@ -3,3 +3,10 @@ auth/
 linkid/linkid-api/config.php
 clientpage/js/auth/
 clientpage/vendor
+
+# Default config should always be loaded
+# Example config should never be loaded
+# If config.* exists, it should overwrite the defaults
+**/config/config.*
+!**/config/config.default*
+!**/config/config.example*

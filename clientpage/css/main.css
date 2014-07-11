@@ -3,6 +3,7 @@
   color: #444;
 }
 body {
+  transition:background-color .5s;
   font-size: 1em;
   line-height: 1.4;
   background-color: #f5f5f5;
@@ -141,44 +142,19 @@ textarea {
  body {
   font: 16px/26px Helvetica, Helvetica Neue, Arial;
 }
-.container {
-  width: 90%;
-  margin: 0 auto;
-  padding: 0 10px;
+header{
+  background: #fff;
+}
+nav{
+  margin:0 -10px;
+  padding-bottom: 10px;
 }
 /* Typography */
- h4 {
-  margin: 0;
-}
 p {
   margin-top: 0;
   line-height: 1.6em;
 }
 /* Nav */
- nav ul {
-  margin: 0 -5px;
-  padding: 0;
-  overflow: auto;
-}
-nav li {
-  float: left;
-  width: 50%;
-  text-align: center;
-}
-nav a {
-  display: block;
-  margin: 5px;
-  line-height: 50px;
-  text-decoration: none;
-  color: #fff;
-  background-color: #e44d26;
-}
-nav a:hover, nav a:visited {
-  color: white;
-}
-nav a:hover {
-  text-decoration: underline;
-}
 /* custom CSS */
  .routeinfo {
   margin: 20px;
@@ -317,6 +293,10 @@ html, body {
   font-size: 12px;
   color: #aaa;
 }
+/* Debug */
+pre{
+  max-height: 200px;
+}
 /* Media Queries *********************************************************************/
 
 /* Responsive > Small */
@@ -338,9 +318,6 @@ html, body {
 }
 /* Responsive > Medium */
  @media only screen and (min-width: 768px) {
-  nav li {
-    width: 33.3333%;
-  }
   .content {
     float: left;
     width: 57%;
@@ -371,12 +348,42 @@ html, body {
 /* Views *********************************************************************/
 
 /* Hide sections and .view by default */
- .view, section {
+ .view{
+  display: none;
+}
+/* Show or hide if authorized */
+ .user-auth .hide-auth,
+ .user-citylife .hide-citylife,
+ .user-irail .hide-irail,
+ .user-no-auth .show-auth,
+ .user-no-citylife .show-citylife,
+ .user-no-irail .show-irail {
+  display: none;
+}
+/* Show or hide if page */
+ .user-auth .hide-auth,
+ .user-citylife .hide-citylife,
+ .user-irail .hide-irail {
+  display: none;
+}
+ .user-no-auth .show-auth,
+ .user-no-citylife .show-citylife,
+ .user-no-irail .show-irail {
   display: none;
 }
 /* Show if body has class <page>-active */
- .login-active .view-login {
-  display: block;
+.loading-active .hide-loading {
+  display: none;
+}
+.account-no-active .show-account,
+.groups-no-active .show-groups,
+.login-no-active .show-login,
+.messages-no-active .show-messages,
+.route-no-active .show-route,
+.routes-no-active .show-routes,
+.spots-no-active .show-spots,
+.spotinfo-no-active .show-spotinfo {
+  display: none;
 }
 .geostatus-active .view-geostatus {
   display: block;
@@ -405,11 +412,66 @@ html, body {
 .map-active .view-map {
   display: block;
 }
-/* LinkID Login button */
-#login-iframe{
-  background: #fff;
-  height: 300px;
+/* LinkID Login view */
+#login{
+  margin: 40px auto;
 }
+/* LinkID Login - Iframe outside */
+body.login-active{
+  transition:background-color 1s 1s;
+  background-color: #564C95;
+}
+#login-iframe{
+  width: 100%;
+  height: 285px;
+  border:0;
+}
+/* LinkID Login - Iframe inside */
+html.inside-iframe,
+.inside-iframe body{
+  transition:background 0s;
+  width: 100%;
+  background: none;
+}
+.inside-iframe body{
+  padding-top: 10px;
+}
+.inside-iframe #qr-fancy{
+  transition:max-width 1s,max-height 1s,box-shadow .5s;
+  margin: 0 auto;
+  max-width: 400px;
+  background: #fff;
+  box-shadow: 0 0 2px #DFBC5B;
+}
+.inside-iframe #qr-fancy:hover{
+  box-shadow: 0 0 8px 2px #DFBC5B;
+}
+.inside-iframe #qr-fancy.qr-load{
+  max-width: 265px;
+  height: 265px;
+}
+.inside-iframe a{
+  display: block;
+  padding: 20px;
+  text-decoration: none;
+}
+.inside-iframe h3{
+  text-align: center;
+  margin: 0;
+  line-height: 60px;
+  color: #564C95;
+}
+/* LinkID Login - Initialize login button */
 .linkid-login img{
+  display: block;
   max-width: 100%;
+  margin: 0 auto;
+}
+.linkid-login:hover img{
+}
+/* LinkID Login - Iframe in iframe containing qrcode */
+#linkid{
+  display: block;
+  margin: 0 auto;
+  border:0;
 }

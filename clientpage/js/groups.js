@@ -19,7 +19,7 @@ function showGroups() {
 // Show all the groups for which the user is member in the GUI
 function showGroupsForWhichUserIsMember() {
     var user = $.cookie("user_id");
-    var url =  "http://" + config_serverAddress + "/groups/member";
+    var url =  config.server.address + "/groups/member";
 
     var member = {
         member: user
@@ -76,7 +76,7 @@ function messageGroup(groupId) {
 
 
 function sendMessageToGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/messages/sendtogroup";
+    var url =  config.server.address + "/messages/sendtogroup";
     var postdata = {
         sender_id: $.cookie("user_id"),
         group_id: groupId,
@@ -98,7 +98,7 @@ function sendMessageToGroup(groupId) {
 
 // Show the contents of a group in the GUI
 function showGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/id";
+    var url =  config.server.address + "/groups/id";
     var searchdata = {
         id: groupId
     };
@@ -132,7 +132,7 @@ function onShowGroup(data, textStatus, jqXHR) {
                 id: group.users[i],
                 token: $.cookie("token")
             };
-            var url =  "http://" + config_serverAddress + "/users/profile";
+            var url =  config.server.address + "/users/profile";
              $.ajax({
                 url: url,
                 data: searchdata,
@@ -154,7 +154,7 @@ function onShowGroup(data, textStatus, jqXHR) {
                     groupid: group._id,
                     token: $.cookie("token")
                 };
-                var call =  "http://" + config_serverAddress + "/groups/profileformembership";
+                var call =  config.server.address + "/groups/profileformembership";
                 $.ajax({
                      url: call,
                     data: postdata,
@@ -208,7 +208,7 @@ function messageUser(userId) {
 
 
 function sendMessageToUser(userId) {
-    var url =  "http://" + config_serverAddress + "/messages/send";
+    var url =  config.server.address + "/messages/send";
     var postdata = {
         sender_id: $.cookie("user_id"),
         receiver_id: userId,
@@ -271,7 +271,7 @@ function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
 
 // Accepts the membership of user userId for group groupId.
 function acceptMembership(groupId, userId) {
-    var url =  "http://" + config_serverAddress + "/groups/acceptmembershiprequest";
+    var url =  config.server.address + "/groups/acceptmembershiprequest";
     var postdata = {
         groupid: groupId,
         userid: userId
@@ -301,7 +301,7 @@ function onAcceptMembership(data, textStatus, jqXHR) {
 
 // Declines the membership of user userId for group groupId.
 function declineMembership(groupId, userId) {
-    var url =  "http://" + config_serverAddress + "/groups/declinemembership";
+    var url =  config.server.address + "/groups/declinemembership";
     var postdata = {
         groupid: groupId,
         userid: userId
@@ -336,7 +336,7 @@ function leaveGroup(group) {
         groupid: group,
         userid: $.cookie("user_id")
     };
-    var url =  "http://" + config_serverAddress + "/groups/removeuser";
+    var url =  config.server.address + "/groups/removeuser";
     $.ajax({
         url: url,
         data: postdata,
@@ -361,7 +361,7 @@ function onLeaveGroup(data, textStatus, jqXHR) {
 
 // Deletes the group
 function deleteGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/deletegroup";
+    var url =  config.server.address + "/groups/deletegroup";
     var postdata = {
         group_id: groupId
     };
@@ -393,7 +393,7 @@ function searchGroup() {
         $("#foundgroup").remove();
     };
     var searchTerm = $("#searchGroupTerm").val();
-    var url =  "http://" + config_serverAddress + "/groups/name";
+    var url =  config.server.address + "/groups/name";
     var searchdata = {
         name: searchTerm
     };
@@ -430,7 +430,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
                 id: group.users[i],
                 token: $.cookie("token")
             };
-            var url =  "http://" + config_serverAddress + "/users/profile";
+            var url =  config.server.address + "/users/profile";
              $.ajax({
                 url: url,
                 data: searchdata,
@@ -450,7 +450,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
 
 // Requests the membership for the user for group groupId.
 function requestMembership(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/requestmembership";
+    var url =  config.server.address + "/groups/requestmembership";
     var postdata = {
         groupid: groupId,
         userid: $.cookie("user_id")
@@ -480,7 +480,7 @@ function onRequestMembership(data, textStatus, jqXHR) {
 
 // Cancel the membership request of user userid for group groupId
 function cancelMembershipRequest(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/cancelmembershiprequest";
+    var url =  config.server.address + "/groups/cancelmembershiprequest";
     var postdata = {
         groupid: groupId,
         userid: $.cookie("user_id")
@@ -534,7 +534,7 @@ function onProfileFoundForSearch(data, textStatus, jqXHR) {
 // Adds a new group
 function addGroup() {
     var groupName = $("#newGroupName").val();
-    var url =  "http://" + config_serverAddress + "/groups/addgroup";
+    var url =  config.server.address + "/groups/addgroup";
     var newGroup = {
         name: groupName,
         creator_id: $.cookie("user_id")

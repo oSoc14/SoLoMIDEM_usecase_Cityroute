@@ -1,3 +1,4 @@
+'use strict';
 /*
  * @author: Andoni Lombide Carreton
  * @copyright: SoLoMIDEM ICON consortium
@@ -9,118 +10,105 @@
  *
  */
 
-
- var WS = null;
+var WS = null;
+var user = {
+  auth: false
+};
+var authFirst = true;
+var prevPage = 'none';
 
 /**
-* log a user in
-**/
-function loginuser(){
-    var psw = $("#password").val();
-    var userName = $("#username").val();
-    var encoded = $.base64('btoa',userName + ":" + psw, false);
-    var url =  "http://" + config_serverAddress + "/users/login/";
-    
-    // send a request to the nodeJS API to log the user in
-    // parameters: Base64 encoded <username>:<password>
-    // returns: bearer token
-
-     var postdata = {
-        "username": userName,
-        "password": psw,
-        "encoded": encoded 
-    };
-
-    $.ajax({
-        url: url,
-        data: postdata,
-        dataType: "json",
-        type: "POST",
-        success: onLoggedIn,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
-        }
-    });
-
-    $("#login").hide();
-    $("#loader").show();
-
-};
-
-/**
-* callback function when a user is logged in 
-**/
-function onLoggedIn(data, textStatus, jqXHR) {
-    if (data.meta.code == 200){
-        $.cookie("token", data.response.token);
-        $.cookie("user_id", data.response.id);
-
-        // TODO: UitID linking
-
-        /*var url =  "http://" + config_serverAddress + "/cultuurnet/linkuitid";
-
-        var postdata = {
-            citylifeId: data.response.user_id
-        };
-
-        $.ajax({
-            url: url,
-            data: postdata,
-            dataType: "json",
-            type: "POST",
-            success: onUitIdLinked,
-            error: function(jqXHR, errorstatus, errorthrown) {
-                console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
-            }
-        });*/
-
-        location.reload();
-
-    }
-    else if (data.meta.code == 401)
-        console.log("Incorrect username or password");
-    else
-        console.log("The Citylife API returned an error");
-};
-
-
-function onUitIdLinked(data, textStatus, jqXHR) {
-    if (data.meta.code != 200) {
-        console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
-    }
+ * Load iframe with authorization server
+ */
+function loadIframe(page) {
+  if (prevPage === page) return;
+  prevPage = page;
+  console.log('Iframe for ' + page);
+  var $loginIframe = $('#login iframe');
+  if (page === false) {
+    $loginIframe.attr('src', '');
+  } else {
+    $loginIframe.attr('src', config.auth.address + '/' + page);
+  }
 }
 
 /**
-* log out
-*/
-function logOut() {
-
-    /*var url =  "http://" + config_serverAddress + "/users/logout/" + $.cookie("token");
-    // send a request to the nodeJS API to log the user out
-    // parameters: the baearer token
-    // returns: empty
-    $.ajax({
-        type: 'GET',
-        crossDomain:true,
-        url: url,
-        success: onLoggedOut,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           console.log(errorstatus + ": aaa" + errorthrown);
-        }
-    });*/
-    $.removeCookie("token");
-    location.reload();
-};
+ * Load iframe with authorization server
+ */
+function onLogin(data) {
+  console.log('onLogin');
+  console.log(user);
+  if (data) {
+    $.each(data, function(index, value) {
+      user[index] = value;
+    });
+  }
+  console.log(user);
+  if (data === false) {
+    loadIframe('logout.php');
+    changeView('login');
+  } else if (user.auth === true) {
+    changeView('account');
+    loadIframe(false);
+  } else {
+    loadIframe('index.php');
+    changeView('login');
+  }
+  $('body').toggleClass('user-auth', !! user.auth);
+  $('body').toggleClass('user-irail', !! user.irail);
+  $('body').toggleClass('user-citylife', !! user.citylife);
+  $('body').toggleClass('user-no-auth', !user.auth);
+  $('body').toggleClass('user-no-irail', !user.irail);
+  $('body').toggleClass('user-no-citylife', !user.citylife);
+  if (user.citylife) {
+    $('#citylife-name').text(user.citylife.first_name);
+    $('#citylife-id').text(user.citylife.id);
+  }
+  $('#user-data').html(JSON.stringify(user, undefined, 2));
+}
 
 /**
-* callback function after logging out
-*/
-function onLoggedOut(data, textStatus, jqXHR) {
-    data = JSON.parse(data);
-    if (data.meta.code == 200) {
-        $.removeCookie("token");
-        location.reload();
-    } else {
-        alertAPIError(data.meta.message)
+ * Log out
+ */
+function logOut() {
+  onLogin(null);
+  console.log('Logout initiated in iframe');
+}
+
+/**
+ * Connect to CityLife
+ */
+function connectCityLife() {
+  $('#modalCityLife').modal('hide');
+
+  var username = $('#citylife-username').val();
+  var password = $('#citylife-password').val();
+
+  var data = {
+    'username': username,
+    'password': password
+  };
+
+  console.log(config.server.address + '/users/login/');
+
+  $.ajax({
+    url: config.server.address + '/users/login/',
+    data: data,
+    dataType: 'json',
+    type: 'POST',
+    success: onConnectedCityLife,
+    error: function(jqXHR, errorstatus, errorthrown) {
+      alertify.error('Link mislukt');
+      console.log('onConnectError: ' + errorstatus + ' -- ' + jqXHR.responseText);
     }
-};
+  });
+}
+
+/**
+ * Connect to CityLife
+ */
+function onConnectedCityLife(data) {
+  alertify.success('CityLife is nu gelinkt!');
+  user.citylife = data.response;
+  onLogin();
+}

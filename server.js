@@ -30,6 +30,7 @@ var config = require("./auth/dbconfig.js");
 var databaseUrl = "CityRoute";
 var collections = ["users", "routes", "messages"];
 var db = require("mongojs").connect(databaseUrl, collections);
+exports.db = db;
 
 // use express and its bodyParser for POST requests.
 var app = express();
@@ -59,19 +60,24 @@ exports.mongourl = mongourl;
 // In case of a succesful connect or an error, the callback is called.
 // In the first case the opened db is passed as a parameter.
 function mongoConnectAndAuthenticate(callback) {
-    var MongoClient = require('mongodb').MongoClient;
-    MongoClient.connect(mongourl, function(err, db) {
-        // Maybe we should do this somewhere else, checking every single db connect for indexes
-        // is probably overkill.
-        (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) {
-            (db.collection(config.collection)).ensureIndex( { startDate: 1, endDate: 1 }, function(err, idxName) {
-                if (err) {
-                    console.log(err);
-                }
-                callback(err, null, db);
-            });
-        });
+  var MongoClient = require('mongodb').MongoClient;
+  MongoClient.connect(mongourl, function(err, db) {
+    // Maybe we should do this somewhere else, checking every single db connect for indexes
+    // is probably overkill.
+    (db.collection(config.groupscollection)).ensureIndex({
+      name: 1
+    }, function(err, idxName) {
+      (db.collection(config.collection)).ensureIndex({
+        startDate: 1,
+        endDate: 1
+      }, function(err, idxName) {
+        if (err) {
+          console.log(err);
+        }
+        callback(err, null, db);
+      });
     });
+  });
 }
 
 exports.mongoConnectAndAuthenticate = mongoConnectAndAuthenticate;
@@ -120,10 +126,6 @@ app.post("/messages/send", messages.sendMessage);
 app.post("/messages/foruser", messages.getMessages);
 app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 app.post("/messages/markasread", messages.markMessagesAsRead);
-app.get("/data/success", function(req, res) {
-  console.log(db.users.find());
-  res.send();
-});
 
 
 
@@ -131,9 +133,13 @@ app.get("/data/success", function(req, res) {
 Login status with linkID via Websockets using "socket.io" library
 Use the server instance of Express such that sockets connect to the same port
 */
+var linkidauth = require('./urlroutes/linkidauth.js');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-io.on('connection', function() { /* … */ });
+app.get("/auth/success", linkidauth.onAuthSuccess);
+io.on('connection', linkidauth.onConnection);
+
+exports.io = io;
 
 /*
 Start server on port 8888

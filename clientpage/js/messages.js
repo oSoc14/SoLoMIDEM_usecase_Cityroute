@@ -26,7 +26,7 @@ function showMessages() {
 function displayMessages(before_date, after_date) {
     $("#yourMessages").prepend("<p>Loading new messages...</p>");
 
-    var url =  "http://" + config_serverAddress + "/messages/foruser";
+    var url =  config.server.address + "/messages/foruser";
     var postdata = {
         'user_id':  $.cookie("user_id"),
         'token': $.cookie("token")
@@ -58,7 +58,7 @@ function onMessagesReceived(data, textStatus, jqXHR) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
 
-        var url =  "http://" + config_serverAddress + "/messages/markasread";
+        var url =  config.server.address + "/messages/markasread";
         var postdata = {
             'user_id': $.cookie("user_id"),
             'read_until': new Date()

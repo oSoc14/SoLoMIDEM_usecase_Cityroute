@@ -27,7 +27,7 @@ function showRoute ( spotID ){
 
     changeView('routes');
 
-    var url =  "http://" + config_serverAddress + "/routes/routesatspot";
+    var url =  config.server.address + "/routes/routesatspot";
     var postdata = {
         spot_id: spotID,
         date: current_date
@@ -92,7 +92,7 @@ function addRouteInformation(index, value) {
                 id: user.user,
                 token: $.cookie("token")
             };
-            var url =  "http://" + config_serverAddress + "/users/profile";
+            var url =  config.server.address + "/users/profile";
             $.ajax({
                 url: url,
                 data: searchdata,
@@ -169,7 +169,7 @@ function addRouteInformation(index, value) {
     }
 
     var spot_id = ((current_spot.split('https://vikingspots.com/citylife/items/'))[1].split("/"))[0];
-    var url =  "http://" + config_serverAddress + 
+    var url =  config.server.address + 
       "/spots/usersnearby?spot_id=" + spot_id + 
       "&user_id=" + $.cookie("user_id") +
       "&route_id=" + route._id +
@@ -214,7 +214,7 @@ function selectRoute(routeID) {
    * parameters: latitude and longitude
    * returns: list of spots
    */
-    var url =  "http://" + config_serverAddress + "/routes/find?id=" + routeID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/routes/find?id=" + routeID + "&token=" + $.base64('btoa', $.cookie("token"), false);
     $("#routes").hide();
     $("#map-canvas").show();
     $("#map-canvas").height(300);
