@@ -1,0 +1,16 @@
+{
+	"users"	:	[
+			{	
+				"id"	:	"10563",
+				"departure"	:	"https://irail.be/stations/NMBS/008821006/departures/2014071014265a260b42759c45f555cec45bca3ef743"
+			},
+			{	
+				"id"	:	"350",
+				"departure"	:	"https://irail.be/stations/NMBS/008821006/departures/2014071014265a260b42759c45f555cec45bca3ef743"
+			},
+			{	
+				"id"	:	"12",
+				"departure"	:	"https://irail.be/stations/NMBS/008821006/departures/2014071014265a260b42759c45f555cec45bca3ef743"
+			}
+	]
+}

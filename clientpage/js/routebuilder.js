@@ -603,6 +603,11 @@ function onGetIrailStations(data, textStatus, jqXHR) {
     var stations = data.response;
     $.each(stations, function(index, station) {
       var id = 'suggestedStation_' + station.id;
+
+      
+      var checkedin = station.checkedin ? 
+        '<br><span class="glyphicon glyphicon-map-marker"></span> Checked In' : '';
+
       $('#stations').append(
         '<li class="station list-group-item" id="' + id + '">'
           + '<span class="badge">' + station.distance.toFixed(2) + ' km</span>'
@@ -612,6 +617,7 @@ function onGetIrailStations(data, textStatus, jqXHR) {
           +     '<span class="glyphicon glyphicon-plus"></span>'
           +   '</button>'
           +   '<strong>' + station.name + '</strong> (<a href="' + station.uri + '">Liveboard</a>)'
+          +   checkedin
           + '</p>'
         + '</li>'
       );

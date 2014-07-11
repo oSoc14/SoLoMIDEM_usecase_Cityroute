@@ -24,7 +24,7 @@ var routes = require("./urlroutes/routes");
 var groups = require("./urlroutes/groups");
 var messages = require("./urlroutes/messages");
 var cultuurnet = require("./urlroutes/cultuurnet");
-var irail = require("./urlroutes/irail-spots");
+var irail = require("./urlroutes/irail");
 var config = require("./auth/dbconfig.js");
 
 // use express and its bodyParser for POST requests.
@@ -84,8 +84,8 @@ app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 //app.get("/users/:key", users.dropAll);
 
-
 app.post("/irail/stations", irail.getStationsInRadius);
+app.get("/irail/stations-checkedin", irail.getStationsCheckedIn);
 
 // define the spots API url routes.
 app.get("/spots/details", spots.getSpotDetails);

@@ -4,23 +4,19 @@
 var utils = require('../utils');
 var radius = 10; // radius of the area around the location to look for stations
 
-/**
- * Get stations located in a radius of the passed coordinates.
- */
-exports.getStationsInRadius = function(req, res) {
-  var latitude = parseFloat(req.body.latitude);
-  var longitude = parseFloat(req.body.longitude);
 
-  getStationsRemote(latitude, longitude, function(result) {
-    res.send(result);
-  });
+function getAllStationsLocal(callback) {
+  try {
+    var fileJSON = require('../stations-new.json');
+    var stations = fileJSON['@graph'];
+    return callback(null, stations);
+  }
+  catch(error) {
+    return callback(error, null);
+  }
 }
 
-/**
- * Get all the stations in a radius around the specified coordinates from the 
- * iRail API and pass the stations to the specified callback function.
- */
-function getStationsRemote(latitude, longitude, callback) {
+function getAllStationsRemote(callback) {
   var request = require('request');
   var uri = 'https://irail.be/stations/NMBS';
 
@@ -30,39 +26,54 @@ function getStationsRemote(latitude, longitude, callback) {
     headers: { 'Accept': 'application/json'}
   }, function(error, response, body) {
     if (error || response.statusCode !== 200) {
-      return callback({
-        'meta': utils.createErrorMeta(500, 'X_001', 'Something went wrong with the iRail API' + error),
-        'response': {}
-      });
+      return callback(error, null);
     } else {
       var stations = JSON.parse(body)['@graph'];
-      return callback({
-        'meta': utils.createOKMeta(),
-        'response': filterStationsToRadius(stations, latitude, longitude)
-      });
+      return callback(null, stations);
     }
   });
 }
 
 /**
- * Get all the stations in a radius around the specified coordinates from a local 
- * JSON file and pass the stations to the specified callback function.
+ * Get stations located in a radius of the passed coordinates.
  */
-function getStationsLocal(latitude, longitude, callback) {
-  try {
-    var fileJSON = require('../stations-new.json');
-    var stations = fileJSON['@graph'];
-    return callback({
-      'meta': utils.createOKMeta(),
-      'response': filterStationsToRadius(stations, latitude, longitude)
-    });
-  }
-  catch(error) {
-    return callback({
-      'meta': utils.createErrorMeta(500, 'X_001', 'Something went wrong with reading the station json file' + error),
-      'response': {}
-    });
-  }
+exports.getStationsInRadius = function(req, res) {
+  var latitude = parseFloat(req.body.latitude);
+  var longitude = parseFloat(req.body.longitude);
+
+  getStationsInArea(latitude, longitude, function(result) {
+    res.send(result);
+  });
+}
+
+/**
+ * Get all the stations in a radius around the specified coordinates from the 
+ * iRail API and pass the stations to the specified callback function.
+ */
+function getStationsInArea(latitude, longitude, callback) {
+  //getAllStationsRemote(function(error, stations) {
+  getAllStationsLocal(function(error, allStations) {
+    if (error) {
+      return callback({
+        'meta': utils.createErrorMeta(500, 'X_001',
+            'Something went wrong with the iRail API' + error),
+        'response': {}
+      });
+    } else {
+      // 5 closest stations
+      var suggestedStations = filterStationsToRadius(allStations, latitude, longitude).slice(0, 5);
+      getStationsFromCheckins('token', allStations, function(error, stationsCheckedIn) {
+        if (! error) {
+          // add stations checked in to suggested stations
+          Array.prototype.push.apply(suggestedStations, stationsCheckedIn);
+        }
+        return callback({
+          'meta': utils.createOKMeta(),
+          'response': suggestedStations
+        });
+      });
+    }
+  });
 }
 
 /**
@@ -116,3 +127,75 @@ function toRad(value) {
   return value * Math.PI / 180;
 };
 
+exports.getStationsCheckedIn = function(req, res) {
+  var irailToken = '';//req.body.token;
+  
+  getAllStationsLocal(function(error, allStations) {
+    getStationsFromCheckins(irailToken, allStations, function(error, stationsCheckedIn) {
+      if (error) {
+        return res.send({
+          'meta': utils.createErrorMeta(500, 'X_001', 
+              'Something went wrong with the iRail API' + error),
+          'response': {}
+        });
+      } else {
+        return res.send({
+          'meta': utils.createOKMeta(),
+          'response': stationsCheckedIn
+        });
+      }
+    });
+  });
+}
+
+function getStationsFromCheckins(token, allStations, callback) {
+  try {  
+    var async = require('../lib/async-master/lib/async');
+    var fileJSON = require('../checkins.json');
+    var uniqueDepartureIds = fileJSON.users.map(function(userDep) {
+      return userDep.departure;
+    }).filter(function(element, position, duplicateDepartureIds) {
+      return duplicateDepartureIds.indexOf(element) == position;
+    }); // remove dupplicates
+
+    async.map(
+      uniqueDepartureIds,
+      function(departure, singleDepartureCallback) {
+        getStartStationIdFromDeparture(departure, singleDepartureCallback);
+      },
+      function (error, stationIds) {
+        if (error) {
+          callback(error, null);
+        } else {
+          var stationsCheckedIn = stationIds.map(function(id) {
+            var station = allStations.filter(function(station) {
+               return (station['@id'] == id);
+            }).shift(); // filter and shift because Array.prototype.find is not yet included
+            station.checkedin = true;
+            return station;
+          });
+          callback(null, stationsCheckedIn);
+        }
+      }
+    );        
+  } catch(error) {
+    return callback(error, null);
+  }
+}
+
+function getStartStationIdFromDeparture(departureUrl, callback) {
+  var request = require('request');
+
+  request({
+    uri: departureUrl,
+    method: 'GET',
+    headers: { 'Accept': 'application/json'}
+  }, function(error, response, body) {
+    if (error || response.statusCode !== 200) {
+      return callback(error, null);
+    } else {
+      var startStation = JSON.parse(body)['@graph'].stop;
+      return callback(null, startStation); 
+    }
+  });
+}
