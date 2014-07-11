@@ -18,7 +18,7 @@ function showGroups() {
 
 // Show all the groups for which the user is member in the GUI
 function showGroupsForWhichUserIsMember() {
-    var user = $.cookie("user_id");
+    var user = user.citylife.id;
     var url =  config.server.address + "/groups/member";
 
     var member = {
@@ -40,7 +40,7 @@ function showGroupsForWhichUserIsMember() {
 // If user is group owner: delete group button
 // If user is not group owner: leave group button 
 function renderLeaveOrDeleteButton(group) {
-    if (group.creator == $.cookie("user_id")) {
+    if (group.creator == user.citylife.id) {
         return '<tr><td><input type="button" value="Delete group" onclick="deleteGroup(\'' + group._id + '\')"/></td></tr>';
     } else {
         return '<tr><td><input type="button" value="Leave group" onclick="leaveGroup(\'' + group._id + '\')"/></td></tr>';
@@ -78,7 +78,7 @@ function messageGroup(groupId) {
 function sendMessageToGroup(groupId) {
     var url =  config.server.address + "/messages/sendtogroup";
     var postdata = {
-        sender_id: $.cookie("user_id"),
+        sender_id: user.citylife.id,
         group_id: groupId,
         content: $("#messageText").val()
     };
@@ -130,7 +130,7 @@ function onShowGroup(data, textStatus, jqXHR) {
         for (var i = 0; i < group.users.length; i++) {
             var searchdata = { 
                 id: group.users[i],
-                token: $.cookie("token")
+                token: user.citylife.token
             };
             var url =  config.server.address + "/users/profile";
              $.ajax({
@@ -146,13 +146,13 @@ function onShowGroup(data, textStatus, jqXHR) {
         };
 
         // Membership requests
-        if (group.creator == $.cookie("user_id") && group.requestingUsers.length > 0) {
+        if (group.creator == user.citylife.id && group.requestingUsers.length > 0) {
             $("#memberShipRequests").append("<h3>Pending member requests:</h3>");
             for (var j = 0; j < group.requestingUsers.length; j++) {
                 var postdata = { 
                     userid: group.requestingUsers[j],
                     groupid: group._id,
-                    token: $.cookie("token")
+                    token: user.citylife.token
                 };
                 var call =  config.server.address + "/groups/profileformembership";
                 $.ajax({
@@ -210,7 +210,7 @@ function messageUser(userId) {
 function sendMessageToUser(userId) {
     var url =  config.server.address + "/messages/send";
     var postdata = {
-        sender_id: $.cookie("user_id"),
+        sender_id: user.citylife.id,
         receiver_id: userId,
         content: $("#messageText").val()
     };
@@ -334,7 +334,7 @@ function onDeclineMembership(data, textStatus, jqXHR) {
 function leaveGroup(group) {
     var postdata = { 
         groupid: group,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
     var url =  config.server.address + "/groups/removeuser";
     $.ajax({
@@ -415,8 +415,8 @@ function onSearchGroup(data, textStatus, jqXHR) {
         var group = data.response;
        $("#searchGroupResults").append("<div id='foundgroup'></div>");
        $("#foundgroup").append("<h2>" + group.name + "</h2>");
-       if (group.users.indexOf($.cookie("user_id")) == -1) {
-            if (group.requestingUsers.indexOf($.cookie("user_id")) == -1) {
+       if (group.users.indexOf(user.citylife.id) == -1) {
+            if (group.requestingUsers.indexOf(user.citylife.id) == -1) {
                 $("#foundgroup").append('<tr><td><input type="button" value="Request membership" onclick="requestMembership(\'' + group._id + '\')"/></td></tr>');
             } else {
                 $("#foundgroup").append('<tr><td><input type="button" value="Cancel membership request" onclick="cancelMembershipRequest(\'' + group._id + '\')"/></td></tr>');
@@ -428,7 +428,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
         for (var i = 0; i < group.users.length; i++) {
             var searchdata = { 
                 id: group.users[i],
-                token: $.cookie("token")
+                token: user.citylife.token
             };
             var url =  config.server.address + "/users/profile";
              $.ajax({
@@ -453,7 +453,7 @@ function requestMembership(groupId) {
     var url =  config.server.address + "/groups/requestmembership";
     var postdata = {
         groupid: groupId,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
 
     $.ajax({
@@ -483,7 +483,7 @@ function cancelMembershipRequest(groupId) {
     var url =  config.server.address + "/groups/cancelmembershiprequest";
     var postdata = {
         groupid: groupId,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
 
     $.ajax({
@@ -537,7 +537,7 @@ function addGroup() {
     var url =  config.server.address + "/groups/addgroup";
     var newGroup = {
         name: groupName,
-        creator_id: $.cookie("user_id")
+        creator_id: user.citylife.id
     };
 
     $.ajax({

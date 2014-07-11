@@ -54,8 +54,8 @@ function changeView(newView) {
  * restart the web-application: hide all the views, clear necessary data and refresh the page.
  */
 function restart() {
-  changeView('geostatus');
   getGeolocation();
+  changeView('geostatus');
 
   // stop the location tracking
   window.clearInterval(taskID);

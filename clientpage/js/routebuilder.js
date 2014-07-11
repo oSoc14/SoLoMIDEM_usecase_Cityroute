@@ -83,7 +83,7 @@ function routeBuilderAddSpot(spot) {
       cache: false,
       dataType:"json",
       beforeSend: function(xhr) { 
-        xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); 
+        xhr.setRequestHeader("Authorization", "Bearer " + user.citylife.token); 
       },
       success: function(spot, textStatus, jqXHR) {
         callback(spot);
@@ -144,7 +144,7 @@ function addNewRoute() {
       maximumGroupSize: maxGroupSize,
       startDate: startdate,
       endDate: enddate,
-      token: $.cookie("token")
+      token: user.citylife.token
     };
     var url =  config.server.address + "/routes/";
     
@@ -212,7 +212,7 @@ function acquireSuggestedSpots(spot) {
  */
 function acquireSuggestedSpotsByLatLong( latitude, longitude){
   var url =  config.server.address + "/spots/?token="
-          + $.base64('btoa', $.cookie("token"), false) 
+          + user.citylife.token
           + "&latitude=" + latitude + "&longitude=" + longitude;
    
   $("#tabs-1-loader").show();
@@ -290,13 +290,18 @@ function onGetSuggestedSpots(data, textStatus, jqXHR) {
 
       $("#suggestions").append(
         "<li class='list-group-item' id='suggestedSpot_" + id + "'>" 
-        + '<button type="button" class="btn btn-default" onclick="addSuggestedSpot(' + index + ')"' 
-        +         'style="margin-right:10px">' 
-        +   '<span class="glyphicon glyphicon-plus"></span>'
-        + '</button>'
-        + value.detail_data.title + '<br>'
-        + '<img src="' + image + '" alt="<spot image>" height="' + (browserHeight/6) + '"><br><br>'
-        + dealsHtml
+        + '<p>' 
+        +   '<button type="button" class="btn btn-default" onclick="addSuggestedSpot(' + index + ')">' 
+        +     '<span class="glyphicon glyphicon-plus"></span>'
+        +   '</button>'
+        +   value.detail_data.title
+        + '</p>' 
+        + '<p>' 
+        +   '<img src="' + image + '" alt="<spot image>">'
+        + '</p>'
+        + '<p>' 
+        +     dealsHtml
+        + '</p>' 
       + '</li>'
       );
 
@@ -364,7 +369,7 @@ function search(){
  */
 function acquireSuggestedSpotsBySearch(latitude, longitude, searchTerm) {
   var url = config.server.address + "/spots/search/?token=" 
-          + $.base64('btoa', $.cookie("token"), false) 
+          + user.citylife.token
           + "&latitude=" + latitude + "&longitude=" + longitude + "&search_term=" + searchTerm;
     
   $("#searchresults").html("");
@@ -436,7 +441,7 @@ function addSearchedSpot( listID ) {
  */
 function acquireRelevantSpotsFromSearch(spotID) {
   // we need the lat long information to get relevant spots. first acquire spot info
-  var url = config.server.address + "/spots/findbyid?id=" + spotID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+  var url = config.server.address + "/spots/findbyid?id=" + spotID + "&token=" + user.citylife.token;
     
   // send a request to the nodeJS API to get information about a spot
   // parameters: the spot id
@@ -668,7 +673,7 @@ function addStation(listID) {
 */
 function acquireRecommendedSpots(spotID) {
   if(!config.whatsnext) return;
-  var url = config.whatsnext.address + $.cookie("token") + "/whatsnext/" +spotID + "/";
+  var url = config.whatsnext.address + user.citylife.token + "/whatsnext/" +spotID + "/";
   $("#recommended").html("");
   $("#tabs-2-loader").show();
   

@@ -28,8 +28,8 @@ function displayMessages(before_date, after_date) {
 
     var url =  config.server.address + "/messages/foruser";
     var postdata = {
-        'user_id':  $.cookie("user_id"),
-        'token': $.cookie("token")
+        'user_id':  user.citylife.id,
+        'token': user.citylife.token
     }
     if(before_date) postdata.before_date = before_date;
     if(after_date) postdata.after_date = after_date;
@@ -60,7 +60,7 @@ function onMessagesReceived(data, textStatus, jqXHR) {
 
         var url =  config.server.address + "/messages/markasread";
         var postdata = {
-            'user_id': $.cookie("user_id"),
+            'user_id': user.citylife.id,
             'read_until': new Date()
         }
   

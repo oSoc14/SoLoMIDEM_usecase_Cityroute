@@ -18,7 +18,7 @@ var generatedRoute = false;;
 */
 function autoGenerateRoute() {
     var entry = spots[0];
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var channelname = $('#channelList').find(":selected").val();
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
     var maxGroupSize = parseInt($('#maxGroupSizeGenerate').val());
@@ -33,7 +33,7 @@ function autoGenerateRoute() {
             url: item_url,
             cache: false,
             dataType:"json",
-            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + user.citylife.token); },
             success: function(item, textStatus, jqXHR) {
                 callback(item);
             },
@@ -124,12 +124,12 @@ function addChannel() {
 */
 function addGeneratedChannel(){
     var spot = spots[0];
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var latitude = spot.meta_info.latitude;
     var longitude = spot.meta_info.longitude;
     var channels = document.getElementById("channels").getElementsByTagName("li");
     var channelString = "";
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var id = spot.link.params.id;
 
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());

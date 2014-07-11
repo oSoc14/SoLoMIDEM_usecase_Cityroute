@@ -12,6 +12,7 @@ var dirService;
 var dirDisplay;
 var routeData;
 
+console.log('spots hier!!!!!!!!!!!!!')
 
 /**
 * get the geo location
@@ -31,7 +32,7 @@ function getSpotDataFromChannelEntry(channel_entry, callback) {
         url: item_url,
         cache: false,
         dataType:"json",
-        beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
+        beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + user.citylife.token); },
         success: function(item, textStatus, jqXHR) {
             callback(item);
         },
@@ -68,7 +69,7 @@ function onLocationKnown(position) {
     var url =  config.server.address + "/spots.json?latitude=" + 
         position.coords.latitude + 
         "&longitude=" + position.coords.longitude +
-        "&token=" + $.base64('btoa', $.cookie("token"), false);
+        "&token=" + user.citylife.token;
     
     $.ajax({
        type: 'GET',
@@ -141,11 +142,15 @@ function onGetSpots(data, textStatus, jqXHR) {
 * @param spotID the id of the spot where you want to check in
 */
 function checkIn( spotID, channelID ) {
+    // Exit if user is not linked to citylife
+    if(!user.citylife || !user.citylife.token){
+        return;
+    }
 
     // send a request to the nodeJS API to check in at a spot
     // parameters: the bearer token and the spot id
     // returns: confirmation of the check-in, spot ID
-    var url =  config.server.address + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/spots/checkin?spot_id=" + spotID + "&channel=" + channelID + "&token=" + user.citylife.token;
     $.ajax({
        type: 'GET',
        crossDomain: true,
@@ -173,7 +178,7 @@ function onCheckedIn(data, textStatus, jqXHR) {
             console.log("websocket to server " + ws_host + " successfully opened.");
             WS.onmessage = function(message) {
                 if (message.data == 'new_messages_for_user?') {
-                    WS.send($.cookie("user_id"));
+                    WS.send(user.citylife.id);
                 } else {
                     /* $('#navMessages b').text(...) would be cleaner
                     *  but that <b> might be changed without knowing this dependency */

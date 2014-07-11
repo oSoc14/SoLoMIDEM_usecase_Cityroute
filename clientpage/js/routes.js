@@ -90,7 +90,7 @@ function addRouteInformation(index, value) {
         function getUserProfile(user, callback) {
             var searchdata = { 
                 id: user.user,
-                token: $.cookie("token")
+                token: user.citylife.token
             };
             var url =  config.server.address + "/users/profile";
             $.ajax({
@@ -171,9 +171,9 @@ function addRouteInformation(index, value) {
     var spot_id = ((current_spot.split('https://vikingspots.com/citylife/items/'))[1].split("/"))[0];
     var url =  config.server.address + 
       "/spots/usersnearby?spot_id=" + spot_id + 
-      "&user_id=" + $.cookie("user_id") +
+      "&user_id=" + user.citylife.id +
       "&route_id=" + route._id +
-      "&token=" + $.base64('btoa', $.cookie("token"), false);
+      "&token=" + user.citylife.token;
 
       // Get all groups and members info and render for each group if it is complete
     $.ajax({
@@ -214,7 +214,7 @@ function selectRoute(routeID) {
    * parameters: latitude and longitude
    * returns: list of spots
    */
-    var url =  config.server.address + "/routes/find?id=" + routeID + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/routes/find?id=" + routeID + "&token=" + user.citylife.token;
     $("#routes").hide();
     $("#map-canvas").show();
     $("#map-canvas").height(300);
