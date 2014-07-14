@@ -123,7 +123,19 @@ function connectIrail() {
     console.log('user._id not found');
   } else {
     console.log('Redirecting to iRail!');
-    window.location = config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id;
+
+    return windowpop(config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id, 400, 500)
+   // window.location = config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id;
   }
   return false;
+}
+
+function windowpop(url, width, height) {
+    var leftPosition, topPosition;
+    //Allow for borders.
+    leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    //Allow for title and status bars.
+    topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    //Open the window.
+    window.open(url, "Window2", "status=no,height=" + height + ",width=" + width + ",resizable=yes,left=" + leftPosition + ",top=" + topPosition + ",screenX=" + leftPosition + ",screenY=" + topPosition + ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no");
 }
