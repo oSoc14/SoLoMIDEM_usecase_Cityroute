@@ -54,9 +54,9 @@ function onLogin(data) {
     loadIframe('index.php');
     changeView('login');
   }
-  $('body').toggleClass('user-auth', !! user.auth);
-  $('body').toggleClass('user-irail', !! user.irail);
-  $('body').toggleClass('user-citylife', !! user.citylife);
+  $('body').toggleClass('user-auth', !!user.auth);
+  $('body').toggleClass('user-irail', !!user.irail);
+  $('body').toggleClass('user-citylife', !!user.citylife);
   $('body').toggleClass('user-no-auth', !user.auth);
   $('body').toggleClass('user-no-irail', !user.irail);
   $('body').toggleClass('user-no-citylife', !user.citylife);
@@ -105,10 +105,25 @@ function connectCityLife() {
 }
 
 /**
- * Connect to CityLife
+ * On successful connection to CityLife
  */
 function onConnectedCityLife(data) {
   alertify.success('CityLife is nu gelinkt!');
   user.citylife = data.response;
   onLogin();
+}
+
+/**
+ * Connect to iRail
+ */
+function connectIrail() {
+  if (!config || !config.irail) {
+    console.log('iRail configuration missing');
+  } else if (!user || !user._id) {
+    console.log('user._id not found');
+  } else {
+    console.log('Redirecting to iRail!');
+    window.location = config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id;
+  }
+  return false;
 }
