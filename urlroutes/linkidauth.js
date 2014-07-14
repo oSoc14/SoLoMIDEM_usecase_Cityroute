@@ -43,6 +43,8 @@ exports.onAuthSuccess = function(req, res) {
     setTimeout(function() {
       user = userDefault;
     }, 5000);
+
+    res.send('Authorization successful');
   });
 };
 
