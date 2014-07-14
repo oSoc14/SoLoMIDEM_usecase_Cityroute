@@ -36,7 +36,7 @@ function loadIframe(page) {
  * Load iframe with authorization server
  */
 function onLogin(data) {
-  console.log('onLogin');
+  console.log('onLogin before + after');
   console.log(user);
   if (data) {
     $.each(data, function(index, value) {

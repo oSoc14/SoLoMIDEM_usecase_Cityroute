@@ -2,9 +2,10 @@
 var dbServer = require('../server');
 var users = dbServer.db.collection('users');
 
-var user = {
-  auth: false
-};
+var userDefault = {
+    auth: false
+  },
+  user = userDefault;
 
 exports.onConnection = function(socket) {
   console.log('o:connection');
@@ -24,25 +25,24 @@ exports.onConnection = function(socket) {
 exports.onAuthSuccess = function(req, res) {
   console.log('linkid auth received by node');
 
-  user = {
-    auth: true,
-    name: 'Thomas'
-  };
+  dbServer.io.sockets.emit('msg', {
+    user: {
+      auth: true
+    }
+  });
 
   users.findOne({}, function(err, doc) {
     if (err) console.log(err);
     console.log('send to client');
     doc.auth = true;
+    user = doc;
     dbServer.io.sockets.emit('msg', {
-      success: true,
       user: doc
     });
 
     setTimeout(function() {
-      user = {
-        auth: false
-      };
+      user = userDefault;
     }, 5000);
   });
-  res.send();
 };
+
