@@ -66,10 +66,18 @@ exports.onConnectIrail = function(req, res) {
   }, function(err, doc) {
     if (err) console.log(err);
 
-    users.findOne(userid, function(err, doc) {
+    users.findOne({
+      _id: userid
+    }, function(err, doc) {
       if (err) console.log(err);
       console.log('redirect');
-      doc.auth = true;
+      if (doc) {
+        doc.auth = true;
+      } else {
+        doc = {
+          auth: false
+        }
+      }
       user = doc;
       res.redirect('/');
     });
