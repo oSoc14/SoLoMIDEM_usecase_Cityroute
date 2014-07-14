@@ -139,7 +139,8 @@ Use the server instance of Express such that sockets connect to the same port
 var linkidauth = require('./urlroutes/linkidauth.js');
 var server = require('http').Server(app);
 var io = require('socket.io')(server);
-app.get("/auth/success", linkidauth.onAuthSuccess);
+app.get('/auth/success', linkidauth.onAuthSuccess);
+app.get('/auth/irail', linkidauth.onConnectIrail);
 io.on('connection', linkidauth.onConnection);
 
 exports.io = io;

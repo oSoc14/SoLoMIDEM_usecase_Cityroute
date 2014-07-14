@@ -46,3 +46,31 @@ exports.onAuthSuccess = function(req, res) {
   });
 };
 
+exports.onConnectIrail = function(req, res) {
+  console.log('iRail connect received by node');
+  var userid = req.query.state;
+  var code = req.query.code;
+
+  // state is the user._id
+  // it was sent together with the token request in connectIrail()
+  users.update({
+    _id: userid
+  }, {
+    $set: {
+      irail: {
+        code: code
+      }
+    }
+  }, function(err, doc) {
+    if (err) console.log(err);
+
+    users.findOne(userid, function(err, doc) {
+      if (err) console.log(err);
+      console.log('redirect');
+      doc.auth = true;
+      user = doc;
+      res.redirect('/');
+    });
+
+  });
+};
