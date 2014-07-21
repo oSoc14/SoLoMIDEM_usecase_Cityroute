@@ -66,6 +66,12 @@ function getStationsInArea(latitude, longitude, callback) {
         if (! error) {
           // add stations checked in to suggested stations
           Array.prototype.push.apply(suggestedStations, stationsCheckedIn);
+          // remove duplicate stations (station in area and checked in only once)
+          suggestedStations = suggestedStations.filter(
+            function(element, position, duplicates) {
+              return duplicates.indexOf(element) == position;
+            }
+          );
         }
         return callback({
           'meta': utils.createOKMeta(),

@@ -113,29 +113,39 @@ function routeBuilderClearSpots() {
 function addNewRoute() {
   var minGroupSize = parseInt($("#minGroupSize").val());
   var maxGroupSize = parseInt($("#maxGroupSize").val());
-  var startdate = $( "#datepicker_from" ).datepicker( "getDate" );
-  var enddate = $( "#datepicker_to" ).datepicker( "getDate" );
+  var startdate = $("#datepicker_from").datepicker( "getDate" );
+  var enddate = $("#datepicker_to").datepicker( "getDate" );
   if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
     console.log("Minimum group cannot be larger than maximum group size!");
   } else {
-    var items = document.getElementById("sortable").getElementsByTagName("li");   
+    var items = $('#sortable li').slice(0, 10); // API allows max. 8 waypoints
     var points = [];
     $.each(items, function (index, value) {
-      if (index <= 10 ){ // API allows max. 8 waypoints
-        var event_id_stripped = value.id.split("event_");
-        if (event_id_stripped.length > 1) {
-          // We have a CultuurNet event
+      var idParts = value.id.split('_');
+      var type = idParts[0];
+      var id = idParts[1];
+      switch (type) {
+        case 'event':
           points.push({
-            'event': ("http://search.uitdatabank.be/search/rest/detail/event/" + event_id_stripped[1]) 
+            'event': "http://search.uitdatabank.be/search/rest/detail/event/" + id
           });
-        } else {
+          break;
+        case 'spot':
           // We have a CityLife spot
-          var id = parseInt((value.id.split('_')[1]));
-          points.push({'item': ("https://vikingspots.com/citylife/items/" + id + "/") });  
-        }                             
-      }
+          points.push({
+            'item': "https://vikingspots.com/citylife/items/" + id + "/"
+          }); 
+          break;
+        case 'station':
+          points.push({
+            'station': 'TODO-irail-url' + id
+          });
+          break;
+      }                             
     });
-    
+   
+    console.log(points);
+
     var newRoute = {
       name: $("#routeName").val(),
       description: $("#routeDescription").val(),
@@ -176,6 +186,7 @@ function onRouteAdded(data, textStatus, jqXHR) {
     $("#searchresults").html("");
     $("#tabs").hide();
   } else {
+    console.log('onRouteAdded code' + data.meta.code);
     alertAPIError(data.meta.message);
   }
 };
@@ -341,7 +352,7 @@ function addSuggestedSpot(listID) {
     $("#sortable").append(
       '<li id="spot_' + spotID + '" class="ui-state-default">'
       + spotName 
-      + '<span onclick="deleteItem(\'spot_' + spotID + '");>delete</span>'
+      + '<span onclick="deleteItem(\'spot_' + spotID + '\')";>delete</span>'
     + '</li>'
     );
     $("#spot_" + spotID).data('latlong', latlong);
@@ -604,7 +615,8 @@ function acquireIrailStationsByLatLong(latitude, longitude) {
 function onGetIrailStations(data, textStatus, jqXHR) {
   if (data.meta.code == 200) {
     $('#tabs-4-loader').hide();
-    
+    $("#stations").html("");
+
     var stations = data.response;
     $.each(stations, function(index, station) {
       var id = 'suggestedStation_' + station.id;

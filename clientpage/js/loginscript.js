@@ -12,8 +12,27 @@
 
 var WS = null;
 var user = {
-  auth: false
+ "auth": true,
+ "_id": "8ce8598a-817e-41c1-bb16-2b23458c5be1",
+ "user_data": {
+   "profile_familyName": "De Wilde",
+   "profile_givenName": "michiel",
+   "profile_email_address": "mich.dewild@gmail.com",
+   "profile_email_confirmed": true
+ },
+ "citylife": {
+   "url": "https://vikingspots.com/citylife/profiles/10004893/",
+   "id": 10004893,
+   "first_name": "Test",
+   "last_name": "Person",
+   "profile": "https://vikingspots.com/citylife/profiles/10004893/",
+   "avatar": null,
+   "token": "eyJkYXRhIjogIntcInNjb3BlXCI6IFwidXNlci5iYXNpY1wiLCBcImV4cGlyZXNcIjogXCIyMDE0LTA3LTExVDE5OjAwOjA0LjA3MTM2MSswMDowMFwiLCBcInNhbHRcIjogXCJsWFY0cTQzaW5FaVRcIiwgXCJ1c2VyXCI6IDEwMDA0ODkzLCBcImFwcGxpY2F0aW9uXCI6IDN9IiwgInNpZ25hdHVyZSI6ICJ4RlBRVURMNms0eHYveU9tc1RRY2EwTG9SNHZLaE9aUmxnQ0JXeXZoVUpRUFJadEVucUwzSnZWVXowZ2ExWUs1VWxUb21XSjFaeDhmbEp0cmt2blVlek5DcnRTVG1hVjBFQndmQWR2Q0lkRE0xemFteFRDaE1hMWFBdXl5d0QwQzJDWit4KzhTaXRLS2VOVjI0ejlkemNhSktMODJTcnNFaGtsa0gxV3JLYU9zVHQ3Uk9GR0xzUHVvc1NoUmtqSENLa2Q2TDFia0lCNy9xbCtqaWI5SW5PWjhTSnRJLzB2Ny9JeFNSYXJjSDhvQ3dZWGFTUnU1eklUVGQyZHBOT25DRWQyWnNzaUJBVnU0V1Fqd2V0SjNOSmg4OE93ZUdLQ2Znak1PSFg5Qkt6SGRndGM4Vm4wMmkwTVBCbkkwSjd3L1o0NDJUVmt1OTlwQitxb1lmZmpleXc9PSJ9"
+ }
 };
+/*{
+  auth: false
+};*/
 var authFirst = true;
 var prevPage = 'none';
 
