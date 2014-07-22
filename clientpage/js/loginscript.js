@@ -44,9 +44,10 @@ function onLogin(data) {
     });
   }
   console.log(user);
-  if (data === false) {
-    loadIframe('logout.php');
+  if (data === null) {
+    user = {auth: false};
     changeView('login');
+    loadIframe('logout.php');
   } else if (user.auth === true) {
     changeView('account');
     loadIframe(false);
