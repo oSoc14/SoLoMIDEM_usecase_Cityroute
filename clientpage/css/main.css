@@ -273,6 +273,9 @@ html, body {
   text-decoration: none;
   color: #000
 }
+.ui-sortable img{
+  max-width: 100%;
+}
 /* Nearby spots - Aside */
 aside .list-group-item button{
   margin-right: 10px;
