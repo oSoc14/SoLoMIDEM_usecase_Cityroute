@@ -601,6 +601,7 @@ exports.addRoute = function (request, response) {
             "endDate": endDate
         }, function (err, docs) {
             if (err) {
+                console.log(err);
                 response.send({
                     "meta": utils.createErrorMeta(500, "X_001",
                         "Something went wrong with the MongoDB: " + err),

@@ -6,7 +6,6 @@ var utils = require('../utils');
 var radius = 10; // radius of the area around the location to look for stations
 
 function getAllStationsLocal(callback) {
-  console.log('getAllStationsLocal');
   try {
     var fileJSON = require('../stations-new.json');
     var stations = fileJSON['@graph'];
@@ -42,9 +41,6 @@ exports.getStationsInRadius = function(req, res) {
   var latitude = parseFloat(req.body.latitude);
   var longitude = parseFloat(req.body.longitude);
   var token = req.body.token;
-
-  console.log('getStations');
-  console.log(token);
 
   getStationsInArea(latitude, longitude, token, function(result) {
     res.send(result);
