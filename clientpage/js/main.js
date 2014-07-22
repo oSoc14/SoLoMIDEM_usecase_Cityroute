@@ -19,6 +19,17 @@ function disconnect(field) {
     field: field
   })
 }
+/**
+ * Set user information
+ */
+function saveUser(field) {
+  console.log('disconnect ' + field);
+  socket.emit('set', {
+    userid: user._id,
+    key: field,
+    value: user[field]
+  })
+}
 
 $(document).ready(function() {
   socket.on('msg', function(data) {

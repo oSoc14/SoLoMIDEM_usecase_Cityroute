@@ -130,6 +130,7 @@ function connectCityLife() {
 function onConnectedCityLife(data) {
   alertify.success('CityLife is nu gelinkt!');
   user.citylife = data.response;
+  saveUser('citylife');
   onLogin();
 }
 

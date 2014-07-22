@@ -8,7 +8,6 @@ var userDefault = {
   user = userDefault;
 
 exports.onConnection = function(socket) {
-  console.log('o:connection');
   if (!socket) return;
   console.log('hello!');
 
@@ -30,9 +29,28 @@ exports.onConnection = function(socket) {
       _id: userid
     }, {
       $unset: {
-        citylife: (field === 'citylife'),
-        irail: (field === 'irail')
+        citylife: (field === 'citylife' ? 1 : 0),
+        irail: (field === 'irail' ? 1 : 0)
       }
+    }, function(err, doc) {
+      socket.emit('msg', {
+        user: user
+      })
+    });
+  });
+  socket.on('set', function(data) {
+    console.log('set information');
+    var userid = data.userid;
+
+    user[data.key] = data.value;
+
+    var info = {};
+    info[data.key] = data.value;
+
+    users.update({
+      _id: userid
+    }, {
+      $set: info
     }, function(err, doc) {
       socket.emit('msg', {
         user: user
