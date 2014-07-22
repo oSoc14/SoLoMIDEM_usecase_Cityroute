@@ -1,11 +1,12 @@
 /*
  * Get spots from the iRail API
  */
+require('array.prototype.find');
 var utils = require('../utils');
 var radius = 10; // radius of the area around the location to look for stations
 
-
 function getAllStationsLocal(callback) {
+  console.log('getAllStationsLocal');
   try {
     var fileJSON = require('../stations-new.json');
     var stations = fileJSON['@graph'];
@@ -40,8 +41,12 @@ function getAllStationsRemote(callback) {
 exports.getStationsInRadius = function(req, res) {
   var latitude = parseFloat(req.body.latitude);
   var longitude = parseFloat(req.body.longitude);
+  var token = req.body.token;
 
-  getStationsInArea(latitude, longitude, function(result) {
+  console.log('getStations');
+  console.log(token);
+
+  getStationsInArea(latitude, longitude, token, function(result) {
     res.send(result);
   });
 }
@@ -50,7 +55,7 @@ exports.getStationsInRadius = function(req, res) {
  * Get all the stations in a radius around the specified coordinates from the 
  * iRail API and pass the stations to the specified callback function.
  */
-function getStationsInArea(latitude, longitude, callback) {
+function getStationsInArea(latitude, longitude, token, callback) {
   //getAllStationsRemote(function(error, stations) {
   getAllStationsLocal(function(error, allStations) {
     if (error) {
@@ -62,10 +67,16 @@ function getStationsInArea(latitude, longitude, callback) {
     } else {
       // 5 closest stations
       var suggestedStations = filterStationsToRadius(allStations, latitude, longitude).slice(0, 5);
-      getStationsFromCheckins('token', allStations, function(error, stationsCheckedIn) {
+      getStationsFromCheckins(token, allStations, function(error, stationsCheckedIn) {
         if (! error) {
+          // remove checkedin stations who are already in suggested stations
+          var checkinsNotInArea = stationsCheckedIn.filter(function(checkinStation) {
+            return ! suggestedStations.find(function(suggStation) {
+              return suggStation['@id'] == checkinStation['@id'];
+            });
+          });
           // add stations checked in to suggested stations
-          Array.prototype.push.apply(suggestedStations, stationsCheckedIn);
+          Array.prototype.push.apply(suggestedStations, checkinsNotInArea);
         }
         return callback({
           'meta': utils.createOKMeta(),
@@ -129,7 +140,7 @@ function toRad(value) {
 
 exports.getStationsCheckedIn = function(req, res) {
   var irailToken = '';//req.body.token;
-  
+
   getAllStationsLocal(function(error, allStations) {
     getStationsFromCheckins(irailToken, allStations, function(error, stationsCheckedIn) {
       if (error) {
@@ -151,36 +162,76 @@ exports.getStationsCheckedIn = function(req, res) {
 function getStationsFromCheckins(token, allStations, callback) {
   try {  
     var async = require('../lib/async-master/lib/async');
-    var fileJSON = require('../checkins.json');
-    var uniqueDepartureIds = fileJSON.users.map(function(userDep) {
-      return userDep.departure;
-    }).filter(function(element, position, duplicateDepartureIds) {
-      return duplicateDepartureIds.indexOf(element) == position;
-    }); // remove dupplicates
 
-    async.map(
-      uniqueDepartureIds,
-      function(departure, singleDepartureCallback) {
-        getStartStationIdFromDeparture(departure, singleDepartureCallback);
-      },
-      function (error, stationIds) {
-        if (error) {
-          callback(error, null);
-        } else {
-          var stationsCheckedIn = stationIds.map(function(id) {
-            var station = allStations.filter(function(station) {
-               return (station['@id'] == id);
-            }).shift(); // filter and shift because Array.prototype.find is not yet included
-            station.checkedin = true;
-            return station;
-          });
-          callback(null, stationsCheckedIn);
-        }
+    if (! token) {
+      return callback(null, []);
+    }
+
+    //getCheckInsRemote(token, function(error, checkins) {
+    getCheckInsLocal(function(error, checkins) {
+      if (error) {
+        throw error;
       }
-    );        
+
+      var uniqueDepartureIds = checkins.map(function(userDep) {
+        return userDep.departure;
+      }).filter(function(element, position, duplicateDepartureIds) {
+        return duplicateDepartureIds.indexOf(element) == position;
+      }); // remove dupplicates
+
+      async.map(
+        uniqueDepartureIds,
+        function(departure, singleDepartureCallback) {
+          getStartStationIdFromDeparture(departure, singleDepartureCallback);
+        },
+        function (error, stationIds) {
+          if (error) {
+            throw error;
+          } else {
+            var stationsCheckedIn = stationIds.map(function(id) {
+              var station = allStations.find(function(station) {
+                return station['@id'] == id;
+              });
+              station.checkedin = true;
+              return station;
+            });
+            callback(null, stationsCheckedIn);
+          }
+        }
+      );
+    });
   } catch(error) {
     return callback(error, null);
   }
+}
+
+function getCheckInsLocal(callback) {
+  try {
+    var fileJSON = require('../checkins.json');
+    var checkins = fileJSON['users'];
+    return callback(null, checkins);
+  }
+  catch(error) {
+    return callback(error, null);
+  }
+}
+
+function getCheckInsRemote(token, callback) {
+  var request = require('request');
+  var uri = 'https://78.23.228.130:9999/checkins?access_token=' + token;
+  
+  request({
+    uri: uri,
+    method: 'GET',
+    headers: { 'Accept': 'application/json'}
+  }, function(error, response, body) {
+    if (error || response.statusCode !== 200) {
+      return callback(error, null);
+    } else {
+      var checkins = JSON.parse(body)['users'];
+      return callback(null, checkins);
+    }
+  });
 }
 
 function getStartStationIdFromDeparture(departureUrl, callback) {

@@ -142,6 +142,8 @@ function onGetSpots(data, textStatus, jqXHR) {
 * @param spotID the id of the spot where you want to check in
 */
 function checkIn( spotID, channelID ) {
+    console.log("check in at spot " + spotID);
+
     // Exit if user is not linked to citylife
     if(!user.citylife || !user.citylife.token){
         return;
@@ -158,7 +160,7 @@ function checkIn( spotID, channelID ) {
         cache: false,
         success: onCheckedIn,
         error: function(jqXHR, errorstatus, errorthrown) {
-           console.log("Error: " + errorstatus);
+           console.log("Error: " + errorstatus + " " + errorthrown);
         }
     });
 };
@@ -194,6 +196,7 @@ function onCheckedIn(data, textStatus, jqXHR) {
         $("#messagesTab").show();
         showRoute(data.response.url);
     } else {
+        console.log(data.meta.code);
         console.log("The Citylife API returned an error. This could be caused by an expired session or you checked in too quickly on the same spot.");
         //logOut();
     }    

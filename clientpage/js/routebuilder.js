@@ -89,6 +89,7 @@ function routeBuilderAddSpot(spot) {
         callback(spot);
       },
       error: function(jqXHR, errorstatus, errorthrown) {
+        console.log('error when trying to access ' + url);
         console.log(errorstatus + ": " + errorthrown);
       }
     });  
@@ -588,14 +589,22 @@ function addEvent(listID) {
 function acquireIrailStationsByLatLong(latitude, longitude) {
   var url = config.server.address + '/irail/stations';
   $('#tabs-4-loader').show();
+ 
+  var data = {
+    'latitude': latitude,
+    'longitude': longitude
+  };
+  if (user.irail) {
+    data.token = user.irail.code; // TODO actual token (not code)
+  }
 
   $.ajax({
     url: url,
-    data: {
-      'latitude': latitude,
-      'longitude': longitude,
-    },
+    data: data,
     success: onGetIrailStations,
+    error: function(jqXHR, textStatus, errorThrown) {
+      console.log(textStatus + ' : ' + errorThrown);
+    },
     dataType: 'json',
     type: 'POST'
   });
@@ -603,12 +612,10 @@ function acquireIrailStationsByLatLong(latitude, longitude) {
 
 function onGetIrailStations(data, textStatus, jqXHR) {
   if (data.meta.code == 200) {
-    $('#tabs-4-loader').hide();
-    
+    $('#stations').empty();
     var stations = data.response;
     $.each(stations, function(index, station) {
       var id = 'suggestedStation_' + station.id;
-
       
       var checkedin = station.checkedin ? 
         '<br><span class="glyphicon glyphicon-map-marker"></span> Checked In' : '';
