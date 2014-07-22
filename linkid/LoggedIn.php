@@ -1,12 +1,14 @@
 <?php
-require_once('../LinkIDAuthnContext.php');
-require_once('config.php');
+
+require_once('linkid-sdk-php/LinkIDAuthnContext.php');
+
+$config = include('../config/config.default.php');
 
 if (!isset($_SESSION)) {
 	session_start();
 }
 
-$authnContext = $_SESSION[$authnContextParam];
+$authnContext = $_SESSION[$config['Context']];
 
 function addToDoc($name, $value) {
 	global $document;
@@ -44,26 +46,30 @@ try {
 	$cursor = $collection->update(
 		array('_id' => $authnContext->userId),
 		array('user_data' => $document),
-		array("upsert" => true)
+		array('upsert' => true)
 		);
 } catch (MongoWriteConcernException $e) {
 	echo $e->getMessage(), "\n";
 }
 
-$curl = curl_init('http://localhost:8888/auth/success');
+$curl = curl_init($config['SuccessCurl'] . '/auth/success');
 $res = curl_exec($curl);
 
 ?>
 <!DOCTYPE html>
-<html class="inside-frame">
+<html class="inside-iframe">
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<title>linkID Mobile Demo</title>
-	<meta name="description" content="CityRoute demo">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="stylesheet" href="http://78.23.228.130:8888/vendor/bootstrap/dist/css/bootstrap.min.css" />
-	<link rel="stylesheet" type="text/css" href="http://78.23.228.130:8888/css/main.css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>solomID Login</title>
+  <meta name="description" content="solomID Login">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<?php
+if(isset($config['CSS'])){
+  echo '<link rel="stylesheet" type="text/css" href="' . $config['CSS'] . '">';
+}
+?>
 </head>
 
 <body>
@@ -74,13 +80,11 @@ $res = curl_exec($curl);
 		<p>
 			You will soon be redirected.
 			<br>
-			If nothing happens, try to <a href="http://78.23.228.130:8888" target="_top">reload</a>.
+			If nothing happens, try to <a href="<?php echo $config['CompletionHref'] ?>" target="_top">reload</a>.
 		</p>
 		<p>
 			<a href="logout.php" target="_self">Or just logout</a>.
 		</p>
 	</div>
-	<script>
-	</script>
 </body>
 </html>
