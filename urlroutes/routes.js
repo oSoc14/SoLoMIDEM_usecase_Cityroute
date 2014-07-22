@@ -284,7 +284,7 @@ searchById = function(id, response, token, returnResponse)
                                     'Accept': 'application/json'
                                 }
                             }, function (error, responselib, body) {
-                                if (responselib.statusCode != 200 || error) {
+                                if (error || responselib.statusCode != 200) {
                                     response.send({
                                         "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CultuurNet API " + error),
                                         "response": {}
@@ -309,7 +309,7 @@ searchById = function(id, response, token, returnResponse)
                                     'Authorization': "Bearer " + token
                                 }
                             }, function (error, responselib, body) {
-                                if (responselib.statusCode != 200 || error) {
+                                if (error || responselib.statusCode != 200) {
                                     response.send({
                                         "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the CityLife API " + error),
                                         "response": {}
@@ -577,6 +577,8 @@ exports.addRoute = function (request, response) {
         endDate = new Date(request.body.endDate);
     }
 
+    console.log(request.body.points);
+
     server.mongoConnectAndAuthenticate(function (err, conn, db) {
         //var db = mongojs(config.dbname);
         var collection = db.collection(config.collection);
@@ -600,7 +602,8 @@ exports.addRoute = function (request, response) {
         }, function (err, docs) {
             if (err) {
                 response.send({
-                    "meta": utils.createErrorMeta(500, "X_001", "Something went wrong with the MongoDB: " + err),
+                    "meta": utils.createErrorMeta(500, "X_001",
+                        "Something went wrong with the MongoDB: " + err),
                     "response": {}
                 });
             } else {
