@@ -7,8 +7,20 @@ $(function() {
   $('#tabs').tabs();
 });
 
+var socket = io.connect('http://78.23.228.130:8888');
+
+/**
+ * Unset user information
+ */
+function disconnect(field) {
+  console.log('disconnect ' + field);
+  socket.emit('unset', {
+    userid: user._id,
+    field: field
+  })
+}
+
 $(document).ready(function() {
-  var socket = io.connect('http://78.23.228.130:8888');
   socket.on('msg', function(data) {
     if (data.success) {
       console.log('Success data:');

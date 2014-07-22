@@ -19,7 +19,26 @@ exports.onConnection = function(socket) {
     console.log('got msg from server');
     console.log(data);
   });
+  socket.on('unset', function(data) {
+    console.log('unset information');
+    var userid = data.userid;
+    var field = data.field;
 
+    user[field] = null;
+
+    users.update({
+      _id: userid
+    }, {
+      $unset: {
+        citylife: (field === 'citylife'),
+        irail: (field === 'irail')
+      }
+    }, function(err, doc) {
+      socket.emit('msg', {
+        user: user
+      })
+    });
+  });
 }
 
 exports.onAuthSuccess = function(req, res) {
