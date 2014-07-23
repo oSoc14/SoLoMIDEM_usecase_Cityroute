@@ -10,35 +10,16 @@
 * function that shows/hides the correct divs when using groups
 */
 function showGroups() {
-    $("#geolocationPar").hide();
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").hide();
-    $("#messages").hide();
-    $("#channels").html("");
-    $("#groups").show();
+    changeView('groups');
+
     refreshGroupsWhereUserIsMemberOf();
     clearSearchResults();
 }
 
 // Show all the groups for which the user is member in the GUI
 function showGroupsForWhichUserIsMember() {
-    var user = $.cookie("user_id");
-    var url =  "http://" + config_serverAddress + "/groups/member";
+    var user = user.citylife.id;
+    var url =  config.server.address + "/groups/member";
 
     var member = {
         member: user
@@ -51,7 +32,7 @@ function showGroupsForWhichUserIsMember() {
         type: "POST",
         success: onShowGroupsForWhichUserIsMember,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -59,7 +40,7 @@ function showGroupsForWhichUserIsMember() {
 // If user is group owner: delete group button
 // If user is not group owner: leave group button 
 function renderLeaveOrDeleteButton(group) {
-    if (group.creator == $.cookie("user_id")) {
+    if (group.creator == user.citylife.id) {
         return '<tr><td><input type="button" value="Delete group" onclick="deleteGroup(\'' + group._id + '\')"/></td></tr>';
     } else {
         return '<tr><td><input type="button" value="Leave group" onclick="leaveGroup(\'' + group._id + '\')"/></td></tr>';
@@ -95,9 +76,9 @@ function messageGroup(groupId) {
 
 
 function sendMessageToGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/messages/sendtogroup";
+    var url =  config.server.address + "/messages/sendtogroup";
     var postdata = {
-        sender_id: $.cookie("user_id"),
+        sender_id: user.citylife.id,
         group_id: groupId,
         content: $("#messageText").val()
     };
@@ -109,7 +90,7 @@ function sendMessageToGroup(groupId) {
         type: "POST",
         success: onMessageSent,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -117,7 +98,7 @@ function sendMessageToGroup(groupId) {
 
 // Show the contents of a group in the GUI
 function showGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/id";
+    var url =  config.server.address + "/groups/id";
     var searchdata = {
         id: groupId
     };
@@ -128,7 +109,7 @@ function showGroup(groupId) {
         type: "POST",
         success: onShowGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -149,9 +130,9 @@ function onShowGroup(data, textStatus, jqXHR) {
         for (var i = 0; i < group.users.length; i++) {
             var searchdata = { 
                 id: group.users[i],
-                token: $.cookie("token")
+                token: user.citylife.token
             };
-            var url =  "http://" + config_serverAddress + "/users/profile";
+            var url =  config.server.address + "/users/profile";
              $.ajax({
                 url: url,
                 data: searchdata,
@@ -159,21 +140,21 @@ function onShowGroup(data, textStatus, jqXHR) {
                 type: "POST",
                 success: onUserProfileFound,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         };
 
         // Membership requests
-        if (group.creator == $.cookie("user_id") && group.requestingUsers.length > 0) {
+        if (group.creator == user.citylife.id && group.requestingUsers.length > 0) {
             $("#memberShipRequests").append("<h3>Pending member requests:</h3>");
             for (var j = 0; j < group.requestingUsers.length; j++) {
                 var postdata = { 
                     userid: group.requestingUsers[j],
                     groupid: group._id,
-                    token: $.cookie("token")
+                    token: user.citylife.token
                 };
-                var call =  "http://" + config_serverAddress + "/groups/profileformembership";
+                var call =  config.server.address + "/groups/profileformembership";
                 $.ajax({
                      url: call,
                     data: postdata,
@@ -181,7 +162,7 @@ function onShowGroup(data, textStatus, jqXHR) {
                     type: "POST",
                     success: onUserMembershipRequestingProfileFound,
                     error: function(jqXHR, errorstatus, errorthrown) {
-                        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                        console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                     }
                 });  
             };
@@ -227,9 +208,9 @@ function messageUser(userId) {
 
 
 function sendMessageToUser(userId) {
-    var url =  "http://" + config_serverAddress + "/messages/send";
+    var url =  config.server.address + "/messages/send";
     var postdata = {
-        sender_id: $.cookie("user_id"),
+        sender_id: user.citylife.id,
         receiver_id: userId,
         content: $("#messageText").val()
     };
@@ -241,7 +222,7 @@ function sendMessageToUser(userId) {
         type: "POST",
         success: onMessageSent,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -251,7 +232,7 @@ function onMessageSent(data, textStatus, jqXHR) {
         if ($("#messagediv").length > 0) {
             $("#messagediv").remove();
         }
-        alert("Message sent!");
+        console.log("Message sent!");
     } else {
         alertAPIError(data.meta.message);  
     }
@@ -290,7 +271,7 @@ function onUserMembershipRequestingProfileFound(data, textStatus, jqXHR) {
 
 // Accepts the membership of user userId for group groupId.
 function acceptMembership(groupId, userId) {
-    var url =  "http://" + config_serverAddress + "/groups/acceptmembershiprequest";
+    var url =  config.server.address + "/groups/acceptmembershiprequest";
     var postdata = {
         groupid: groupId,
         userid: userId
@@ -303,7 +284,7 @@ function acceptMembership(groupId, userId) {
         type: "POST",
         success: onAcceptMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -312,7 +293,7 @@ function acceptMembership(groupId, userId) {
 function onAcceptMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You accepted the request.");
+       console.log("You accepted the request.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -320,7 +301,7 @@ function onAcceptMembership(data, textStatus, jqXHR) {
 
 // Declines the membership of user userId for group groupId.
 function declineMembership(groupId, userId) {
-    var url =  "http://" + config_serverAddress + "/groups/declinemembership";
+    var url =  config.server.address + "/groups/declinemembership";
     var postdata = {
         groupid: groupId,
         userid: userId
@@ -333,7 +314,7 @@ function declineMembership(groupId, userId) {
         type: "POST",
         success: onDeclineMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -342,7 +323,7 @@ function declineMembership(groupId, userId) {
 function onDeclineMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You declined the request.");
+       console.log("You declined the request.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -353,9 +334,9 @@ function onDeclineMembership(data, textStatus, jqXHR) {
 function leaveGroup(group) {
     var postdata = { 
         groupid: group,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
-    var url =  "http://" + config_serverAddress + "/groups/removeuser";
+    var url =  config.server.address + "/groups/removeuser";
     $.ajax({
         url: url,
         data: postdata,
@@ -363,7 +344,7 @@ function leaveGroup(group) {
         type: "POST",
         success: onLeaveGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-            alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+            console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });  
 }
@@ -372,7 +353,7 @@ function leaveGroup(group) {
 function onLeaveGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("You left the group.");
+       console.log("You left the group.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -380,7 +361,7 @@ function onLeaveGroup(data, textStatus, jqXHR) {
 
 // Deletes the group
 function deleteGroup(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/deletegroup";
+    var url =  config.server.address + "/groups/deletegroup";
     var postdata = {
         group_id: groupId
     };
@@ -391,7 +372,7 @@ function deleteGroup(groupId) {
         type: "POST",
         success: onDeleteGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -400,7 +381,7 @@ function deleteGroup(groupId) {
 function onDeleteGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("Group deleted.");
+       console.log("Group deleted.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -412,7 +393,7 @@ function searchGroup() {
         $("#foundgroup").remove();
     };
     var searchTerm = $("#searchGroupTerm").val();
-    var url =  "http://" + config_serverAddress + "/groups/name";
+    var url =  config.server.address + "/groups/name";
     var searchdata = {
         name: searchTerm
     };
@@ -423,7 +404,7 @@ function searchGroup() {
         type: "POST",
         success: onSearchGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -434,8 +415,8 @@ function onSearchGroup(data, textStatus, jqXHR) {
         var group = data.response;
        $("#searchGroupResults").append("<div id='foundgroup'></div>");
        $("#foundgroup").append("<h2>" + group.name + "</h2>");
-       if (group.users.indexOf($.cookie("user_id")) == -1) {
-            if (group.requestingUsers.indexOf($.cookie("user_id")) == -1) {
+       if (group.users.indexOf(user.citylife.id) == -1) {
+            if (group.requestingUsers.indexOf(user.citylife.id) == -1) {
                 $("#foundgroup").append('<tr><td><input type="button" value="Request membership" onclick="requestMembership(\'' + group._id + '\')"/></td></tr>');
             } else {
                 $("#foundgroup").append('<tr><td><input type="button" value="Cancel membership request" onclick="cancelMembershipRequest(\'' + group._id + '\')"/></td></tr>');
@@ -447,9 +428,9 @@ function onSearchGroup(data, textStatus, jqXHR) {
         for (var i = 0; i < group.users.length; i++) {
             var searchdata = { 
                 id: group.users[i],
-                token: $.cookie("token")
+                token: user.citylife.token
             };
-            var url =  "http://" + config_serverAddress + "/users/profile";
+            var url =  config.server.address + "/users/profile";
              $.ajax({
                 url: url,
                 data: searchdata,
@@ -457,7 +438,7 @@ function onSearchGroup(data, textStatus, jqXHR) {
                 type: "POST",
                 success: onProfileFoundForSearch,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+                    console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
                 }
             });  
         };
@@ -469,10 +450,10 @@ function onSearchGroup(data, textStatus, jqXHR) {
 
 // Requests the membership for the user for group groupId.
 function requestMembership(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/requestmembership";
+    var url =  config.server.address + "/groups/requestmembership";
     var postdata = {
         groupid: groupId,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
 
     $.ajax({
@@ -482,7 +463,7 @@ function requestMembership(groupId) {
         type: "POST",
         success: onRequestMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -491,7 +472,7 @@ function requestMembership(groupId) {
 function onRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
-       alert("Membership requested.");
+       console.log("Membership requested.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -499,10 +480,10 @@ function onRequestMembership(data, textStatus, jqXHR) {
 
 // Cancel the membership request of user userid for group groupId
 function cancelMembershipRequest(groupId) {
-    var url =  "http://" + config_serverAddress + "/groups/cancelmembershiprequest";
+    var url =  config.server.address + "/groups/cancelmembershiprequest";
     var postdata = {
         groupid: groupId,
-        userid: $.cookie("user_id")
+        userid: user.citylife.id
     };
 
     $.ajax({
@@ -512,7 +493,7 @@ function cancelMembershipRequest(groupId) {
         type: "POST",
         success: onCancelRequestMembership,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -521,7 +502,7 @@ function cancelMembershipRequest(groupId) {
 function onCancelRequestMembership(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
        searchGroup();
-       alert("Membership request cancelled.");
+       console.log("Membership request cancelled.");
     } else {
         alertAPIError(data.meta.message);
     }
@@ -553,10 +534,10 @@ function onProfileFoundForSearch(data, textStatus, jqXHR) {
 // Adds a new group
 function addGroup() {
     var groupName = $("#newGroupName").val();
-    var url =  "http://" + config_serverAddress + "/groups/addgroup";
+    var url =  config.server.address + "/groups/addgroup";
     var newGroup = {
         name: groupName,
-        creator_id: $.cookie("user_id")
+        creator_id: user.citylife.id
     };
 
     $.ajax({
@@ -566,7 +547,7 @@ function addGroup() {
         type: "POST",
         success: onAddGroup,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
+           console.log("Error: " + errorstatus + " -- " + jqXHR.responseText);
         }
     });
 }
@@ -575,7 +556,7 @@ function addGroup() {
 function onAddGroup(data, textStatus, jqXHR) {
     if (data.meta.code == 200) {
         refreshGroupsWhereUserIsMemberOf();
-       alert("Group created.");
+       console.log("Group created.");
     } else {
         alertAPIError(data.meta.message);
     }

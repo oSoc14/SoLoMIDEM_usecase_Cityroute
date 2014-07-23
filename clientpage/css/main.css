@@ -1,429 +1,488 @@
-/* ==========================================================================
-   HTML5 Boilerplate styles - h5bp.com (generated via initializr.com)
-   ========================================================================== */
-
-html,
-button,
-input,
-select,
-textarea {
-    color: #222;
+/* HTML5 Boilerplate styles - h5bp.com (generated via initializr.com) */
+ html, button, input, select, textarea {
+  color: #444;
 }
-
 body {
-    font-size: 1em;
-    line-height: 1.4;
-    background-color: white;
+  transition:background-color .5s;
+  font-size: 1em;
+  line-height: 1.4;
+  background-color: #f5f5f5;
 }
-
 ::-moz-selection {
-    background: #b3d4fc;
-    text-shadow: none;
+  background: #b3d4fc;
+  text-shadow: none;
 }
-
 ::selection {
-    background: #b3d4fc;
-    text-shadow: none;
+  background: #b3d4fc;
+  text-shadow: none;
 }
-
 hr {
-    display: block;
-    height: 1px;
-    border: 0;
-    border-top: 1px solid #ccc;
-    margin: 1em 0;
-    padding: 0;
+  display: block;
+  height: 1px;
+  border: 0;
+  border-top: 1px solid #ccc;
+  margin: 1em 0;
+  padding: 0;
 }
-
 img {
-    vertical-align: middle;
+  vertical-align: middle;
 }
-
 fieldset {
-    border: 0;
-    margin: 0;
-    padding: 0;
+  border: 0;
+  margin: 0;
+  padding: 0;
 }
-
 textarea {
-    resize: vertical;
+  resize: vertical;
 }
-
 .chromeframe {
-    margin: 0.2em 0;
-    background: #ccc;
-    color: #000;
-    padding: 0.2em 0;
+  margin: 0.2em 0;
+  background: #ccc;
+  color: #000;
+  padding: 0.2em 0;
 }
-
-
-/* ===== Initializr Styles ==================================================
-   Author: Jonathan Verrecchia - verekia.com/initializr/responsive-template
-   ========================================================================== */
-
-body {
-    font: 16px/26px Helvetica, Helvetica Neue, Arial;
+/* Helper classes *********************************************************************/
+ .pull-right {
+  float: right;
 }
-
-.wrapper {
-    width: 90%;
-    margin: 0 5%;
-}
-
-/* ===================
-    ALL: Orange Theme
-   =================== */
-
-.header-container {
-    border-bottom: 20px solid #e44d26;
-}
-
-.footer-container,
-.main aside {
-    border-top: 20px solid #e44d26;
-}
-
-.header-container,
-.footer-container,
-.main aside {
-    background: #f16529;
-}
-
-.title {
-    color: white;
-}
-
-/* ==============
-    MOBILE: Menu
-   ============== */
-
-nav ul {
-    margin: 0;
-    padding: 0;
-}
-
-nav a {
-    display: block;
-    margin-bottom: 10px;
-    padding: 15px 0;
-
-    text-align: center;
-    text-decoration: none;
-    font-weight: bold;
-
-    color: white;
-    background: #e44d26;
-}
-
-nav a:hover,
-nav a:visited {
-    color: white;
-}
-
-nav a:hover {
-    text-decoration: underline;
-}
-
-/* ==============
-    MOBILE: Main
-   ============== */
-
-.main {
-    padding: 30px 0;
-}
-
-.main article h1 {
-    font-size: 2em;
-}
-
-.main aside {
-    color: white;
-    padding: 0px 1% 10px;
-}
-
-.footer-container footer {
-    color: white;
-    padding: 20px 0;
-}
-
-/* ===============
-    ALL: IE Fixes
-   =============== */
-
-.ie7 .title {
-    padding-top: 20px;
-}
-
-/* ==========================================================================
-   Author's custom styles
-   ========================================================================== */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ==========================================================================
-   Media Queries
-   ========================================================================== */
-
-@media only screen and (min-width: 480px) {
-
-/* ====================
-    INTERMEDIATE: Menu
-   ==================== */
-
-    nav a {
-        float: left;
-        width: 27%;
-        margin: 0 1.7%;
-        padding: 25px 2%;
-        margin-bottom: 0;
-    }
-
-    nav li:first-child a {
-        margin-left: 0;
-    }
-
-    nav li:last-child a {
-        margin-right: 0;
-    }
-
-/* ========================
-    INTERMEDIATE: IE Fixes
-   ======================== */
-
-    nav ul li {
-        display: inline;
-    }
-
-    .oldie nav a {
-        margin: 0 0.7%;
-    }
-}
-
-@media only screen and (min-width: 768px) {
-
-/* ====================
-    WIDE: CSS3 Effects
-   ==================== */
-
-    .header-container,
-    .main aside {
-        -webkit-box-shadow: 0 5px 10px #aaa;
-           -moz-box-shadow: 0 5px 10px #aaa;
-                box-shadow: 0 5px 10px #aaa;
-    }
-
-/* ============
-    WIDE: Menu
-   ============ */
-
-    .title {
-        float: left;
-    }
-
-    nav {
-        float: right;
-        width: 38%;
-    }
-
-/* ============
-    WIDE: Main
-   ============ */
-
-    .main article {
-        float: left;
-        width: 57%;
-    }
-
-    .main aside {
-        float: right;
-        width: 36%;
-    }
-}
-
-@media only screen and (min-width: 1140px) {
-
-/* ===============
-    Maximal Width
-   =============== */
-
-    .wrapper {
-        width: 1026px; /* 1140px - 10% for margins */
-        margin: 0 auto;
-    }
-}
-
-/* ==========================================================================
-   Helper classes
-   ========================================================================== */
-
 .ir {
-    background-color: transparent;
-    border: 0;
-    overflow: hidden;
-    *text-indent: -9999px;
+  background-color: transparent;
+  border: 0;
+  overflow: hidden;
+  *text-indent: -9999px;
 }
-
 .ir:before {
-    content: "";
-    display: block;
-    width: 0;
-    height: 150%;
+  content:"";
+  display: block;
+  width: 0;
+  height: 150%;
 }
-
 .hidden {
-    display: none !important;
-    visibility: hidden;
+  display: none !important;
+  visibility: hidden;
 }
-
 .visuallyhidden {
-    border: 0;
-    clip: rect(0 0 0 0);
-    height: 1px;
-    margin: -1px;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
 }
-
-.visuallyhidden.focusable:active,
-.visuallyhidden.focusable:focus {
-    clip: auto;
-    height: auto;
-    margin: 0;
-    overflow: visible;
-    position: static;
-    width: auto;
+.visuallyhidden.focusable:active, .visuallyhidden.focusable:focus {
+  clip: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  position: static;
+  width: auto;
 }
-
 .invisible {
-    visibility: hidden;
+  visibility: hidden;
 }
-
-.clearfix:before,
+.clearfix:before, .clearfix:after {
+  content:" ";
+  display: table;
+}
 .clearfix:after {
-    content: " ";
-    display: table;
+  clear: both;
 }
-
-.clearfix:after {
-    clear: both;
-}
-
 .clearfix {
-    *zoom: 1;
+  *zoom: 1;
 }
-
-/* ==========================================================================
-   Print styles
-   ========================================================================== */
-
 @media print {
-    * {
-        background: transparent !important;
-        color: #000 !important; /* Black prints faster: h5bp.com/s */
-        box-shadow: none !important;
-        text-shadow: none !important;
-    }
-
-    a,
-    a:visited {
-        text-decoration: underline;
-    }
-
-    a[href]:after {
-        content: " (" attr(href) ")";
-    }
-
-    abbr[title]:after {
-        content: " (" attr(title) ")";
-    }
-
-    /*
-     * Don't show links for images, or javascript/internal links
-     */
-
-    .ir a:after,
-    a[href^="javascript:"]:after,
-    a[href^="#"]:after {
-        content: "";
-    }
-
-    pre,
-    blockquote {
-        border: 1px solid #999;
-        page-break-inside: avoid;
-    }
-
-    thead {
-        display: table-header-group; /* h5bp.com/t */
-    }
-
-    tr,
-    img {
-        page-break-inside: avoid;
-    }
-
-    img {
-        max-width: 100% !important;
-    }
-
-    @page {
-        margin: 0.5cm;
-    }
-
-    p,
-    h2,
-    h3 {
-        orphans: 3;
-        widows: 3;
-    }
-
-    h2,
-    h3 {
-        page-break-after: avoid;
-    }
+  * {
+    background: transparent !important;
+    color: #000 !important;
+    /* Black prints faster: h5bp.com/s */
+    box-shadow: none !important;
+    text-shadow: none !important;
+  }
+  a, a:visited {
+    text-decoration: underline;
+  }
+  a[href]:after {
+    content:" (" attr(href)")";
+  }
+  abbr[title]:after {
+    content:" (" attr(title)")";
+  }
+  /* Don't show links for images, or javascript/internal links */
+  .ir a:after, a[href^="javascript:"]:after, a[href^="#"]:after {
+    content:"";
+  }
+  pre, blockquote {
+    border: 1px solid #999;
+    page-break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+    /* h5bp.com/t */
+  }
+  tr, img {
+    page-break-inside: avoid;
+  }
+  img {
+    max-width: 100% !important;
+  }
+  @page {
+    margin: 0.5cm;
+  }
+  p, h2, h3 {
+    orphans: 3;
+    widows: 3;
+  }
+  h2, h3 {
+    page-break-after: avoid;
+  }
 }
-
+/* Structure *********************************************************************/
+ body {
+  font: 16px/26px Helvetica, Helvetica Neue, Arial;
+}
+header{
+  background: #fff;
+}
+nav{
+  margin:0 -10px;
+  padding-bottom: 10px;
+}
+/* Typography */
+p {
+  margin-top: 0;
+  line-height: 1.6em;
+}
+/* Nav */
 /* custom CSS */
-
-.routeinfo {
-    margin: 20px;
-    float:left;
-    width: 240px;
-    align: center;
+ .routeinfo {
+  margin: 20px;
+  float:left;
+  width: 240px;
+  align: center;
 }
-
 .nearbySpots div {
-     /*margin: 20px;*/
-    float:left;
-    width: 240px;
-    height: 240px;
-    align: center;  
+  /*margin: 20px;*/
+  float:left;
+  width: 240px;
+  height: 240px;
+  align: center;
 }
-
 #spotInfo {
-    width: auto;
-    margin: 20px;
+  width: auto;
+  margin: 20px;
 }
-
 .optimizeSpan {
-    margin-left: 200px;
-    float:left;
+  margin-left: 200px;
+  float:left;
 }
-
 .inp {
-    width: 100%;
+  width: 100%;
+}
+html, body {
+  height:100%;
+}
+#map-canvas {
+  height: 100%;
+}
+#sortable {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#sortable li {
+  margin: 0 3px 3px 3px;
+  padding: 0.4em;
+  padding-left: 1.5em;
+  font-size: 1em;
+}
+#sortable li span {
+  margin-left: 1.3em;
+  float:right
+}
+#sortable .ui-icon {
+  display: none;
+}
+#routeBuilder {
+  padding-bottom: 20px;
+}
+#recommended {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#recommended li {
+  margin: 0 3px 3px 3px;
+  padding: 0.4em;
+  padding-left: 1.5em;
+  font-size: 1em;
+}
+#recommended li span {
+  position: absolute;
+  margin-left: -1.3em;
+}
+#searchresults {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+#searchresults li {
+  margin: 0 3px 3px 3px;
+  padding: 0.4em;
+  padding-left: 1.5em;
+  font-size: 1em;
+}
+#searchresults li span {
+  position: absolute;
+  margin-left: -1.3em;
+}
+/* Nearby spots */
+ .spot {
+  position: relative;
+  overflow: auto;
+  margin-bottom: 20px;
+}
+.spot img {
+  max-width: 100%;
+}
+.spot-image {
+  height: 150px;
+  background-position: center;
+  background-size: cover;
+}
+.spot-title {
+  line-height: 30px;
+  display: inline;
+  margin-right: 10px
+}
+.spot-addr {
+  line-height: 30px;
+  float: right;
+  color: #aaa;
+  font-size: .75em;
+  margin: 0;
+}
+.spot-descr {
+  font-size: .75em;
+}
+.spot-descr a {
+  color: #444;
+}
+.spot-descr a:hover, .spot-descr a:focus {
+  text-decoration: none;
+  color: #000
+}
+.ui-sortable img{
+  max-width: 100%;
+}
+/* Nearby spots - Aside */
+aside .list-group-item button{
+  margin-right: 10px;
+}
+aside .list-group-item img{
+  max-width: 100%;
+  max-height: 150px;
+}
+/* Messages */
+ .message {
+  overflow: auto;
+  padding: 2px 0;
+}
+.message img {
+  float: left;
+  width: 50px;
+}
+.message p {
+  margin: 0 0 0 60px;
+  font-size: 14px;
+}
+.message-direction {
+  color: #aaa
+}
+.message-moment {
+  font-size: 12px;
+  color: #aaa;
+}
+/* Debug */
+pre{
+  max-height: 200px;
+}
+/* Media Queries *********************************************************************/
+
+/* Responsive > Small */
+ @media only screen and (min-width: 480px) {
+  .spot-image {
+    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 30%;
+  }
+  .spot-data {
+    margin-left: 33%;
+  }
+  .spot-checkin {
+    margin-bottom: 5px;
+  }
+}
+/* Responsive > Medium */
+ @media only screen and (min-width: 768px) {
+  .content {
+    float: left;
+    width: 57%;
+  }
+  aside {
+    float: right;
+    width: 36%;
+  }
+  .spot-image {
+    width: 25%;
+  }
+  .spot-data {
+    margin-left: 30%;
+  }
+}
+/* Responsive > Large */
+ @media only screen and (min-width: 1140px) {
+  .container {
+    max-width: 1400px;
+  }
+  .spot {
+    font-size: 21px;
+  }
+  .spot-data {
+    padding: 10px 0;
+  }
+}
+/* Views *********************************************************************/
+
+/* Hide sections and .view by default */
+ .view{
+  display: none;
+}
+/* Show or hide if authorized */
+ .user-auth .hide-auth,
+ .user-citylife .hide-citylife,
+ .user-irail .hide-irail,
+ .user-no-auth .show-auth,
+ .user-no-citylife .show-citylife,
+ .user-no-irail .show-irail {
+  display: none;
+}
+/* Show or hide if page */
+ .user-auth .hide-auth,
+ .user-citylife .hide-citylife,
+ .user-irail .hide-irail {
+  display: none;
+}
+ .user-no-auth .show-auth,
+ .user-no-citylife .show-citylife,
+ .user-no-irail .show-irail {
+  display: none;
+}
+/* Show if body has class <page>-active */
+.loading-active .hide-loading {
+  display: none;
+}
+.account-no-active .show-account,
+.groups-no-active .show-groups,
+.login-no-active .show-login,
+.messages-no-active .show-messages,
+.route-no-active .show-route,
+.routes-no-active .show-routes,
+.spots-no-active .show-spots,
+.spotinfo-no-active .show-spotinfo {
+  display: none;
+}
+.geostatus-active .view-geostatus {
+  display: block;
+}
+.spots-active .view-spots {
+  display: block;
+}
+.spotinfo-active .view-spotinfo {
+  display: block;
+}
+.loader-active .view-loader {
+  display: block;
+}
+.groups-active .view-groups {
+  display: block;
+}
+.messages-active .view-messages {
+  display: block;
+}
+.generate-active .view-generate {
+  display: block;
+}
+.routes-active .view-routes {
+  display: block;
+}
+.map-active .view-map {
+  display: block;
+}
+/* LinkID Login view */
+#login{
+  margin: 40px auto;
+}
+/* LinkID Login - Iframe outside */
+body.login-active{
+  transition:background-color 1s 1s;
+  background-color: #564C95;
+}
+#login-iframe{
+  width: 100%;
+  height: 285px;
+  border:0;
+}
+/* LinkID Login - Iframe inside */
+html.inside-iframe,
+.inside-iframe body{
+  transition:background 0s;
+  width: 100%;
+  background: none;
+}
+.inside-iframe body{
+  padding-top: 10px;
+}
+.inside-iframe #qr-fancy{
+  transition:max-width 1s,max-height 1s,box-shadow .5s;
+  margin: 0 auto;
+  max-width: 400px;
+  background: #fff;
+  box-shadow: 0 0 2px #DFBC5B;
+}
+.inside-iframe #qr-fancy:hover{
+  box-shadow: 0 0 8px 2px #DFBC5B;
+}
+.inside-iframe #qr-fancy.qr-load{
+  max-width: 265px;
+  height: 265px;
+}
+.inside-iframe a{
+  display: block;
+  padding: 20px;
+  text-decoration: none;
+}
+.inside-iframe h3{
+  text-align: center;
+  margin: 0;
+  line-height: 60px;
+  color: #564C95;
+}
+/* LinkID Login - Initialize login button */
+.linkid-login img{
+  display: block;
+  max-width: 100%;
+  margin: 0 auto;
+}
+.linkid-login:hover img{
+}
+/* LinkID Login - Iframe in iframe containing qrcode */
+#linkid{
+  display: block;
+  margin: 0 auto;
+  border:0;
 }

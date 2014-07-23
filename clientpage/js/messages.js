@@ -11,27 +11,7 @@
 * function that shows/hides the correct divs when using messages
 */
 function showMessages() {
-    $("#geolocationPar").hide();
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").hide();
-    $("#channels").html("");
-    $("#groups").hide();
-    $("#messages").show();
+    changeView('messages');
 
     var before_date = new Date();
     before_date.setDate(before_date.getDate() + 1);
@@ -44,17 +24,15 @@ function showMessages() {
 
 // Show the messages
 function displayMessages(before_date, after_date) {
-    $("#yourMessages").empty();
+    $("#yourMessages").prepend("<p>Loading new messages...</p>");
 
-    var userid = $.cookie("user_id");
-
-    var url =  "http://" + config_serverAddress + "/messages/foruser";
+    var url =  config.server.address + "/messages/foruser";
     var postdata = {
-        'user_id': userid,
-        'before_date': before_date,
-        'after_date': after_date,
-        'token': $.cookie("token")
+        'user_id':  user.citylife.id,
+        'token': user.citylife.token
     }
+    if(before_date) postdata.before_date = before_date;
+    if(after_date) postdata.after_date = after_date;
   
     $.ajax({
        type: 'POST',
@@ -63,7 +41,7 @@ function displayMessages(before_date, after_date) {
         data: postdata,
         success: onMessagesReceived,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 }
@@ -72,17 +50,17 @@ function displayMessages(before_date, after_date) {
 function onMessagesReceived(data, textStatus, jqXHR) {
     // pretty print date, make messages browsable by date (currently shows messages of last 7 days)
     if (data.meta.code == 200) {
-        $("#messagesTab").html('<li id="messagesTab" onclick="showMessages()"><a href="#">' + "Messages -- " + 0 + " new" + '</a></li>');
+        $('#navMessages').html('Messages <b>' + 0 + ' new</b>');
 
+        $('#yourMessages').empty();
         var messagesAndUsers = data.response;
         messagesAndUsers.forEach(function (messageAndUser) {
             displayMessage(messageAndUser.sender,  messageAndUser.receiver, messageAndUser.message); 
         });
-        $("#yourMessages").append('<input type="button" value="Load all messages" onclick="loadOlderMessages()"/>');
 
-        var url =  "http://" + config_serverAddress + "/messages/markasread";
+        var url =  config.server.address + "/messages/markasread";
         var postdata = {
-            'user_id': $.cookie("user_id"),
+            'user_id': user.citylife.id,
             'read_until': new Date()
         }
   
@@ -94,7 +72,7 @@ function onMessagesReceived(data, textStatus, jqXHR) {
             success: function() { 
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert("Error: " + errorstatus);
+                console.log("Error: " + errorstatus);
             }
         });
     } else {
@@ -107,26 +85,24 @@ function loadOlderMessages() {
     displayMessages(null, null);
 }
 
-
 function displayMessage(sender, receiver, message) {
-    var thumbnail_url = sender.avatar;
-    if (thumbnail_url === null) {
-        thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
-    }
-    var content = message.content;
-    var date = message.date;
-    var mom = moment(new Date(date)).fromNow();
-    if (message.sender_id == $.cookie("user_id")) {
-         $("#yourMessages").append("<div id='" + message.id + "'>" + 
-             "<li data= '" + message.id + "'>" + 
-             "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-             "<b>" + " " + mom + ", you said to " + receiver.first_name + " " + receiver.last_name + ": </b>" + "<br>" + content + "</li>");
-    } else {
-        $("#yourMessages").append("<div id='" + message.id + "'>" + 
-            "<li data= '" + message.id + "'>" + 
-            "<img src='" + thumbnail_url + "' alt='<profile thumbnail>' height=42 width=42>" +
-            "<b>" + " " + mom + ", " + sender.first_name + " " + sender.last_name + " said: </b>" + "<br>" + content + "</li>");
-    }
+  var thumbnail_url = sender.avatar;
+  if (thumbnail_url === null) {
+    thumbnail_url = "https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcQ8Td7gR7EGtVUXW0anusOpK5lXteu5DFavPre2sXu5rly-Kk68";
+  }
+  var content = message.content;
+  var date = message.date;
+  var mom = moment(new Date(date)).fromNow();
+  var direction = message.sender_id == $.cookie('user_id') ? 'To ' + receiver.first_name + ' ' + receiver.last_name : 'From ' + sender.first_name + ' ' + sender.last_name;
+
+  $('#yourMessages').append(
+    '<div id="' + message.id + '" class="message">' +
+    '<img src="' + thumbnail_url + '" alt="Thumb">' +
+    '<p>' +
+    '<span class="message-direction">' + direction + '</span> ' +
+    content +
+    '</p>' +
+    '<p class="message-moment">' + mom + '</p> ' +
+    '</div>');
+
 }
-
-

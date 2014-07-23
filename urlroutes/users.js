@@ -88,6 +88,24 @@ exports.login = function (request, response) {
                         } else {
                             var user = JSON.parse(body);
                             user["token"] = token;
+
+
+
+
+                            var mongojs = require('mongojs');
+                            var config = require('../auth/dbconfig');
+                            var db = mongojs(config.dbname);
+                            var users = db.collection(config.usersCollection);
+                            users.update({}, {
+                                $set:{
+                                    citylife:user
+                                }
+                            },function(a,b){
+                                console.log(JSON.stringify(a));
+                                console.log(JSON.stringify(b));
+                            });
+
+
                             response.send({
                                 "meta": utils.createOKMeta(),
                                 "response": user

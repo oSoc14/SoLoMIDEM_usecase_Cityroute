@@ -24,15 +24,24 @@ var routes = require("./urlroutes/routes");
 var groups = require("./urlroutes/groups");
 var messages = require("./urlroutes/messages");
 var cultuurnet = require("./urlroutes/cultuurnet");
+var irail = require("./urlroutes/irail");
 var config = require("./auth/dbconfig.js");
+
+// declare credentials
+var databaseUrl = "CityRoute";
+var collections = ["users", "routes", "messages"];
+var db = require("mongojs").connect(databaseUrl, collections);
+exports.db = db;
 
 // use express and its bodyParser for POST requests.
 var app = express();
 app.use(express.bodyParser());
+app.use(express.static(__dirname + '/clientpage'));
+
 
 // prevent server death in case of uncaught exceptions
-process.on('uncaughtException', function (exception) {
-    console.log(exception);
+process.on('uncaughtException', function(exception) {
+  console.log(exception);
 });
 
 /**
@@ -41,13 +50,10 @@ process.on('uncaughtException', function (exception) {
  */
 var mongourl;
 if (process.env.MONGOHQ_URL) {
-     mongourl = process.env.MONGOHQ_URL;
+  mongourl = process.env.MONGOHQ_URL;
+} else {
+  mongourl = config.mongourl;
 }
-else {
-    mongourl = config.mongourl;
-}
-
-
 exports.mongourl = mongourl;
 
 
@@ -55,19 +61,24 @@ exports.mongourl = mongourl;
 // In case of a succesful connect or an error, the callback is called.
 // In the first case the opened db is passed as a parameter.
 function mongoConnectAndAuthenticate(callback) {
-    var MongoClient = require('mongodb').MongoClient;
-    MongoClient.connect(mongourl, function(err, db) {
-        // Maybe we should do this somewhere else, checking every single db connect for indexes
-        // is probably overkill.
-        (db.collection(config.groupscollection)).ensureIndex( { name: 1 }, function(err, idxName) {
-            (db.collection(config.collection)).ensureIndex( { startDate: 1, endDate: 1 }, function(err, idxName) {
-                if (err) {
-                    console.log(err);
-                }
-                callback(err, null, db);
-            });
-        });
+  var MongoClient = require('mongodb').MongoClient;
+  MongoClient.connect(mongourl, function(err, db) {
+    // Maybe we should do this somewhere else, checking every single db connect for indexes
+    // is probably overkill.
+    (db.collection(config.groupscollection)).ensureIndex({
+      name: 1
+    }, function(err, idxName) {
+      (db.collection(config.collection)).ensureIndex({
+        startDate: 1,
+        endDate: 1
+      }, function(err, idxName) {
+        if (err) {
+          console.log(err);
+        }
+        callback(err, null, db);
+      });
     });
+  });
 }
 
 exports.mongoConnectAndAuthenticate = mongoConnectAndAuthenticate;
@@ -82,6 +93,9 @@ app.post("/cultuurnet/linkuitid", users.linkUitId);
 app.post("/cultuurnet/onrequesttokenreceived", users.onRequestTokenReceived);
 app.post("/cultuurnet/events", cultuurnet.getEventsByLatLong);
 //app.get("/users/:key", users.dropAll);
+
+app.post("/irail/stations", irail.getStationsInRadius);
+app.get("/irail/stations-checkedin", irail.getStationsCheckedIn);
 
 // define the spots API url routes.
 app.get("/spots/details", spots.getSpotDetails);
@@ -118,42 +132,58 @@ app.post("/messages/sendtogroup", messages.sendMessageToGroup);
 app.post("/messages/markasread", messages.markMessagesAsRead);
 
 
-app.use(express.static(__dirname + '/clientpage'));
+/* 
+Login status with linkID via Websockets using "socket.io" library
+Use the server instance of Express such that sockets connect to the same port
+*/
+var linkidauth = require('./urlroutes/linkidauth.js');
+var server = require('http').Server(app);
+var io = require('socket.io')(server);
+app.get('/auth/success', linkidauth.onAuthSuccess);
+app.get('/auth/irail', linkidauth.onConnectIrail);
+io.on('connection', linkidauth.onConnection);
+
+exports.io = io;
+
+/*
+Start server on port 8888
+OR on the port in the cloud deployment config.
+*/
+server.listen(process.env.PORT || 8888);
+console.log("Listening on port " + (process.env.PORT || 8888) + "...");
 
 
-// start server on port 8888 OR on the port in the cloud deployment config.
-console.log("Listening on port " + (process.env.PORT || 8888) +  "...");
-app.listen(process.env.PORT || 8888);
-
+/* Messaging via Websockets using "ws" library */
 
 var CONNECTED_WEBSOCKETS_UNREADMESSAGES = {};
 
-
 function sendNumberOfUnreadMessages(userid, number) {
-    var socket = CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
-    if (socket) {
-        CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid].send("" + number);
-    };
+  var socket = CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
+  if (socket) {
+    CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid].send("" + number);
+  };
 }
 
 exports.sendNumberOfUnreadMessages = sendNumberOfUnreadMessages;
 
-var messagesWebSocketServer = new WebSocketServer(/*{ server: app }*/ { port: (process.env.PORT || 5000) });
+var messagesWebSocketServer = new WebSocketServer({
+  port: (process.env.PORT || 5000)
+});
 console.log('Messages websocket server created');
 
 messagesWebSocketServer.on('connection', function(ws) {
-    console.log("websocket connection opened.");
-    ws.send('new_messages_for_user?');
+  console.log("websocket connection opened.");
+  ws.send('new_messages_for_user?');
 
-    ws.on('message', function(userid) {
-        CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid] = ws;
+  ws.on('message', function(userid) {
+    CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid] = ws;
 
-        ws.on('close', function() {
-            delete CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
-        });
-
-        messages.getNumberOfUnreadMessages(userid, function (number) { 
-            sendNumberOfUnreadMessages(userid, number);
-        });
+    ws.on('close', function() {
+      delete CONNECTED_WEBSOCKETS_UNREADMESSAGES[userid];
     });
+
+    messages.getNumberOfUnreadMessages(userid, function(number) {
+      sendNumberOfUnreadMessages(userid, number);
+    });
+  });
 });

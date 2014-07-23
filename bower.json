@@ -1,0 +1,22 @@
+{
+  "name": "CityRoute",
+  "version": "0.0.0",
+  "homepage": "https://github.com/alombide/SoLoMIDEM_usecase_Cityroute",
+  "description": "CityRoute connects Vikingspots making life interesting",
+  "moduleType": [
+    "node"
+  ],
+  "license": "GPLv2",
+  "ignore": [
+    "**/.*",
+    "node_modules"
+  ],
+  "dependencies": {
+    "moment": "~2.7.0",
+    "jquery-ui": "~1.11.0",
+    "bootstrap": "~3.2.0",
+    "jquery-cookie": "~1.4.1",
+    "jqueryui-touch-punch": "*",
+    "modernizr": "~2.8.3"
+  }
+}

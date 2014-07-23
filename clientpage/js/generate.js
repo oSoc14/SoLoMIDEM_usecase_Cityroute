@@ -18,7 +18,7 @@ var generatedRoute = false;;
 */
 function autoGenerateRoute() {
     var entry = spots[0];
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var channelname = $('#channelList').find(":selected").val();
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
     var maxGroupSize = parseInt($('#maxGroupSizeGenerate').val());
@@ -26,32 +26,32 @@ function autoGenerateRoute() {
     var enddate = $( "#datepicker_to_generate" ).datepicker( "getDate" );
 
     function getSpotDataFromChannelEntry(channel_entry, callback) {
-        var item_url = channel_entry.item;
+        var item_url = channel_entry.url;
         $.ajax({
             type: 'GET',
             crossDomain:true,
             url: item_url,
             cache: false,
             dataType:"json",
-            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + $.cookie("token")); },
+            beforeSend: function(xhr) { xhr.setRequestHeader("Authorization", "Bearer " + user.citylife.token); },
             success: function(item, textStatus, jqXHR) {
                 callback(item);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });  
     }
 
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
         getSpotDataFromChannelEntry(entry, function(spot) {
             var latitude = spot.point.latitude;
             var longitude = spot.point.longitude;
             var id = spot.item_id;
 
-            var url = "http://" + config_serverAddress + "/routes/generate/" + channelname + "?token=" + token + 
+            var url = config.server.address + "/routes/generate/" + channelname + "?token=" + token + 
                 "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
                 "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
                 "&startdate=" + startdate + "&enddate=" + enddate;
@@ -67,7 +67,7 @@ function autoGenerateRoute() {
                 cache: false,
                 success: onGetGeneratedRoute,
                 error: function(jqXHR, errorstatus, errorthrown) {
-                    alert(errorstatus + ": " + errorthrown);
+                    console.log(errorstatus + ": " + errorthrown);
                 }
             }); 
             $("#generate").hide();
@@ -102,27 +102,7 @@ function onGetGeneratedRoute(data, textStatus, jqXHR) {
 * function that shows/hides the correct divs when generating a route 
 */
 function showGenerate() {
-    $("#geolocationPar").hide(),
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#recommended").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
-    $("#generate").show();
-    $("#channels").html("");
-    $("#groups").hide();
-    $("#messages").hide();
+    changeView('generate');
 };
 
 /**
@@ -135,7 +115,7 @@ function addChannel() {
         
         $("#channels").append("<li data= '" + channelname + "'>" + channelText + "</li>");
     } else {
-        alert("You can add maximum 9 channels!");
+        console.log("You can add maximum 9 channels!");
     }
 };
 
@@ -144,12 +124,12 @@ function addChannel() {
 */
 function addGeneratedChannel(){
     var spot = spots[0];
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var latitude = spot.meta_info.latitude;
     var longitude = spot.meta_info.longitude;
     var channels = document.getElementById("channels").getElementsByTagName("li");
     var channelString = "";
-    var token = $.cookie("token");
+    var token = user.citylife.token;
     var id = spot.link.params.id;
 
     var minGroupSize = parseInt($('#minGroupSizeGenerate').val());
@@ -160,22 +140,17 @@ function addGeneratedChannel(){
 
 
     if (minGroupSize != null && maxGroupSize != null && minGroupSize > maxGroupSize) {
-        alert("Minimum group cannot be larger than maximum group size!");
+        console.log("Minimum group cannot be larger than maximum group size!");
     } else {
     
     if (channels.length < 2) {
-        alert("You have to pick at least two channels!");
+        console.log("You have to pick at least two channels!");
     } else {
         
-        for (var i = 0; i < channels.length; ++i){
-            if (i < (channels.length - 1))
-                channelString += channels[i].getAttribute('data') + "|";
-            else
-                channelString += channels[i].getAttribute('data');
-        }
-    
         // structure for channel parameter: <channel1>|<channel2>|<channel3>|.....|<channel9>
-        var url = "http://" + config_serverAddress + "/routes/generate/?channels=" + channelString + "&token=" + token + 
+        channelString = channels.map(function(channel) { return channel.getAttribute('data') }).join('|');
+
+        var url = config.server.address + "/routes/generate/?channels=" + channelString + "&token=" + token + 
             "&latitude=" + latitude + "&longitude=" + longitude + "&spot_id=" + id + "&radius=" + RADIUS +
             "&minGroupSize=" + minGroupSize + "&maxGroupSize=" + maxGroupSize +
             "&startdate=" + startdate + "&enddate=" + enddate;
@@ -193,7 +168,7 @@ function addGeneratedChannel(){
             cache: false,
             success: onGetGeneratedRoute,
             error: function(jqXHR, errorstatus, errorthrown) {
-               alert(errorstatus + ": " + errorthrown);
+               console.log(errorstatus + ": " + errorthrown);
             }
         }); 
         

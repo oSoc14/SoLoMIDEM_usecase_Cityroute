@@ -73,7 +73,7 @@ function generateRoute( ) {
     var optimize = $("#optimizeSwitch").val() == 1;
     if (generatedRoute)
         optimize = false;
-    //alert(optimize);
+    //console.log(optimize);
     // generate the request
     var dirRequest = {
        origin: latLong,
@@ -137,7 +137,7 @@ function onRouteCalculated (directionsResult, directionsStatus){
                 var latLong = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
                 myMarker.setPosition(latLong);
                 checkSpotsOnRoute(latLong);
-            }, function (error) {alert("Error while acquiring current location");},{enableHighAccuracy:true});
+            }, function (error) {console.log("Error while acquiring current location");},{enableHighAccuracy:true});
     },3000);
 
     showRouteMetaInfo(directionsResult.routes[0].waypoint_order);
@@ -268,7 +268,7 @@ function showSpotInfo (spot) {
     var latitude = spot.point.latitude;
     var longitude = spot.point.longitude;
 
-    var url =  "http://" + config_serverAddress + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + $.base64('btoa', $.cookie("token"), false);
+    var url =  config.server.address + "/spots?latitude=" + latitude + "&longitude=" + longitude + "&token=" + user.citylife.token;
 
     // send a request to the nodeJS API to get information about nearby spots
     // parameters: latitude and longitude
@@ -281,7 +281,7 @@ function showSpotInfo (spot) {
         cache: false,
         success: function (data, textStatus, jqXHR) {onGetNearbySpotsInfo(data, textStatus, jqXHR, spot);},
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };
@@ -293,7 +293,7 @@ function showSpotInfo (spot) {
 function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
 
     function getSpotDataFromChannelItem(item, callback) {
-        var url = "http://" + config_serverAddress + "/spots/details?spot_id=" + item.item_id + "&token=" + $.cookie("token");
+        var url = config.server.address + "/spots/details?spot_id=" + item.item_id + "&token=" + user.citylife.token;
 
         $.ajax({
             type: 'GET',
@@ -304,7 +304,7 @@ function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
                 callback(spot);
             },
             error: function(jqXHR, errorstatus, errorthrown) {
-                alert(errorstatus + ": " + errorthrown);
+                console.log(errorstatus + ": " + errorthrown);
             }
         });
     }
@@ -342,7 +342,7 @@ function onGetNearbySpotsInfo(data, textStatus, jqXHR, spot) {
 * @param spotID the spot where you want to check in at
 */
 function checkinAtNearSpot (spotID) {
-    var url =  "http://" + config_serverAddress + "/spots/checkin?spot_id=" + spotID + "&token=" + $.cookie("token");
+    var url =  config.server.address + "/spots/checkin?spot_id=" + spotID + "&token=" + user.citylife.token;
 
     // send a request to the nodeJS API to check in at a spot
     // parameters: bearer token, spotID
@@ -355,7 +355,7 @@ function checkinAtNearSpot (spotID) {
         cache: false,
         success: onCheckedInAtNearSpot,
         error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus);
+           console.log("Error: " + errorstatus);
         }
     });
 };

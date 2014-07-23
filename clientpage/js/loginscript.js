@@ -1,3 +1,4 @@
+'use strict';
 /*
  * @author: Andoni Lombide Carreton
  * @copyright: SoLoMIDEM ICON consortium
@@ -9,118 +10,153 @@
  *
  */
 
-
- var WS = null;
+var WS = null;
+var user = {
+ "auth": true,
+ "_id": "8ce8598a-817e-41c1-bb16-2b23458c5be1",
+ "user_data": {
+   "profile_familyName": "De Wilde",
+   "profile_givenName": "michiel",
+   "profile_email_address": "mich.dewild@gmail.com",
+   "profile_email_confirmed": true
+ },
+ "citylife": {
+   "url": "https://vikingspots.com/citylife/profiles/10004893/",
+   "id": 10004893,
+   "first_name": "Test",
+   "last_name": "Person",
+   "profile": "https://vikingspots.com/citylife/profiles/10004893/",
+   "avatar": null,
+   "token": "eyJkYXRhIjogIntcInNjb3BlXCI6IFwidXNlci5iYXNpY1wiLCBcImV4cGlyZXNcIjogXCIyMDE0LTA3LTExVDE5OjAwOjA0LjA3MTM2MSswMDowMFwiLCBcInNhbHRcIjogXCJsWFY0cTQzaW5FaVRcIiwgXCJ1c2VyXCI6IDEwMDA0ODkzLCBcImFwcGxpY2F0aW9uXCI6IDN9IiwgInNpZ25hdHVyZSI6ICJ4RlBRVURMNms0eHYveU9tc1RRY2EwTG9SNHZLaE9aUmxnQ0JXeXZoVUpRUFJadEVucUwzSnZWVXowZ2ExWUs1VWxUb21XSjFaeDhmbEp0cmt2blVlek5DcnRTVG1hVjBFQndmQWR2Q0lkRE0xemFteFRDaE1hMWFBdXl5d0QwQzJDWit4KzhTaXRLS2VOVjI0ejlkemNhSktMODJTcnNFaGtsa0gxV3JLYU9zVHQ3Uk9GR0xzUHVvc1NoUmtqSENLa2Q2TDFia0lCNy9xbCtqaWI5SW5PWjhTSnRJLzB2Ny9JeFNSYXJjSDhvQ3dZWGFTUnU1eklUVGQyZHBOT25DRWQyWnNzaUJBVnU0V1Fqd2V0SjNOSmg4OE93ZUdLQ2Znak1PSFg5Qkt6SGRndGM4Vm4wMmkwTVBCbkkwSjd3L1o0NDJUVmt1OTlwQitxb1lmZmpleXc9PSJ9"
+ }
+};
+/*{
+  auth: false
+};*/
+var authFirst = true;
+var prevPage = 'none';
 
 /**
-* log a user in
-**/
-function loginuser(){
-    var psw = $("#password").val();
-    var userName = $("#username").val();
-    var encoded = $.base64('btoa',userName + ":" + psw, false);
-    var url =  "http://" + config_serverAddress + "/users/login/";
-    
-    // send a request to the nodeJS API to log the user in
-    // parameters: Base64 encoded <username>:<password>
-    // returns: bearer token
-
-     var postdata = {
-        "username": userName,
-        "password": psw,
-        "encoded": encoded 
-    };
-
-    $.ajax({
-        url: url,
-        data: postdata,
-        dataType: "json",
-        type: "POST",
-        success: onLoggedIn,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-        }
-    });
-
-    $("#login").hide();
-    $("#loader").show();
-
-};
-
-/**
-* callback function when a user is logged in 
-**/
-function onLoggedIn(data, textStatus, jqXHR) {
-    if (data.meta.code == 200){
-        $.cookie("token", data.response.token);
-        $.cookie("user_id", data.response.id);
-
-        // TODO: UitID linking
-
-        /*var url =  "http://" + config_serverAddress + "/cultuurnet/linkuitid";
-
-        var postdata = {
-            citylifeId: data.response.user_id
-        };
-
-        $.ajax({
-            url: url,
-            data: postdata,
-            dataType: "json",
-            type: "POST",
-            success: onUitIdLinked,
-            error: function(jqXHR, errorstatus, errorthrown) {
-                alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-            }
-        });*/
-
-        location.reload();
-
-    }
-    else if (data.meta.code == 401)
-        alert("Incorrect username or password");
-    else
-        alert("The Citylife API returned an error");
-};
-
-
-function onUitIdLinked(data, textStatus, jqXHR) {
-    if (data.meta.code != 200) {
-        alert("Error: " + errorstatus + " -- " + jqXHR.responseText);
-    }
+ * Load iframe with authorization server
+ */
+function loadIframe(page) {
+  if (prevPage === page) return;
+  prevPage = page;
+  console.log('Iframe for ' + page);
+  var $loginIframe = $('#login iframe');
+  if (page === false) {
+    $loginIframe.attr('src', '');
+  } else {
+    $loginIframe.attr('src', config.auth.address + '/' + page);
+  }
 }
 
 /**
-* log out
-*/
-function logOut() {
-
-    /*var url =  "http://" + config_serverAddress + "/users/logout/" + $.cookie("token");
-    // send a request to the nodeJS API to log the user out
-    // parameters: the baearer token
-    // returns: empty
-    $.ajax({
-        type: 'GET',
-        crossDomain:true,
-        url: url,
-        success: onLoggedOut,
-        error: function(jqXHR, errorstatus, errorthrown) {
-           alert(errorstatus + ": aaa" + errorthrown);
-        }
-    });*/
-    $.removeCookie("token");
-    location.reload();
-};
+ * Load iframe with authorization server
+ */
+function onLogin(data) {
+  console.log('onLogin before + after');
+  console.log(user);
+  if (data) {
+    $.each(data, function(index, value) {
+      user[index] = value;
+    });
+  }
+  console.log(user);
+  if (data === null) {
+    user = {auth: false};
+    changeView('login');
+    loadIframe('logout.php');
+  } else if (user.auth === true) {
+    changeView('account');
+    loadIframe(false);
+  } else {
+    loadIframe('index.php');
+    changeView('login');
+  }
+  $('body').toggleClass('user-auth', !!user.auth);
+  $('body').toggleClass('user-irail', !!user.irail);
+  $('body').toggleClass('user-citylife', !!user.citylife);
+  $('body').toggleClass('user-no-auth', !user.auth);
+  $('body').toggleClass('user-no-irail', !user.irail);
+  $('body').toggleClass('user-no-citylife', !user.citylife);
+  if (user.citylife) {
+    $('#citylife-name').text(user.citylife.first_name);
+    $('#citylife-id').text(user.citylife.id);
+  }
+  $('#user-data').html(JSON.stringify(user, undefined, 2));
+}
 
 /**
-* callback function after logging out
-*/
-function onLoggedOut(data, textStatus, jqXHR) {
-    data = JSON.parse(data);
-    if (data.meta.code == 200) {
-        $.removeCookie("token");
-        location.reload();
-    } else {
-        alertAPIError(data.meta.message)
+ * Log out
+ */
+function logOut() {
+  onLogin(null);
+  console.log('Logout initiated in iframe');
+}
+
+/**
+ * Connect to CityLife
+ */
+function connectCityLife() {
+  $('#modalCityLife').modal('hide');
+
+  var username = $('#citylife-username').val();
+  var password = $('#citylife-password').val();
+
+  var data = {
+    'username': username,
+    'password': password
+  };
+
+  console.log(config.server.address + '/users/login/');
+
+  $.ajax({
+    url: config.server.address + '/users/login/',
+    data: data,
+    dataType: 'json',
+    type: 'POST',
+    success: onConnectedCityLife,
+    error: function(jqXHR, errorstatus, errorthrown) {
+      alertify.error('Link mislukt');
+      console.log('onConnectError: ' + errorstatus + ' -- ' + jqXHR.responseText);
     }
-};
+  });
+}
+
+/**
+ * On successful connection to CityLife
+ */
+function onConnectedCityLife(data) {
+  alertify.success('CityLife is nu gelinkt!');
+  user.citylife = data.response;
+  saveUser('citylife');
+  onLogin();
+}
+
+/**
+ * Connect to iRail
+ */
+function connectIrail() {
+  if (!config || !config.irail) {
+    console.log('iRail configuration missing');
+  } else if (!user || !user._id) {
+    console.log('user._id not found');
+  } else {
+    console.log('Redirecting to iRail!');
+
+    return windowpop(config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id, 400, 500)
+   // window.location = config.irail + '/authorize?client_id=testclient&response_type=code&state=' + user._id;
+  }
+  return false;
+}
+
+function windowpop(url, width, height) {
+    var leftPosition, topPosition;
+    //Allow for borders.
+    leftPosition = (window.screen.width / 2) - ((width / 2) + 10);
+    //Allow for title and status bars.
+    topPosition = (window.screen.height / 2) - ((height / 2) + 50);
+    //Open the window.
+    window.open(url, "Window2", "status=no,height=" + height + ",width=" + width + ",resizable=yes,left=" + leftPosition + ",top=" + topPosition + ",screenX=" + leftPosition + ",screenY=" + topPosition + ",toolbar=no,menubar=no,scrollbars=no,location=no,directories=no");
+}

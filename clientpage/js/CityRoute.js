@@ -9,83 +9,63 @@
 
 
 /**
-* on document ready: verify if a user is logged in, show and hide the correct views
-**/
-$(document).ready( function() {
-    // if a user is logged in
-    if ($.cookie("token") != null) {
-        $("#login").hide();
-        $("#geolocationPar").show();
-        $("#loginLink").show();
-        $("#restart").show();
+ * on document ready: verify if a user is logged in, show and hide the correct views
+ **/
+$(document).ready(function() {
 
-        
-        getGeolocation();
+  /**
+   * on Modernizr ready: use jquery-ui datepicker if datefield not supported
+   **/
+  Modernizr.load({
+    test: Modernizr.inputtypes.date,
+    nope: ['vendor/jquery-ui/themes/flick/jquery-ui.min.css'],
+    complete: function() {
+      console.log('load datepicker');
+      $('input[type=date]').datepicker({
+        dateFormat: 'dd-mm-yy'
+      });
     }
-    // if a user is not is not logged in
-    else {
-        $("#geolocationPar").hide(),
-        $("#map-canvas").hide();
-        $("#routes").hide();
-        $("#spotlist").hide();        
-        $("#spotlistTable").html("");
-        $("#login").show();
-        $("#loginLink").hide();
-        $("#restart").hide();
-    }
-    
-    // this happens always, logged in or not
-    $("#routeBuilder").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#generate").hide();
-    $("#generateTab").hide();
-    $("#groupsTab").hide();
-    $("#messagesTab").hide();    
-    $("#loader").hide();
-    $("#groups").hide();
-    $("#messages").hide();   
+  });
 });
 
-
-
 /**
-* restart the web-application: hide all the views, clear necessary data and refresh the page.
-*/
-function restart() {
-    getGeolocation();
-    $("#geolocationPar").show(),
-    $("#map-canvas").hide();
-    $("#map-canvas").height(0);
-    $("#routes").hide();
-    $("#spotlist").hide();
-    $("#routeBuilder").hide();
-    $("#sortableInput").html("");
-    $("#spotListTable").html("");
-    $("#suggestions").html("");
-    $("#events").html("");
-    $("#spotInfo").hide();
-    $("#routeSpots").hide();
-    $("#searchform").hide();
-    $("#tabs").hide();
-    $("#searchresults").html("");
-    $("#generate").hide();
-    $("#generateTab").hide();   
-    $("#loader").hide();
-    $("#groupsTab").hide(); 
-    $("#messagesTab").hide(); 
-    $("#groups").hide();
-    $("#messages").hide();  
-    
-    // stop the location tracking
-    window.clearInterval(taskID);
-    nearbySpotOpened = false;
+ * prepares the page to change the view by hiding and clearing the content
+ */
+var prevView = 'loading';
+var currentView = 'loading';
+
+function changeView(newView) {
+  if(newView===currentView) return;
+  prevView = currentView;
+  currentView = newView;
+  console.log('Changing view from ' + prevView + ' to ' + currentView)
+  $('body')
+  .removeClass(prevView + '-active')
+     .addClass(prevView + '-no-active')
+  .removeClass(currentView + '-no-active')
+     .addClass(currentView + '-active');
+
+  // stop the location tracking
+  window.clearInterval(taskID);
+  nearbySpotOpened = false;
 };
 
 /**
-* show an arror when something goes wrong with an API call
-* @param message: the error message that will be shown
-*/
+ * restart the web-application: hide all the views, clear necessary data and refresh the page.
+ */
+function restart() {
+  getGeolocation();
+  changeView('geostatus');
+
+  // stop the location tracking
+  window.clearInterval(taskID);
+  nearbySpotOpened = false;
+};
+
+/**
+ * show an arror when something goes wrong with an API call
+ * @param message: the error message that will be shown
+ */
 function alertAPIError(message) {
-    alert("The CityLife API returned the following error message: " + message.msg_text);
+  console.log('The CityLife API returned the following error message: ' + message.msg_text);
 };
